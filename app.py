@@ -128,8 +128,8 @@ def create_ability(cid):
     data = request.json
     db = get_db()
     cur = db.execute(
-        """INSERT INTO abilities (character_id, name, type, description, uses_max, uses_remaining, recharge)
-           VALUES (?,?,?,?,?,?,?)""",
+        """INSERT INTO abilities (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type)
+           VALUES (?,?,?,?,?,?,?,?)""",
         (
             cid,
             data.get("name", "New Ability"),
@@ -138,6 +138,7 @@ def create_ability(cid):
             data.get("uses_max", None),
             data.get("uses_max", None),
             data.get("recharge", None),
+            data.get("die_type", None),
         ),
     )
     db.commit()
@@ -191,7 +192,7 @@ def update_ability(aid):
     if "recharge" in data and data["recharge"] not in _VALID_RECHARGE:
         return jsonify({"error": "recharge must be 'short', 'long', or null"}), 400
     db = get_db()
-    fields = ["name", "type", "description", "uses_max", "uses_remaining", "recharge"]
+    fields = ["name", "type", "description", "uses_max", "uses_remaining", "recharge", "die_type"]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
     if not set_clause:

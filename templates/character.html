@@ -51,21 +51,17 @@
         <div class="combat-box"><span class="combat-label">Speed</span><span id="speed-val"></span></div>
         <div class="combat-box"><span class="combat-label">Level</span><span id="level-val"></span></div>
         <div class="combat-box">
-          <span class="combat-label">Hit Dice</span>
-          <div class="hp-controls">
-            <button class="btn-small" id="hd-down">−</button>
-            <span id="hd-display"></span>
-            <button class="btn-small" id="hd-up">+</button>
-          </div>
+          <span class="combat-label">Hit Dice (d10)</span>
+          <div id="hd-pips" class="dice-pips"></div>
         </div>
         <div class="combat-box"><span class="combat-label">Initiative</span><span id="init-val"></span></div>
         <div class="combat-box">
           <span class="combat-label">Sup. Dice (d8)</span>
-          <div class="hp-controls">
-            <button class="btn-small" id="sd-down">−</button>
-            <span id="sd-display">—</span>
-            <button class="btn-small" id="sd-up">+</button>
-          </div>
+          <div id="sd-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box">
+          <span class="combat-label">Second Wind (d10)</span>
+          <div id="sw-pips" class="dice-pips"></div>
         </div>
         <div class="combat-box">
           <span class="combat-label">Temp HP</span>
@@ -175,6 +171,17 @@
           <option value="">— unlimited / never —</option>
           <option value="short">Short Rest</option>
           <option value="long">Long Rest</option>
+        </select>
+      </label>
+      <label>Die Type
+        <select name="die_type">
+          <option value="">— none —</option>
+          <option value="d4">d4</option>
+          <option value="d6">d6</option>
+          <option value="d8">d8</option>
+          <option value="d10">d10</option>
+          <option value="d12">d12</option>
+          <option value="d20">d20</option>
         </select>
       </label>
       <div class="modal-actions">

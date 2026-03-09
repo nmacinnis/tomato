@@ -89,6 +89,11 @@ abilities = [
      "+1 AC while wearing armor. (Contributes to current AC of 19; 21 with shield.)",
      None),
 
+    ("Tactical Mind (phb 2024)", "free_action",
+     "When you fail an ability check, expend one Second Wind use to add 1d10 to the roll "
+     "(after seeing the d20 result). If the check still fails, the use is not expended.",
+     None),
+
     ("Tactical Shift", "passive",
      "When you activate Second Wind as a Bonus Action, you may move up to half your Speed "
      "(15 ft) without provoking Opportunity Attacks.",

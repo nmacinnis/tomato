@@ -431,6 +431,35 @@ main { padding: 1.5rem; }
 #ds-failures  .ds-pip.pip-filled { background: var(--accent); border-color: var(--accent); }
 .ds-pip:hover { border-color: var(--text); }
 
+/* ── Dice pips ────────────────────────────────────────────────────────────── */
+.dice-pips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
+
+.die-pip {
+  background: none;
+  border: none;
+  padding: 1px;
+  cursor: pointer;
+  color: var(--border);
+  opacity: 0.4;
+  display: inline-flex;
+  transition: color 0.12s, opacity 0.12s;
+}
+.die-pip.die-filled { color: var(--accent); opacity: 1; }
+.die-pip:hover      { color: var(--accent2); opacity: 1; }
+
+/* ── Ability die pips & badge ────────────────────────────────────────────── */
+
+.ability-pips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+
+.die-type-badge {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  color: var(--accent2);
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
 /* ── Goodberry / Tomato Counter ───────────────────────────────────────────── */
 .tomato-counter { display: flex; flex-direction: column; gap: 0.4rem; }
 

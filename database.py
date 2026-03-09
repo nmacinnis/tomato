@@ -53,7 +53,8 @@ def init_db():
             description     TEXT    NOT NULL DEFAULT '',
             uses_max        INTEGER,
             uses_remaining  INTEGER,
-            recharge        TEXT    -- 'short', 'long', or NULL
+            recharge        TEXT,   -- 'short', 'long', or NULL
+            die_type        TEXT    -- 'd4', 'd6', 'd8', 'd10', 'd12', 'd20', or NULL
         );
 
         CREATE TABLE IF NOT EXISTS inventory (
@@ -127,6 +128,10 @@ def init_db():
         conn.execute("ALTER TABLE characters ADD COLUMN languages TEXT NOT NULL DEFAULT ''")
     except sqlite3.OperationalError:
         pass
+    try:
+        conn.execute("ALTER TABLE abilities ADD COLUMN die_type TEXT")
+    except sqlite3.OperationalError:
+        pass
 
     for col_def in (
         "damage_dice  TEXT    NOT NULL DEFAULT ''",
@@ -184,12 +189,12 @@ def _apply_tomato_data(conn):
             "Indomitable",
             "Feat — Mage Slayer: Guarded Mind",
             "Superiority Dice Pool (d8)",
+            "Tactical Mind (phb 2024)",
         ],
         "passive": [
             "Deathless Nature",
             "Extra Attack",
             "Fighting Style: Defense",
-            "Tactical Mind (phb 2024)",
             "Tactical Shift",
             "Tactical Master",
             "Feat — Mage Slayer: Concentration Breaker",
@@ -210,6 +215,26 @@ def _apply_tomato_data(conn):
         conn.execute("UPDATE abilities SET recharge='short' WHERE name=? AND recharge IS NULL", (name,))
     for name in ("Knowledge from a Past Life", "Know Your Enemy", "Indomitable", "Spell: Goodberry"):
         conn.execute("UPDATE abilities SET recharge='long' WHERE name=? AND recharge IS NULL", (name,))
+
+    # Die types for abilities that roll dice
+    conn.execute("UPDATE abilities SET die_type='d10' WHERE name='Second Wind'")
+    conn.execute("UPDATE abilities SET die_type='d6'  WHERE name='Knowledge from a Past Life'")
+
+    # Insert Tactical Mind for each Tomato character if not already present
+    conn.execute(
+        """INSERT INTO abilities (character_id, name, type, description, die_type)
+           SELECT c.id, 'Tactical Mind (phb 2024)', 'free_action',
+               'When you fail an ability check, expend one Second Wind use to add 1d10 to the roll '
+               '(after seeing the d20 result). If the check still fails, the use is not expended.',
+               'd10'
+           FROM characters c
+           WHERE c.name = 'Tomato'
+           AND NOT EXISTS (
+               SELECT 1 FROM abilities a
+               WHERE a.character_id = c.id AND a.name = 'Tactical Mind (phb 2024)'
+           )"""
+    )
+    conn.execute("UPDATE abilities SET die_type='d10' WHERE name='Tactical Mind (phb 2024)'")
 
     # AC values
     conn.execute("UPDATE inventory SET ac_bonus=17, sets_base_ac=1 WHERE name='Splint Armor'")

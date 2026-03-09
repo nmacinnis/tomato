@@ -80,10 +80,22 @@ function renderStandardActions(list, items) {
 
 // ── Superiority Dice ─────────────────────────────────────────────────────────
 
-function updateSdDisplay() {
+function renderSdPips() {
   if (!superiorityDie) return;
-  document.getElementById("sd-display").textContent =
-    `${superiorityDie.uses_remaining} / ${superiorityDie.uses_max}`;
+  const container = document.getElementById("sd-pips");
+  container.innerHTML = "";
+  for (let i = 0; i < superiorityDie.uses_max; i++) {
+    const filled = i < superiorityDie.uses_remaining;
+    const btn = document.createElement("button");
+    btn.className = "die-pip d8-pip" + (filled ? " die-filled" : "");
+    btn.title = filled ? `Spend die ${i + 1}` : `Recover die ${i + 1}`;
+    btn.innerHTML = dieSvg('d8');
+    btn.addEventListener("click", async () => {
+      const next = filled ? i : i + 1;
+      await patchSuperiorityDie(next);
+    });
+    container.appendChild(btn);
+  }
 }
 
 async function patchSuperiorityDie(uses_remaining) {
@@ -94,18 +106,37 @@ async function patchSuperiorityDie(uses_remaining) {
   );
   if (!res) return;
   superiorityDie.uses_remaining = uses_remaining;
-  updateSdDisplay();
+  renderSdPips();
 }
 
-document.getElementById("sd-down").onclick = async () => {
-  if (!superiorityDie || superiorityDie.uses_remaining <= 0) return;
-  await patchSuperiorityDie(superiorityDie.uses_remaining - 1);
-};
+// ── Second Wind (combat panel) ───────────────────────────────────────────────
 
-document.getElementById("sd-up").onclick = async () => {
-  if (!superiorityDie || superiorityDie.uses_remaining >= superiorityDie.uses_max) return;
-  await patchSuperiorityDie(superiorityDie.uses_remaining + 1);
-};
+function renderSwPips() {
+  if (!secondWind) return;
+  const container = document.getElementById("sw-pips");
+  container.innerHTML = "";
+  for (let i = 0; i < secondWind.uses_max; i++) {
+    const filled = i < secondWind.uses_remaining;
+    const btn = document.createElement("button");
+    btn.className = "die-pip d10-pip" + (filled ? " die-filled" : "");
+    btn.title = filled ? `Spend die ${i + 1}` : `Recover die ${i + 1}`;
+    btn.innerHTML = dieSvg('d10');
+    btn.addEventListener("click", async () => {
+      const next = filled ? i : i + 1;
+      const res = await apiFetch(
+        `/api/abilities/${secondWind.id}`,
+        { method: "PUT", body: { uses_remaining: next } },
+        "Failed to update Second Wind."
+      );
+      if (!res) return;
+      secondWind.uses_remaining = next;
+      renderSwPips();
+      // sync all card pip containers tied to this pool (Second Wind + Tactical Mind, etc.)
+      document.querySelectorAll(`.ability-pips[data-id="${secondWind.id}"]`).forEach(c => renderAbilityPips(c, secondWind));
+    });
+    container.appendChild(btn);
+  }
+}
 
 // ── Ability cards ────────────────────────────────────────────────────────────
 
@@ -114,16 +145,27 @@ function renderAbilityCard(a) {
   div.className = "ability-card";
   const isManeuver = a.name.startsWith("Maneuver:");
   const hasUses = a.uses_max != null;
-  const showUseBtn = hasUses || isManeuver;
+  const hasDie  = !!a.die_type;
+  // Shared pool: no own uses but die_type matches an existing pool (e.g. Tactical Mind → Second Wind)
+  const sharedPool = hasDie && !hasUses && secondWind && secondWind.die_type === a.die_type
+    ? secondWind : null;
+  // Abilities with a die type + own uses → show own clickable pip icons
+  const showDiePips = hasDie && hasUses;
+  const showUseBtn  = !showDiePips && !sharedPool && (hasUses || isManeuver);
   const rem = a.uses_remaining ?? a.uses_max;
-  const usesText = hasUses ? `${rem} / ${a.uses_max}` : "";
+  const usesText = hasUses && !showDiePips ? `${rem} / ${a.uses_max}` : "";
   const rechargeBadge = a.recharge
     ? `<span class="recharge-badge recharge-${a.recharge}">${RECHARGE_LABEL[a.recharge]}</span>`
+    : "";
+  // Passive die type with no shared pool → static badge next to name
+  const dieBadge = hasDie && !hasUses && !sharedPool
+    ? `<span class="die-type-badge">${dieSvg(a.die_type)}</span>`
     : "";
   div.innerHTML = `
     <div class="ability-card-header">
       <div>
         <span class="ability-name">${escHtml(a.name)}</span>
+        ${dieBadge}
         ${rechargeBadge}
       </div>
       <div class="card-actions">
@@ -133,6 +175,7 @@ function renderAbilityCard(a) {
       </div>
     </div>
     ${a.description ? `<div class="ability-desc">${escHtml(a.description)}</div>` : ""}
+    ${showDiePips || sharedPool ? `<div class="ability-pips" data-id="${(sharedPool ?? a).id}"></div>` : ""}
     ${usesText ? `<div class="ability-uses">Uses: ${usesText}</div>` : ""}
   `;
 
@@ -164,7 +207,39 @@ function renderAbilityCard(a) {
     }
   });
 
+  if (showDiePips) {
+    renderAbilityPips(div.querySelector(".ability-pips"), a);
+  } else if (sharedPool) {
+    renderAbilityPips(div.querySelector(".ability-pips"), sharedPool);
+  }
+
   return div;
+}
+
+function renderAbilityPips(container, a) {
+  container.innerHTML = "";
+  const rem = a.uses_remaining ?? a.uses_max;
+  for (let i = 0; i < a.uses_max; i++) {
+    const filled = i < rem;
+    const btn = document.createElement("button");
+    btn.className = `die-pip ${a.die_type}-pip` + (filled ? " die-filled" : "");
+    btn.title = filled ? `Use die ${i + 1}` : `Recover die ${i + 1}`;
+    btn.innerHTML = dieSvg(a.die_type);
+    btn.addEventListener("click", async () => {
+      const next = filled ? i : i + 1;
+      const res = await apiFetch(
+        `/api/abilities/${a.id}`,
+        { method: "PUT", body: { uses_remaining: next } },
+        "Failed to update ability."
+      );
+      if (!res) return;
+      a.uses_remaining = next;
+      // Re-render all card pip containers tied to this pool
+      document.querySelectorAll(`.ability-pips[data-id="${a.id}"]`).forEach(c => renderAbilityPips(c, a));
+      if (secondWind && secondWind.id === a.id) renderSwPips();
+    });
+    container.appendChild(btn);
+  }
 }
 
 // ── Load abilities ───────────────────────────────────────────────────────────
@@ -183,7 +258,13 @@ async function loadAbilities() {
   const poolIdx = abilities.findIndex(a => a.name === "Superiority Dice Pool (d8)");
   if (poolIdx !== -1) {
     superiorityDie = abilities.splice(poolIdx, 1)[0];
-    updateSdDisplay();
+    renderSdPips();
+  }
+
+  const swIdx = abilities.findIndex(a => a.name === "Second Wind");
+  if (swIdx !== -1) {
+    secondWind = abilities[swIdx]; // keep in list; also render in combat panel
+    renderSwPips();
   }
 
   const grouped = {};
@@ -223,6 +304,7 @@ function openAbilityModal(ability = null) {
     abilityForm.description.value = ability.description;
     abilityForm.uses_max.value    = ability.uses_max ?? "";
     abilityForm.recharge.value    = ability.recharge ?? "";
+    abilityForm.die_type.value    = ability.die_type ?? "";
   } else {
     abilityForm.id_field        = null;
     abilityForm._uses_remaining = null;
@@ -240,6 +322,7 @@ abilityForm.onsubmit = async (e) => {
   if (body.uses_max === "") body.uses_max = null;
   else body.uses_max = Number(body.uses_max);
   if (body.recharge === "") body.recharge = null;
+  if (body.die_type === "") body.die_type = null;
 
   if (abilityForm.id_field) {
     // Preserve existing uses_remaining; only cap it if uses_max shrank
