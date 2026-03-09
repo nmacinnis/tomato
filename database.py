@@ -65,6 +65,9 @@ def init_db():
             description     TEXT    NOT NULL DEFAULT '',
             equipped        INTEGER NOT NULL DEFAULT 0
         );
+
+        CREATE INDEX IF NOT EXISTS idx_abilities_char ON abilities(character_id);
+        CREATE INDEX IF NOT EXISTS idx_inventory_char ON inventory(character_id);
         """
     )
     # Migrate existing databases that predate these columns
@@ -111,12 +114,38 @@ def init_db():
     except sqlite3.OperationalError:
         pass
 
+    for col_def in (
+        "damage_dice  TEXT    NOT NULL DEFAULT ''",
+        "damage_type  TEXT    NOT NULL DEFAULT ''",
+        "damage_notes TEXT    NOT NULL DEFAULT ''",
+        "magic_bonus  INTEGER NOT NULL DEFAULT 0",
+        "is_weapon    INTEGER NOT NULL DEFAULT 0",
+        "is_melee     INTEGER NOT NULL DEFAULT 1",
+    ):
+        try:
+            conn.execute(f"ALTER TABLE inventory ADD COLUMN {col_def}")
+        except sqlite3.OperationalError:
+            pass
+
+    # Seed hit_dice_remaining = level for freshly migrated characters
+    conn.execute("UPDATE characters SET hit_dice_remaining = level WHERE hit_dice_remaining = 0")
+
+    _apply_tomato_data(conn)
+
+    conn.commit()
+    conn.close()
+
+
+def _apply_tomato_data(conn):
+    """Idempotent data migrations specific to the Tomato character sheet."""
     conn.execute(
         "UPDATE characters SET skill_proficiencies=? WHERE name='Tomato'",
         ("athletics,perception,animal_handling,survival,insight,stealth",),
     )
+    conn.execute("UPDATE characters SET save_proficiencies='str,con' WHERE name='Tomato'")
+    conn.execute("UPDATE characters SET flat_ac_bonus=1 WHERE name='Tomato'")
 
-    # Re-categorize Tomato's abilities into action-economy types
+    # Re-categorize abilities into action-economy types
     ability_types = {
         "action": [
             "Cantrip: Druidcraft",
@@ -161,23 +190,23 @@ def init_db():
     for new_type, names in ability_types.items():
         for name in names:
             conn.execute("UPDATE abilities SET type=? WHERE name=?", (new_type, name))
+
+    # Recharge types
+    for name in ("Action Surge", "Second Wind", "Feat — Mage Slayer: Guarded Mind", "Superiority Dice Pool (d8)"):
+        conn.execute("UPDATE abilities SET recharge='short' WHERE name=? AND recharge IS NULL", (name,))
+    for name in ("Knowledge from a Past Life", "Know Your Enemy", "Indomitable", "Spell: Goodberry"):
+        conn.execute("UPDATE abilities SET recharge='long' WHERE name=? AND recharge IS NULL", (name,))
+
+    # AC values
+    conn.execute("UPDATE inventory SET ac_bonus=17, sets_base_ac=1 WHERE name='Splint Armor'")
+    conn.execute("UPDATE inventory SET ac_bonus=2  WHERE name='Shield'")
+    conn.execute("UPDATE inventory SET ac_bonus=1  WHERE name='Cloak of Protection'")
+
+    # Tool proficiencies
     for tool in ("Carpenter's Tools", "Tinker's Tools", "Herbalism Kit"):
         conn.execute("UPDATE inventory SET tool_proficient=1 WHERE name=?", (tool,))
 
-    for col_def in (
-        "damage_dice  TEXT    NOT NULL DEFAULT ''",
-        "damage_type  TEXT    NOT NULL DEFAULT ''",
-        "damage_notes TEXT    NOT NULL DEFAULT ''",
-        "magic_bonus  INTEGER NOT NULL DEFAULT 0",
-        "is_weapon    INTEGER NOT NULL DEFAULT 0",
-        "is_melee     INTEGER NOT NULL DEFAULT 1",
-    ):
-        try:
-            conn.execute(f"ALTER TABLE inventory ADD COLUMN {col_def}")
-        except sqlite3.OperationalError:
-            pass
-
-    # name, damage_dice, damage_type, magic_bonus, is_melee, damage_notes
+    # Weapon stats
     weapons = [
         ("Spear",
          "1d6", "piercing", 0, 1, "Versatile (1d8), Thrown 20/60, Sap"),
@@ -200,35 +229,3 @@ def init_db():
                WHERE name=?""",
             (dd, dt, mb, im, notes, name),
         )
-    conn.execute("UPDATE characters SET save_proficiencies='str,con' WHERE name='Tomato'")
-
-    # Set AC values on Tomato's items
-    conn.execute("UPDATE inventory SET ac_bonus=17, sets_base_ac=1 WHERE name='Splint Armor'")
-    conn.execute("UPDATE inventory SET ac_bonus=2  WHERE name='Shield'")
-    conn.execute("UPDATE inventory SET ac_bonus=1  WHERE name='Cloak of Protection'")
-    # Defense fighting style +1 AC while wearing armor
-    conn.execute("UPDATE characters SET flat_ac_bonus=1 WHERE name='Tomato'")
-
-    # Seed hit_dice_remaining = level for freshly migrated characters
-    conn.execute("UPDATE characters SET hit_dice_remaining = level WHERE hit_dice_remaining = 0")
-
-    # Tag Tomato's abilities with their recharge type
-    short_rest = (
-        "Action Surge",
-        "Second Wind",
-        "Feat — Mage Slayer: Guarded Mind",
-        "Superiority Dice Pool (d8)",
-    )
-    long_rest = (
-        "Knowledge from a Past Life",
-        "Know Your Enemy",
-        "Indomitable",
-        "Spell: Goodberry",
-    )
-    for name in short_rest:
-        conn.execute("UPDATE abilities SET recharge='short' WHERE name=? AND recharge IS NULL", (name,))
-    for name in long_rest:
-        conn.execute("UPDATE abilities SET recharge='long' WHERE name=? AND recharge IS NULL", (name,))
-
-    conn.commit()
-    conn.close()

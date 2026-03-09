@@ -74,9 +74,20 @@ def get_character(cid):
     return jsonify(dict(row))
 
 
+_CHAR_INT_RANGES = {
+    "level": (1, 20),
+    "ac": (0, 30), "speed": (0, 120),
+    "str": (1, 30), "dex": (1, 30), "con": (1, 30),
+    "int": (1, 30), "wis": (1, 30), "cha": (1, 30),
+}
+
 @app.route("/api/characters/<int:cid>", methods=["PUT"])
 def update_character(cid):
     data = request.json
+    # Clamp numeric fields to valid D&D ranges
+    for field, (lo, hi) in _CHAR_INT_RANGES.items():
+        if field in data:
+            data[field] = max(lo, min(hi, int(data[field])))
     db = get_db()
     fields = [
         "name", "race", "class", "level", "hp", "max_hp", "ac", "speed",
@@ -139,39 +150,46 @@ def do_rest(cid):
     if rest_type not in ("short", "long"):
         return jsonify({"error": "type must be 'short' or 'long'"}), 400
     db = get_db()
-
-    if rest_type == "short":
-        db.execute(
-            "UPDATE abilities SET uses_remaining=uses_max WHERE character_id=? AND recharge='short'",
-            (cid,),
-        )
-        db.execute(
-            "UPDATE characters SET death_save_successes=0, death_save_failures=0 WHERE id=?",
-            (cid,),
-        )
-
-    elif rest_type == "long":
-        db.execute(
-            "UPDATE abilities SET uses_remaining=uses_max WHERE character_id=? AND uses_max IS NOT NULL",
-            (cid,),
-        )
-        char = db.execute("SELECT level FROM characters WHERE id=?", (cid,)).fetchone()
-        db.execute(
-            """UPDATE characters
-               SET hp=max_hp, hit_dice_remaining=level,
-                   death_save_successes=0, death_save_failures=0,
-                   goodberries=10
-               WHERE id=?""",
-            (cid,),
-        )
-
-    db.commit()
+    try:
+        if rest_type == "short":
+            db.execute(
+                "UPDATE abilities SET uses_remaining=uses_max WHERE character_id=? AND recharge='short'",
+                (cid,),
+            )
+            db.execute(
+                "UPDATE characters SET death_save_successes=0, death_save_failures=0 WHERE id=?",
+                (cid,),
+            )
+        elif rest_type == "long":
+            db.execute(
+                "UPDATE abilities SET uses_remaining=uses_max WHERE character_id=? AND uses_max IS NOT NULL",
+                (cid,),
+            )
+            db.execute(
+                """UPDATE characters
+                   SET hp=max_hp, hit_dice_remaining=level,
+                       death_save_successes=0, death_save_failures=0,
+                       goodberries=10
+                   WHERE id=?""",
+                (cid,),
+            )
+        db.commit()
+    except Exception:
+        db.rollback()
+        return jsonify({"error": "Rest failed"}), 500
     return jsonify({"ok": True, "type": rest_type})
 
+
+_VALID_ABILITY_TYPES = {"action", "bonus_action", "reaction", "free_action", "passive", "active", "spell"}
+_VALID_RECHARGE     = {"short", "long", None}
 
 @app.route("/api/abilities/<int:aid>", methods=["PUT"])
 def update_ability(aid):
     data = request.json
+    if "type" in data and data["type"] not in _VALID_ABILITY_TYPES:
+        return jsonify({"error": "Invalid ability type"}), 400
+    if "recharge" in data and data["recharge"] not in _VALID_RECHARGE:
+        return jsonify({"error": "recharge must be 'short', 'long', or null"}), 400
     db = get_db()
     fields = ["name", "type", "description", "uses_max", "uses_remaining", "recharge"]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
