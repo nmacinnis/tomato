@@ -40,7 +40,7 @@ function renderCharacter() {
   const wisMod = Math.floor((char.wis - 10) / 2);
   document.getElementById("prof-val").textContent = `+${prof}`;
   document.getElementById("init-val").textContent = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
-  document.getElementById("perc-val").textContent = 10 + wisMod;
+  document.getElementById("perc-val").textContent = 10 + wisMod + prof;
 
   // Hit dice
   updateHdDisplay();
