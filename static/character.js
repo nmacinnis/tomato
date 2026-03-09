@@ -1,5 +1,13 @@
 // Character sheet page logic
 
+function showToast(msg, type = "error") {
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
 let char = null;
 let currentItems = [];
 let superiorityDie = null;  // the Superiority Dice Pool ability object
@@ -172,11 +180,12 @@ function updateThpDisplay() {
 }
 
 async function patchChar(fields) {
-  await fetch(`/api/characters/${CHARACTER_ID}`, {
+  const res = await fetch(`/api/characters/${CHARACTER_ID}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(fields),
   });
+  if (!res.ok) { showToast("Failed to save — check your connection."); return; }
   Object.assign(char, fields);
 }
 
@@ -507,7 +516,8 @@ function renderAbilityCard(a) {
 
   div.querySelector(".edit-ability-btn")?.addEventListener("click", () => openAbilityModal(a));
   div.querySelector(".del-ability-btn")?.addEventListener("click", async () => {
-    await fetch(`/api/abilities/${a.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/abilities/${a.id}`, { method: "DELETE" });
+    if (!res.ok) { showToast("Failed to delete ability."); return; }
     loadAbilities();
   });
   div.querySelector(".use-btn")?.addEventListener("click", async (e) => {
@@ -518,11 +528,12 @@ function renderAbilityCard(a) {
       const cur = Number(btn.dataset.rem);
       if (cur <= 0) return;
       const next = cur - 1;
-      await fetch(`/api/abilities/${a.id}`, {
+      const res = await fetch(`/api/abilities/${a.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uses_remaining: next }),
       });
+      if (!res.ok) { showToast("Failed to use ability."); return; }
       btn.dataset.rem = next;
       div.querySelector(".ability-uses").textContent = `Uses: ${next} / ${a.uses_max}`;
     }
@@ -544,6 +555,7 @@ function openAbilityModal(ability = null) {
   document.getElementById("ability-modal-title").textContent = ability ? "Edit Ability" : "Add Ability";
   if (ability) {
     abilityForm.id_field = ability.id;
+    abilityForm._uses_remaining = ability.uses_remaining;
     abilityForm.name.value = ability.name;
     abilityForm.type.value = ability.type;
     abilityForm.description.value = ability.description;
@@ -551,6 +563,7 @@ function openAbilityModal(ability = null) {
     abilityForm.recharge.value = ability.recharge ?? "";
   } else {
     abilityForm.id_field = null;
+    abilityForm._uses_remaining = null;
   }
   abilityModal.showModal();
 }
@@ -567,18 +580,26 @@ abilityForm.onsubmit = async (e) => {
   if (body.recharge === "") body.recharge = null;
 
   if (abilityForm.id_field) {
-    body.uses_remaining = body.uses_max;
-    await fetch(`/api/abilities/${abilityForm.id_field}`, {
+    // Preserve existing uses_remaining; only cap it if uses_max shrank
+    const prevRemaining = abilityForm._uses_remaining;
+    if (body.uses_max != null) {
+      body.uses_remaining = (prevRemaining != null)
+        ? Math.min(prevRemaining, body.uses_max)
+        : body.uses_max;
+    }
+    const res = await fetch(`/api/abilities/${abilityForm.id_field}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+    if (!res.ok) { showToast("Failed to update ability."); return; }
   } else {
-    await fetch(`/api/characters/${CHARACTER_ID}/abilities`, {
+    const res = await fetch(`/api/characters/${CHARACTER_ID}/abilities`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+    if (!res.ok) { showToast("Failed to add ability."); return; }
   }
   abilityModal.close();
   loadAbilities();
@@ -620,18 +641,11 @@ async function loadInventory() {
     document.getElementById("weight-total").textContent = `Total weight: ${total.toFixed(1)} lbs`;
   }
 
-  // Recompute and display AC
+  // Recompute and display AC from equipped items (in-memory only)
   const ac = calcAC(items);
   document.getElementById("ac-val").textContent = ac;
   document.getElementById("ac-breakdown").textContent = acBreakdown(items);
-  if (ac !== char.ac) {
-    char.ac = ac;
-    fetch(`/api/characters/${CHARACTER_ID}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ac }),
-    });
-  }
+  char.ac = ac;
 
   currentItems = items;
   renderSkills();
@@ -658,16 +672,18 @@ function renderItemCard(item) {
   `;
 
   div.querySelector(".equip-btn").addEventListener("click", async () => {
-    await fetch(`/api/inventory/${item.id}`, {
+    const res = await fetch(`/api/inventory/${item.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ equipped: !item.equipped }),
     });
+    if (!res.ok) { showToast("Failed to update item."); return; }
     loadInventory();
   });
   div.querySelector(".edit-item-btn").addEventListener("click", () => openItemModal(item));
   div.querySelector(".del-item-btn").addEventListener("click", async () => {
-    await fetch(`/api/inventory/${item.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/inventory/${item.id}`, { method: "DELETE" });
+    if (!res.ok) { showToast("Failed to delete item."); return; }
     loadInventory();
   });
   return div;
@@ -718,17 +734,19 @@ itemForm.onsubmit = async (e) => {
   body.equipped = !!body.equipped;
 
   if (itemForm.id_field) {
-    await fetch(`/api/inventory/${itemForm.id_field}`, {
+    const res = await fetch(`/api/inventory/${itemForm.id_field}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+    if (!res.ok) { showToast("Failed to update item."); return; }
   } else {
-    await fetch(`/api/characters/${CHARACTER_ID}/inventory`, {
+    const res = await fetch(`/api/characters/${CHARACTER_ID}/inventory`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+    if (!res.ok) { showToast("Failed to add item."); return; }
   }
   itemModal.close();
   loadInventory();

@@ -215,7 +215,7 @@
   </dialog>
 
   <script>
-    const CHARACTER_ID = {{ character_id }};
+    const CHARACTER_ID = {{ character_id | tojson }};
     document.getElementById("is-weapon-check").addEventListener("change", e => {
       document.getElementById("weapon-fields").hidden = !e.target.checked;
     });
