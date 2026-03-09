@@ -154,15 +154,14 @@ def do_rest(cid):
             "UPDATE abilities SET uses_remaining=uses_max WHERE character_id=? AND uses_max IS NOT NULL",
             (cid,),
         )
-        char = db.execute("SELECT level, hit_dice_remaining FROM characters WHERE id=?", (cid,)).fetchone()
-        recovered_hd = min(char["level"], char["hit_dice_remaining"] + max(1, char["level"] // 2))
+        char = db.execute("SELECT level FROM characters WHERE id=?", (cid,)).fetchone()
         db.execute(
             """UPDATE characters
-               SET hp=max_hp, hit_dice_remaining=?,
+               SET hp=max_hp, hit_dice_remaining=level,
                    death_save_successes=0, death_save_failures=0,
-                   goodberries=0
+                   goodberries=10
                WHERE id=?""",
-            (recovered_hd, cid),
+            (cid,),
         )
 
     db.commit()
