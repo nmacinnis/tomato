@@ -11,6 +11,10 @@ async function loadCharacter() {
   loadInventory();
 }
 
+function profBonus(level) {
+  return Math.floor((level - 1) / 4) + 2;
+}
+
 function renderCharacter() {
   document.title = char.name;
   document.getElementById("char-name").textContent = char.name;
@@ -29,6 +33,102 @@ function renderCharacter() {
   document.getElementById("speed-val").textContent = `${char.speed} ft`;
   document.getElementById("level-val").textContent = char.level;
   document.getElementById("notes-area").value = char.notes || "";
+
+  // Derived stats
+  const prof = profBonus(char.level);
+  const dexMod = Math.floor((char.dex - 10) / 2);
+  const wisMod = Math.floor((char.wis - 10) / 2);
+  document.getElementById("prof-val").textContent = `+${prof}`;
+  document.getElementById("init-val").textContent = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
+  document.getElementById("perc-val").textContent = 10 + wisMod;
+
+  // Hit dice
+  updateHdDisplay();
+
+  // Death saves
+  renderDeathSaves();
+
+  // Goodberries
+  renderTomatoes();
+}
+
+// ── Hit Dice ───────────────────────────────────────────────────────────────────
+
+function updateHdDisplay() {
+  document.getElementById("hd-display").textContent =
+    `${char.hit_dice_remaining} / ${char.level}d10`;
+}
+
+document.getElementById("hd-down").onclick = async () => {
+  if (char.hit_dice_remaining <= 0) return;
+  await patchChar({ hit_dice_remaining: char.hit_dice_remaining - 1 });
+  updateHdDisplay();
+};
+
+document.getElementById("hd-up").onclick = async () => {
+  if (char.hit_dice_remaining >= char.level) return;
+  await patchChar({ hit_dice_remaining: char.hit_dice_remaining + 1 });
+  updateHdDisplay();
+};
+
+// ── Death Saves ────────────────────────────────────────────────────────────────
+
+function renderDeathSaves() {
+  ["success", "failure"].forEach(type => {
+    const count = type === "success" ? char.death_save_successes : char.death_save_failures;
+    document.querySelectorAll(`[data-type="${type}"]`).forEach((pip, i) => {
+      pip.classList.toggle("pip-filled", i < count);
+    });
+  });
+}
+
+document.getElementById("ds-successes").addEventListener("click", async (e) => {
+  const pip = e.target.closest(".ds-pip");
+  if (!pip) return;
+  const idx = Number(pip.dataset.idx);
+  const current = char.death_save_successes;
+  const next = (idx < current) ? idx : idx + 1;
+  await patchChar({ death_save_successes: Math.min(3, next) });
+  renderDeathSaves();
+});
+
+document.getElementById("ds-failures").addEventListener("click", async (e) => {
+  const pip = e.target.closest(".ds-pip");
+  if (!pip) return;
+  const idx = Number(pip.dataset.idx);
+  const current = char.death_save_failures;
+  const next = (idx < current) ? idx : idx + 1;
+  await patchChar({ death_save_failures: Math.min(3, next) });
+  renderDeathSaves();
+});
+
+document.getElementById("reset-death-saves").onclick = async () => {
+  await patchChar({ death_save_successes: 0, death_save_failures: 0 });
+  renderDeathSaves();
+};
+
+// ── Goodberries ────────────────────────────────────────────────────────────────
+
+function renderTomatoes() {
+  const container = document.getElementById("tomato-pips");
+  const count = char.goodberries;
+  container.innerHTML = "";
+  for (let i = 0; i < 10; i++) {
+    const btn = document.createElement("button");
+    btn.className = "tomato-pip" + (i < count ? " tomato-filled" : "");
+    btn.textContent = "🍅";
+    btn.title = i < count ? `Eat berry ${i + 1}` : `Add berry ${i + 1}`;
+    btn.addEventListener("click", async () => {
+      // clicking a filled pip sets count to that index (eating it)
+      // clicking an empty pip sets count to that index + 1 (adding up to there)
+      const next = i < count ? i : i + 1;
+      await patchChar({ goodberries: next });
+      renderTomatoes();
+      document.getElementById("tomato-count").textContent = char.goodberries;
+    });
+    container.appendChild(btn);
+  }
+  document.getElementById("tomato-count").textContent = count;
 }
 
 function updateHpDisplay() {

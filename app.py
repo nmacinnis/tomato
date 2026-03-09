@@ -73,6 +73,7 @@ def update_character(cid):
     fields = [
         "name", "race", "class", "level", "hp", "max_hp", "ac", "speed",
         "str", "dex", "con", "int", "wis", "cha", "notes",
+        "hit_dice_remaining", "death_save_successes", "death_save_failures", "goodberries",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]

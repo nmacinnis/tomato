@@ -22,22 +22,26 @@ def init_db():
     conn.executescript(
         """
         CREATE TABLE IF NOT EXISTS characters (
-            id        INTEGER PRIMARY KEY AUTOINCREMENT,
-            name      TEXT    NOT NULL,
-            race      TEXT    NOT NULL DEFAULT 'Human',
-            class     TEXT    NOT NULL DEFAULT 'Fighter',
-            level     INTEGER NOT NULL DEFAULT 1,
-            hp        INTEGER NOT NULL DEFAULT 10,
-            max_hp    INTEGER NOT NULL DEFAULT 10,
-            ac        INTEGER NOT NULL DEFAULT 10,
-            speed     INTEGER NOT NULL DEFAULT 30,
-            str       INTEGER NOT NULL DEFAULT 10,
-            dex       INTEGER NOT NULL DEFAULT 10,
-            con       INTEGER NOT NULL DEFAULT 10,
-            int       INTEGER NOT NULL DEFAULT 10,
-            wis       INTEGER NOT NULL DEFAULT 10,
-            cha       INTEGER NOT NULL DEFAULT 10,
-            notes     TEXT    NOT NULL DEFAULT ''
+            id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+            name                   TEXT    NOT NULL,
+            race                   TEXT    NOT NULL DEFAULT 'Human',
+            class                  TEXT    NOT NULL DEFAULT 'Fighter',
+            level                  INTEGER NOT NULL DEFAULT 1,
+            hp                     INTEGER NOT NULL DEFAULT 10,
+            max_hp                 INTEGER NOT NULL DEFAULT 10,
+            ac                     INTEGER NOT NULL DEFAULT 10,
+            speed                  INTEGER NOT NULL DEFAULT 30,
+            str                    INTEGER NOT NULL DEFAULT 10,
+            dex                    INTEGER NOT NULL DEFAULT 10,
+            con                    INTEGER NOT NULL DEFAULT 10,
+            int                    INTEGER NOT NULL DEFAULT 10,
+            wis                    INTEGER NOT NULL DEFAULT 10,
+            cha                    INTEGER NOT NULL DEFAULT 10,
+            notes                  TEXT    NOT NULL DEFAULT '',
+            hit_dice_remaining     INTEGER NOT NULL DEFAULT 0,
+            death_save_successes   INTEGER NOT NULL DEFAULT 0,
+            death_save_failures    INTEGER NOT NULL DEFAULT 0,
+            goodberries            INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS abilities (
@@ -61,4 +65,13 @@ def init_db():
         );
         """
     )
+    # Migrate existing databases that predate these columns
+    for col in ("hit_dice_remaining", "death_save_successes", "death_save_failures", "goodberries"):
+        try:
+            conn.execute(f"ALTER TABLE characters ADD COLUMN {col} INTEGER NOT NULL DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass  # column already exists
+    # Seed hit_dice_remaining = level for any character that has it still at 0
+    conn.execute("UPDATE characters SET hit_dice_remaining = level WHERE hit_dice_remaining = 0")
+    conn.commit()
     conn.close()

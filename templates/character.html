@@ -18,7 +18,7 @@
 
   <main class="sheet-layout">
 
-    <!-- Left column: Stats + Combat -->
+    <!-- Left column: Stats + Combat + Trackers -->
     <section class="panel">
       <h2>Stats</h2>
       <div class="stats-grid">
@@ -43,6 +43,48 @@
         <div class="combat-box"><span class="combat-label">AC</span><span id="ac-val"></span></div>
         <div class="combat-box"><span class="combat-label">Speed</span><span id="speed-val"></span></div>
         <div class="combat-box"><span class="combat-label">Level</span><span id="level-val"></span></div>
+        <div class="combat-box">
+          <span class="combat-label">Hit Dice</span>
+          <div class="hp-controls">
+            <button class="btn-small" id="hd-down">−</button>
+            <span id="hd-display"></span>
+            <button class="btn-small" id="hd-up">+</button>
+          </div>
+        </div>
+        <div class="combat-box"><span class="combat-label">Initiative</span><span id="init-val"></span></div>
+      </div>
+
+      <h2>Quick Stats</h2>
+      <div class="combat-row">
+        <div class="combat-box"><span class="combat-label">Prof. Bonus</span><span id="prof-val"></span></div>
+        <div class="combat-box"><span class="combat-label">Pass. Perception</span><span id="perc-val"></span></div>
+      </div>
+
+      <h2>Death Saves</h2>
+      <div class="death-saves">
+        <div class="ds-row">
+          <span class="ds-label success-label">Successes</span>
+          <div class="ds-pips" id="ds-successes">
+            <button class="ds-pip" data-type="success" data-idx="0"></button>
+            <button class="ds-pip" data-type="success" data-idx="1"></button>
+            <button class="ds-pip" data-type="success" data-idx="2"></button>
+          </div>
+        </div>
+        <div class="ds-row">
+          <span class="ds-label failure-label">Failures</span>
+          <div class="ds-pips" id="ds-failures">
+            <button class="ds-pip" data-type="failure" data-idx="0"></button>
+            <button class="ds-pip" data-type="failure" data-idx="1"></button>
+            <button class="ds-pip" data-type="failure" data-idx="2"></button>
+          </div>
+        </div>
+        <button class="btn btn-sm" id="reset-death-saves">Reset</button>
+      </div>
+
+      <h2>Goodberries</h2>
+      <div class="tomato-counter">
+        <div class="tomato-pips" id="tomato-pips"></div>
+        <div class="tomato-count"><span id="tomato-count">0</span> / 10</div>
       </div>
 
       <h2>Notes</h2>

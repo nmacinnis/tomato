@@ -190,6 +190,52 @@ main { padding: 1.5rem; }
 
 .weight-total { font-size: 0.85rem; color: var(--muted); text-align: right; margin-top: 0.5rem; }
 
+/* ── Death Saves ──────────────────────────────────────────────────────────── */
+.death-saves { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.ds-row { display: flex; align-items: center; gap: 0.7rem; }
+
+.ds-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; width: 4.5rem; flex-shrink: 0; }
+.success-label { color: #4caf50; }
+.failure-label { color: var(--accent); }
+
+.ds-pips { display: flex; gap: 0.4rem; }
+
+.ds-pip {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+#ds-successes .ds-pip.pip-filled { background: #4caf50; border-color: #4caf50; }
+#ds-failures  .ds-pip.pip-filled { background: var(--accent); border-color: var(--accent); }
+.ds-pip:hover { border-color: var(--text); }
+
+/* ── Goodberry / Tomato Counter ───────────────────────────────────────────── */
+.tomato-counter { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.tomato-pips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+
+.tomato-pip {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.2;
+  transition: opacity 0.15s, transform 0.1s;
+  filter: grayscale(1);
+}
+.tomato-pip:hover { opacity: 0.6; transform: scale(1.15); }
+.tomato-pip.tomato-filled { opacity: 1; filter: none; }
+.tomato-pip.tomato-filled:hover { transform: scale(1.15); }
+
+.tomato-count { font-size: 0.8rem; color: var(--muted); text-align: right; }
+
 /* ── Modals ───────────────────────────────────────────────────────────────── */
 dialog {
   background: var(--surface);
