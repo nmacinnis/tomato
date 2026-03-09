@@ -123,6 +123,10 @@ def init_db():
         conn.execute("ALTER TABLE inventory ADD COLUMN tool_proficient INTEGER NOT NULL DEFAULT 0")
     except sqlite3.OperationalError:
         pass
+    try:
+        conn.execute("ALTER TABLE characters ADD COLUMN languages TEXT NOT NULL DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
 
     for col_def in (
         "damage_dice  TEXT    NOT NULL DEFAULT ''",

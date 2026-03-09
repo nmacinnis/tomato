@@ -72,4 +72,40 @@ function renderSkills() {
       grid.appendChild(row);
     });
   }
+
+  renderLanguages();
 }
+
+// ── Languages ────────────────────────────────────────────────────────────────
+
+function renderLanguages() {
+  const container = document.getElementById("languages-list");
+  const langs = (char.languages || "").split(",").map(s => s.trim()).filter(Boolean);
+  container.innerHTML = "";
+  langs.forEach(lang => {
+    const chip = document.createElement("span");
+    chip.className = "language-chip";
+    chip.innerHTML = `${escHtml(lang)}<button class="lang-remove" title="Remove">✕</button>`;
+    chip.querySelector(".lang-remove").addEventListener("click", async () => {
+      await patchChar({ languages: langs.filter(l => l !== lang).join(",") });
+      renderLanguages();
+    });
+    container.appendChild(chip);
+  });
+}
+
+document.getElementById("language-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("add-language-btn").click();
+});
+
+document.getElementById("add-language-btn").onclick = async () => {
+  const input = document.getElementById("language-input");
+  const lang  = input.value.trim();
+  if (!lang) return;
+  const langs = (char.languages || "").split(",").map(s => s.trim()).filter(Boolean);
+  if (!langs.includes(lang)) {
+    await patchChar({ languages: [...langs, lang].join(",") });
+  }
+  input.value = "";
+  renderLanguages();
+};

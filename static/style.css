@@ -292,6 +292,54 @@ main { padding: 1.5rem; }
   margin-top: 0.3rem;
 }
 
+/* ── Languages ───────────────────────────────────────────────────────────── */
+.languages-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  min-height: 1.5rem;
+}
+
+.language-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem 0.2rem 0.7rem;
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+.lang-remove {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0;
+}
+.lang-remove:hover { color: var(--accent); }
+
+.languages-add {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+.languages-add input {
+  flex: 1;
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
 /* ── Rest Buttons ─────────────────────────────────────────────────────────── */
 .rest-buttons { display: flex; gap: 0.6rem; }
 
