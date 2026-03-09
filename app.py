@@ -1,9 +1,16 @@
 from flask import Flask, jsonify, request, render_template
-from database import init_db, get_db, close_db
+from database import init_db, get_db, close_db, DATABASE
 
 app = Flask(__name__)
 app.teardown_appcontext(close_db)
-init_db()  # safe to call every startup; uses CREATE IF NOT EXISTS + ALTER TABLE IF NOT EXISTS
+init_db()
+
+# Seed Tomato's data on first run if the database is empty
+import sqlite3 as _sqlite3
+with _sqlite3.connect(DATABASE) as _c:
+    if _c.execute("SELECT COUNT(*) FROM characters").fetchone()[0] == 0:
+        import runpy
+        runpy.run_path("seed_tomato.py")
 
 
 # ── Pages ──────────────────────────────────────────────────────────────────────
