@@ -117,18 +117,6 @@ All endpoints return/accept JSON.
 
 ---
 
-## Suggested frontend improvements
-
-The current frontend is intentional plain vanilla JS — zero build step, zero dependencies. If you want to go further:
-
-- **[HTMX](https://htmx.org)** — add a single `<script>` tag and get reactive updates without writing JS
-- **[Alpine.js](https://alpinejs.dev)** — lightweight reactivity via HTML attributes, still no build step
-- **React/Vite** — only if you need complex state (e.g. drag-and-drop inventory, dice roller)
-
-For most D&D tracker use cases, HTMX is the sweet spot.
-
----
-
 ## Tech stack
 
 | Layer | Tech |
