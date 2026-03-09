@@ -108,8 +108,8 @@ def create_ability(cid):
     data = request.json
     db = get_db()
     cur = db.execute(
-        """INSERT INTO abilities (character_id, name, type, description, uses_max, uses_remaining)
-           VALUES (?,?,?,?,?,?)""",
+        """INSERT INTO abilities (character_id, name, type, description, uses_max, uses_remaining, recharge)
+           VALUES (?,?,?,?,?,?,?)""",
         (
             cid,
             data.get("name", "New Ability"),
@@ -117,17 +117,55 @@ def create_ability(cid):
             data.get("description", ""),
             data.get("uses_max", None),
             data.get("uses_max", None),
+            data.get("recharge", None),
         ),
     )
     db.commit()
     return jsonify({"id": cur.lastrowid}), 201
 
 
+@app.route("/api/characters/<int:cid>/rest", methods=["POST"])
+def do_rest(cid):
+    rest_type = request.json.get("type")  # 'short' or 'long'
+    if rest_type not in ("short", "long"):
+        return jsonify({"error": "type must be 'short' or 'long'"}), 400
+    db = get_db()
+
+    if rest_type == "short":
+        db.execute(
+            "UPDATE abilities SET uses_remaining=uses_max WHERE character_id=? AND recharge='short'",
+            (cid,),
+        )
+        db.execute(
+            "UPDATE characters SET death_save_successes=0, death_save_failures=0 WHERE id=?",
+            (cid,),
+        )
+
+    elif rest_type == "long":
+        db.execute(
+            "UPDATE abilities SET uses_remaining=uses_max WHERE character_id=? AND uses_max IS NOT NULL",
+            (cid,),
+        )
+        char = db.execute("SELECT level, hit_dice_remaining FROM characters WHERE id=?", (cid,)).fetchone()
+        recovered_hd = min(char["level"], char["hit_dice_remaining"] + max(1, char["level"] // 2))
+        db.execute(
+            """UPDATE characters
+               SET hp=max_hp, hit_dice_remaining=?,
+                   death_save_successes=0, death_save_failures=0,
+                   goodberries=0
+               WHERE id=?""",
+            (recovered_hd, cid),
+        )
+
+    db.commit()
+    return jsonify({"ok": True, "type": rest_type})
+
+
 @app.route("/api/abilities/<int:aid>", methods=["PUT"])
 def update_ability(aid):
     data = request.json
     db = get_db()
-    fields = ["name", "type", "description", "uses_max", "uses_remaining"]
+    fields = ["name", "type", "description", "uses_max", "uses_remaining", "recharge"]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
     if not set_clause:

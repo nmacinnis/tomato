@@ -51,7 +51,8 @@ def init_db():
             type            TEXT    NOT NULL DEFAULT 'passive',
             description     TEXT    NOT NULL DEFAULT '',
             uses_max        INTEGER,
-            uses_remaining  INTEGER
+            uses_remaining  INTEGER,
+            recharge        TEXT    -- 'short', 'long', or NULL
         );
 
         CREATE TABLE IF NOT EXISTS inventory (
@@ -66,12 +67,41 @@ def init_db():
         """
     )
     # Migrate existing databases that predate these columns
-    for col in ("hit_dice_remaining", "death_save_successes", "death_save_failures", "goodberries"):
+    for col_def in (
+        "hit_dice_remaining   INTEGER NOT NULL DEFAULT 0",
+        "death_save_successes INTEGER NOT NULL DEFAULT 0",
+        "death_save_failures  INTEGER NOT NULL DEFAULT 0",
+        "goodberries          INTEGER NOT NULL DEFAULT 0",
+    ):
         try:
-            conn.execute(f"ALTER TABLE characters ADD COLUMN {col} INTEGER NOT NULL DEFAULT 0")
+            conn.execute(f"ALTER TABLE characters ADD COLUMN {col_def}")
         except sqlite3.OperationalError:
-            pass  # column already exists
-    # Seed hit_dice_remaining = level for any character that has it still at 0
+            pass
+    try:
+        conn.execute("ALTER TABLE abilities ADD COLUMN recharge TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    # Seed hit_dice_remaining = level for freshly migrated characters
     conn.execute("UPDATE characters SET hit_dice_remaining = level WHERE hit_dice_remaining = 0")
+
+    # Tag Tomato's abilities with their recharge type
+    short_rest = (
+        "Action Surge",
+        "Second Wind",
+        "Feat — Mage Slayer: Guarded Mind",
+        "Superiority Dice Pool (d8)",
+    )
+    long_rest = (
+        "Knowledge from a Past Life",
+        "Know Your Enemy",
+        "Indomitable",
+        "Spell: Goodberry",
+    )
+    for name in short_rest:
+        conn.execute("UPDATE abilities SET recharge='short' WHERE name=? AND recharge IS NULL", (name,))
+    for name in long_rest:
+        conn.execute("UPDATE abilities SET recharge='long' WHERE name=? AND recharge IS NULL", (name,))
+
     conn.commit()
     conn.close()

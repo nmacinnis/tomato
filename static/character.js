@@ -186,6 +186,35 @@ function editStat(stat) {
   input.onkeydown = e => { if (e.key === "Enter") save(); if (e.key === "Escape") { input.value = current; input.blur(); } };
 }
 
+// ── Rest Buttons ───────────────────────────────────────────────────────────────
+
+async function doRest(type) {
+  const res = await fetch(`/api/characters/${CHARACTER_ID}/rest`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type }),
+  });
+  if (!res.ok) return;
+
+  // Reload character data and re-render everything
+  const updated = await fetch(`/api/characters/${CHARACTER_ID}`);
+  char = await updated.json();
+  renderCharacter();
+  loadAbilities();  // ability uses_remaining may have changed
+
+  const label = type === "short" ? "Short rest taken." : "Long rest taken — HP, abilities, and hit dice restored.";
+  const fb = document.getElementById("rest-feedback");
+  fb.textContent = label;
+  fb.hidden = false;
+  setTimeout(() => { fb.hidden = true; }, 3000);
+}
+
+document.getElementById("short-rest-btn").onclick = () => doRest("short");
+document.getElementById("long-rest-btn").onclick = async () => {
+  if (!confirm("Take a long rest? This will restore HP, all abilities, and recover hit dice.")) return;
+  doRest("long");
+};
+
 // Delete character
 document.getElementById("delete-char-btn").onclick = async () => {
   if (!confirm(`Delete ${char.name}? This cannot be undone.`)) return;
@@ -207,26 +236,31 @@ async function loadAbilities() {
   abilities.forEach(a => list.appendChild(renderAbilityCard(a)));
 }
 
+const RECHARGE_LABEL = { short: "short rest", long: "long rest" };
+
 function renderAbilityCard(a) {
   const div = document.createElement("div");
   div.className = "ability-card";
-  const usesText = a.uses_max != null
-    ? `Uses: ${a.uses_remaining ?? a.uses_max} / ${a.uses_max}`
+  const rem = a.uses_remaining ?? a.uses_max;
+  const usesText = a.uses_max != null ? `${rem} / ${a.uses_max}` : "";
+  const rechargeBadge = a.recharge
+    ? `<span class="recharge-badge recharge-${a.recharge}">${RECHARGE_LABEL[a.recharge]}</span>`
     : "";
   div.innerHTML = `
     <div class="ability-card-header">
       <div>
         <span class="ability-name">${escHtml(a.name)}</span>
         <span class="ability-type">${escHtml(a.type)}</span>
+        ${rechargeBadge}
       </div>
       <div class="card-actions">
-        ${a.uses_max != null ? `<button class="use-btn" data-id="${a.id}" data-rem="${a.uses_remaining ?? a.uses_max}">Use</button>` : ""}
+        ${a.uses_max != null ? `<button class="use-btn" data-id="${a.id}" data-rem="${rem}">Use</button>` : ""}
         <button class="edit-ability-btn" data-id="${a.id}">Edit</button>
         <button class="del-ability-btn" data-id="${a.id}">✕</button>
       </div>
     </div>
     ${a.description ? `<div class="ability-desc">${escHtml(a.description)}</div>` : ""}
-    ${usesText ? `<div class="ability-uses">${usesText}</div>` : ""}
+    ${usesText ? `<div class="ability-uses">Uses: ${usesText}</div>` : ""}
   `;
 
   div.querySelector(".edit-ability-btn")?.addEventListener("click", () => openAbilityModal(a));
@@ -263,6 +297,7 @@ function openAbilityModal(ability = null) {
     abilityForm.type.value = ability.type;
     abilityForm.description.value = ability.description;
     abilityForm.uses_max.value = ability.uses_max ?? "";
+    abilityForm.recharge.value = ability.recharge ?? "";
   } else {
     abilityForm.id_field = null;
   }
@@ -278,6 +313,7 @@ abilityForm.onsubmit = async (e) => {
   const body = Object.fromEntries(fd.entries());
   if (body.uses_max === "") body.uses_max = null;
   else body.uses_max = Number(body.uses_max);
+  if (body.recharge === "") body.recharge = null;
 
   if (abilityForm.id_field) {
     body.uses_remaining = body.uses_max;

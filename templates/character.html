@@ -60,6 +60,13 @@
         <div class="combat-box"><span class="combat-label">Pass. Perception</span><span id="perc-val"></span></div>
       </div>
 
+      <h2>Rest</h2>
+      <div class="rest-buttons">
+        <button class="btn btn-rest-short" id="short-rest-btn">Short Rest</button>
+        <button class="btn btn-rest-long"  id="long-rest-btn">Long Rest</button>
+      </div>
+      <div id="rest-feedback" class="rest-feedback" hidden></div>
+
       <h2>Death Saves</h2>
       <div class="death-saves">
         <div class="ds-row">
@@ -128,6 +135,13 @@
       </label>
       <label>Description <textarea name="description"></textarea></label>
       <label>Uses per Rest (leave blank if unlimited) <input name="uses_max" type="number" min="1" /></label>
+      <label>Recharges on
+        <select name="recharge">
+          <option value="">— unlimited / never —</option>
+          <option value="short">Short Rest</option>
+          <option value="long">Long Rest</option>
+        </select>
+      </label>
       <div class="modal-actions">
         <button type="button" class="btn" id="cancel-ability">Cancel</button>
         <button type="submit" class="btn btn-primary">Save</button>
