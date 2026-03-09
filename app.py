@@ -266,6 +266,43 @@ def delete_item(iid):
     return jsonify({"ok": True})
 
 
+# ── Theme ──────────────────────────────────────────────────────────────────────
+
+_THEME_FIELDS   = ["accent", "accent2", "bg", "surface", "panel_color", "border"]
+_THEME_DEFAULTS = {
+    "accent": "#e94560", "accent2": "#c7a026",
+    "bg": "#1a1a2e", "surface": "#16213e",
+    "panel_color": "#0f3460", "border": "#2a3a5e",
+}
+_HEX_RE = __import__("re").compile(r"^#[0-9a-fA-F]{6}$")
+
+
+@app.route("/api/characters/<int:cid>/theme", methods=["GET"])
+def get_theme(cid):
+    db = get_db()
+    row = db.execute("SELECT * FROM themes WHERE character_id=?", (cid,)).fetchone()
+    return jsonify(dict(row) if row else {**_THEME_DEFAULTS, "character_id": cid})
+
+
+@app.route("/api/characters/<int:cid>/theme", methods=["PUT"])
+def update_theme(cid):
+    data = request.json
+    for f in _THEME_FIELDS:
+        if f in data and not _HEX_RE.match(str(data[f])):
+            return jsonify({"error": f"Invalid color value for '{f}'"}), 400
+    db = get_db()
+    # Ensure a row exists, then update only the supplied fields
+    db.execute(
+        "INSERT OR IGNORE INTO themes (character_id) VALUES (?)", (cid,)
+    )
+    set_clause = ", ".join(f"{f}=?" for f in _THEME_FIELDS if f in data)
+    values     = [data[f] for f in _THEME_FIELDS if f in data]
+    if set_clause:
+        db.execute(f"UPDATE themes SET {set_clause} WHERE character_id=?", values + [cid])
+    db.commit()
+    return jsonify({"ok": True})
+
+
 # ── Boot ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":

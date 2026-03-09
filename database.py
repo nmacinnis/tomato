@@ -68,6 +68,16 @@ def init_db():
 
         CREATE INDEX IF NOT EXISTS idx_abilities_char ON abilities(character_id);
         CREATE INDEX IF NOT EXISTS idx_inventory_char ON inventory(character_id);
+
+        CREATE TABLE IF NOT EXISTS themes (
+            character_id INTEGER PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE,
+            accent       TEXT NOT NULL DEFAULT '#e94560',
+            accent2      TEXT NOT NULL DEFAULT '#c7a026',
+            bg           TEXT NOT NULL DEFAULT '#1a1a2e',
+            surface      TEXT NOT NULL DEFAULT '#16213e',
+            panel_color  TEXT NOT NULL DEFAULT '#0f3460',
+            border       TEXT NOT NULL DEFAULT '#2a3a5e'
+        );
         """
     )
     # Migrate existing databases that predate these columns

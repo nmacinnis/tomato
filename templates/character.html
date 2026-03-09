@@ -17,7 +17,10 @@
         <button class="btn btn-primary btn-sm" id="save-notes-btn">Save</button>
       </div>
     </div>
-    <button id="delete-char-btn" class="btn btn-danger">Delete Character</button>
+    <div class="header-right">
+      <button id="theme-btn" class="btn btn-sm">Theme</button>
+      <button id="delete-char-btn" class="btn btn-danger">Delete Character</button>
+    </div>
   </header>
 
   <main class="sheet-layout">
@@ -215,6 +218,26 @@
     </form>
   </dialog>
 
+  <!-- Theme Modal -->
+  <dialog id="theme-modal">
+    <form id="theme-form">
+      <h2>Customize Theme</h2>
+      <div id="theme-presets" class="theme-presets"></div>
+      <div class="theme-pickers">
+        <label>Accent<input type="color" name="accent" /></label>
+        <label>Headings<input type="color" name="accent2" /></label>
+        <label>Background<input type="color" name="bg" /></label>
+        <label>Surface<input type="color" name="surface" /></label>
+        <label>Panel<input type="color" name="panel_color" /></label>
+        <label>Border<input type="color" name="border" /></label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="cancel-theme">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
   <script>
     const CHARACTER_ID = {{ character_id | tojson }};
     document.getElementById("is-weapon-check").addEventListener("change", e => {
@@ -227,6 +250,7 @@
   <script src="/static/character-skills.js"></script>
   <script src="/static/character-abilities.js"></script>
   <script src="/static/character-inventory.js"></script>
+  <script src="/static/character-theme.js"></script>
   <script src="/static/character.js"></script>
 </body>
 </html>
