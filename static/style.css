@@ -216,7 +216,8 @@ main { padding: 1.5rem; }
 .weight-total { font-size: 0.85rem; color: var(--muted); text-align: right; margin-top: 0.5rem; }
 
 /* ── Skills Panel ─────────────────────────────────────────────────────────── */
-.skills-panel { grid-column: 1 / -1; }
+.skills-panel   { grid-column: 1 / -1; }
+.abilities-panel { grid-column: 2 / -1; }
 
 .skills-grid {
   display: grid;
