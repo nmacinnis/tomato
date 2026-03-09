@@ -1,7 +1,8 @@
+import os
 import sqlite3
 from flask import g
 
-DATABASE = "dnd.db"
+DATABASE = os.environ.get("DATABASE_PATH", "dnd.db")
 
 
 def get_db():

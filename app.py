@@ -3,6 +3,7 @@ from database import init_db, get_db, close_db
 
 app = Flask(__name__)
 app.teardown_appcontext(close_db)
+init_db()  # safe to call every startup; uses CREATE IF NOT EXISTS + ALTER TABLE IF NOT EXISTS
 
 
 # ── Pages ──────────────────────────────────────────────────────────────────────
