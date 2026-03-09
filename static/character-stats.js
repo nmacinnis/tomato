@@ -37,6 +37,10 @@ function renderCharacter() {
   document.getElementById("perc-val").textContent = 10 + wisMod + prof;
   const strMod = Math.floor((char.str - 10) / 2);
   document.getElementById("maneuver-dc-val").textContent = 8 + prof + Math.max(strMod, dexMod);
+  document.getElementById("alignment-val").textContent = abbreviateAlignment(char.alignment || "");
+  document.getElementById("size-val").textContent = char.size || "";
+  document.getElementById("height-val").textContent = char.height || "";
+  document.getElementById("weight-val").textContent = char.weight || "";
 
   renderHdPips();
   renderDeathSaves();

@@ -41,6 +41,19 @@ async function patchChar(fields) {
   Object.assign(char, fields);
 }
 
+// ── Alignment abbreviation ───────────────────────────────────────────────────
+
+const ALIGNMENT_ABBR = {
+  "lawful good":      "LG", "neutral good":  "NG", "chaotic good":    "CG",
+  "lawful neutral":   "LN", "true neutral":  "N",  "chaotic neutral": "CN",
+  "lawful evil":      "LE", "neutral evil":  "NE", "chaotic evil":    "CE",
+  "unaligned":        "U",
+};
+
+function abbreviateAlignment(a) {
+  return ALIGNMENT_ABBR[a.toLowerCase().trim()] ?? a;
+}
+
 // ── Shared utilities ────────────────────────────────────────────────────────
 
 function profBonus(level) {

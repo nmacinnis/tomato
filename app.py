@@ -94,6 +94,7 @@ def update_character(cid):
         "str", "dex", "con", "int", "wis", "cha", "notes",
         "hit_dice_remaining", "death_save_successes", "death_save_failures", "goodberries",
         "flat_ac_bonus", "ac", "save_proficiencies", "temp_hp", "skill_proficiencies", "languages",
+        "alignment", "size", "height", "weight",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]

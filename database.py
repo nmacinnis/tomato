@@ -42,7 +42,11 @@ def init_db():
             hit_dice_remaining     INTEGER NOT NULL DEFAULT 0,
             death_save_successes   INTEGER NOT NULL DEFAULT 0,
             death_save_failures    INTEGER NOT NULL DEFAULT 0,
-            goodberries            INTEGER NOT NULL DEFAULT 0
+            goodberries            INTEGER NOT NULL DEFAULT 0,
+            alignment              TEXT    NOT NULL DEFAULT '',
+            size                   TEXT    NOT NULL DEFAULT 'Medium',
+            height                 TEXT    NOT NULL DEFAULT '',
+            weight                 TEXT    NOT NULL DEFAULT ''
         );
 
         CREATE TABLE IF NOT EXISTS abilities (
@@ -132,6 +136,16 @@ def init_db():
         conn.execute("ALTER TABLE abilities ADD COLUMN die_type TEXT")
     except sqlite3.OperationalError:
         pass
+    for col_def in (
+        "alignment TEXT NOT NULL DEFAULT ''",
+        "size      TEXT NOT NULL DEFAULT 'Medium'",
+        "height    TEXT NOT NULL DEFAULT ''",
+        "weight    TEXT NOT NULL DEFAULT ''",
+    ):
+        try:
+            conn.execute(f"ALTER TABLE characters ADD COLUMN {col_def}")
+        except sqlite3.OperationalError:
+            pass
 
     for col_def in (
         "damage_dice  TEXT    NOT NULL DEFAULT ''",
@@ -163,6 +177,10 @@ def _apply_tomato_data(conn):
     )
     conn.execute("UPDATE characters SET save_proficiencies='str,con' WHERE name='Tomato'")
     conn.execute("UPDATE characters SET flat_ac_bonus=1 WHERE name='Tomato'")
+    conn.execute(
+        "UPDATE characters SET alignment=?, size=?, height=?, weight=? WHERE name='Tomato'",
+        ("Chaotic Good", "Medium", "6'6\"", "302 lbs"),
+    )
 
     # Re-categorize abilities into action-economy types
     ability_types = {
