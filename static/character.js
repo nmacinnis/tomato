@@ -30,8 +30,7 @@ async function loadCharacter() {
   if (!res.ok) { alert("Character not found"); return; }
   char = await res.json();
   renderCharacter();
-  loadAbilities();
-  loadInventory();
+  await loadInventory();  // calls loadAbilities internally after setting currentItems
 }
 
 function profBonus(level) {
@@ -373,12 +372,79 @@ async function loadAbilities() {
   });
 
   ABILITY_GROUPS.forEach(({ key, label }) => {
-    if (!grouped[key] || grouped[key].length === 0) return;
     const header = document.createElement("div");
     header.className = "ability-group-header";
     header.textContent = label;
     list.appendChild(header);
-    grouped[key].forEach(a => list.appendChild(renderAbilityCard(a)));
+
+    if (key === "action") renderStandardActions(list, currentItems);
+
+    if (grouped[key] && grouped[key].length > 0)
+      grouped[key].forEach(a => list.appendChild(renderAbilityCard(a)));
+  });
+}
+
+// ── Standard Actions ───────────────────────────────────────────────────────────
+
+const STANDARD_ACTIONS = [
+  { name: "Dash",       desc: "Double your speed this turn." },
+  { name: "Disengage",  desc: "Your movement doesn't provoke opportunity attacks for the rest of the turn." },
+  { name: "Dodge",      desc: "Until the start of your next turn, attacks against you have Disadvantage and you have Advantage on DEX saves." },
+  { name: "Help",       desc: "Give an ally Advantage on their next ability check or attack roll." },
+  { name: "Hide",       desc: "Make a Stealth check to become hidden." },
+  { name: "Ready",      desc: "Prepare a reaction to trigger on a specified condition before your next turn." },
+  { name: "Search",     desc: "Make a Perception or Investigation check to locate something." },
+];
+
+function renderStandardActions(list, items) {
+  // Attack action with weapon breakdown
+  const weapons = items.filter(i => i.is_weapon && i.equipped && i.damage_dice);
+  const prof = profBonus(char.level);
+  const strMod = Math.floor((char.str - 10) / 2);
+  const dexMod = Math.floor((char.dex - 10) / 2);
+
+  const attackCard = document.createElement("div");
+  attackCard.className = "ability-card standard-action-card";
+
+  let weaponRows = "";
+  if (weapons.length === 0) {
+    weaponRows = `<div class="attack-weapon-row muted">No weapons equipped.</div>`;
+  } else {
+    weapons.forEach(w => {
+      const abilMod = w.is_melee ? strMod : dexMod;
+      const toHit = abilMod + prof + w.magic_bonus;
+      const dmgBonus = abilMod + w.magic_bonus;
+      const sign = dmgBonus >= 0 ? "+" : "";
+      weaponRows += `
+        <div class="attack-weapon-row">
+          <span class="attack-weapon-name">${escHtml(w.name)}</span>
+          <span class="attack-tohit">To-hit: ${toHit >= 0 ? "+" : ""}${toHit}</span>
+          <span class="attack-dmg">${w.damage_dice}${sign}${dmgBonus} ${escHtml(w.damage_type)}</span>
+          ${w.damage_notes ? `<span class="attack-notes">${escHtml(w.damage_notes)}</span>` : ""}
+        </div>`;
+    });
+  }
+
+  attackCard.innerHTML = `
+    <div class="ability-card-header">
+      <span class="ability-name">Attack</span>
+      <span class="standard-action-note">Extra Attack: 2 per action</span>
+    </div>
+    <div class="attack-weapons">${weaponRows}</div>
+  `;
+  list.appendChild(attackCard);
+
+  // Other standard actions
+  STANDARD_ACTIONS.forEach(({ name, desc }) => {
+    const card = document.createElement("div");
+    card.className = "ability-card standard-action-card";
+    card.innerHTML = `
+      <div class="ability-card-header">
+        <span class="ability-name">${name}</span>
+      </div>
+      <div class="ability-desc">${desc}</div>
+    `;
+    list.appendChild(card);
   });
 }
 
@@ -569,6 +635,7 @@ async function loadInventory() {
 
   currentItems = items;
   renderSkills();
+  loadAbilities();
 }
 
 function renderItemCard(item) {
@@ -620,6 +687,13 @@ function openItemModal(item = null) {
     itemForm.description.value = item.description;
     itemForm.ac_bonus.value = item.ac_bonus || 0;
     itemForm.sets_base_ac.checked = !!item.sets_base_ac;
+    itemForm.is_weapon.checked = !!item.is_weapon;
+    document.getElementById("weapon-fields").hidden = !item.is_weapon;
+    itemForm.damage_dice.value = item.damage_dice || "";
+    itemForm.damage_type.value = item.damage_type || "";
+    itemForm.magic_bonus.value = item.magic_bonus || 0;
+    itemForm.is_melee.checked = item.is_melee !== 0;
+    itemForm.damage_notes.value = item.damage_notes || "";
     itemForm.equipped.checked = !!item.equipped;
   } else {
     itemForm.id_field = null;
@@ -638,6 +712,9 @@ itemForm.onsubmit = async (e) => {
   body.weight = Number(body.weight);
   body.ac_bonus = Number(body.ac_bonus) || 0;
   body.sets_base_ac = !!body.sets_base_ac;
+  body.is_weapon = !!body.is_weapon;
+  body.magic_bonus = Number(body.magic_bonus) || 0;
+  body.is_melee = !!body.is_melee;
   body.equipped = !!body.equipped;
 
   if (itemForm.id_field) {

@@ -188,6 +188,22 @@
         Sets base AC (armor)
       </label>
       <label class="checkbox-label">
+        <input name="is_weapon" type="checkbox" id="is-weapon-check" />
+        Weapon
+      </label>
+      <div id="weapon-fields" hidden>
+        <div class="form-grid">
+          <label>Damage Dice <input name="damage_dice" placeholder="1d6" /></label>
+          <label>Damage Type <input name="damage_type" placeholder="slashing" /></label>
+          <label>Magic Bonus <input name="magic_bonus" type="number" value="0" min="0" /></label>
+          <label class="checkbox-label" style="align-self:end">
+            <input name="is_melee" type="checkbox" checked />
+            Melee (STR)
+          </label>
+        </div>
+        <label>Notes <input name="damage_notes" placeholder="Versatile (1d8), Reach…" /></label>
+      </div>
+      <label class="checkbox-label">
         <input name="equipped" type="checkbox" />
         Equipped
       </label>
@@ -200,6 +216,9 @@
 
   <script>
     const CHARACTER_ID = {{ character_id }};
+    document.getElementById("is-weapon-check").addEventListener("change", e => {
+      document.getElementById("weapon-fields").hidden = !e.target.checked;
+    });
   </script>
   <script src="/static/app.js"></script>
   <script src="/static/character.js"></script>

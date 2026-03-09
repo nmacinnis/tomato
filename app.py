@@ -226,7 +226,11 @@ def create_item(cid):
 def update_item(iid):
     data = request.json
     db = get_db()
-    fields = ["name", "quantity", "weight", "description", "equipped", "ac_bonus", "sets_base_ac", "tool_proficient"]
+    fields = [
+        "name", "quantity", "weight", "description", "equipped",
+        "ac_bonus", "sets_base_ac", "tool_proficient",
+        "damage_dice", "damage_type", "damage_notes", "magic_bonus", "is_weapon", "is_melee",
+    ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
     if not set_clause:

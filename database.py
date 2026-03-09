@@ -163,6 +163,43 @@ def init_db():
             conn.execute("UPDATE abilities SET type=? WHERE name=?", (new_type, name))
     for tool in ("Carpenter's Tools", "Tinker's Tools", "Herbalism Kit"):
         conn.execute("UPDATE inventory SET tool_proficient=1 WHERE name=?", (tool,))
+
+    for col_def in (
+        "damage_dice  TEXT    NOT NULL DEFAULT ''",
+        "damage_type  TEXT    NOT NULL DEFAULT ''",
+        "damage_notes TEXT    NOT NULL DEFAULT ''",
+        "magic_bonus  INTEGER NOT NULL DEFAULT 0",
+        "is_weapon    INTEGER NOT NULL DEFAULT 0",
+        "is_melee     INTEGER NOT NULL DEFAULT 1",
+    ):
+        try:
+            conn.execute(f"ALTER TABLE inventory ADD COLUMN {col_def}")
+        except sqlite3.OperationalError:
+            pass
+
+    # name, damage_dice, damage_type, magic_bonus, is_melee, damage_notes
+    weapons = [
+        ("Spear",
+         "1d6", "piercing", 0, 1, "Versatile (1d8), Thrown 20/60, Sap"),
+        ("Hand Axe",
+         "1d6", "slashing", 0, 1, "Light, Thrown 20/60, Vex"),
+        ("Hand Axe (Shovel \u2014 sharpened WW1-style)",
+         "1d6", "slashing", 0, 1, "Light, Thrown 20/60, Vex"),
+        ("Javelin",
+         "1d6", "piercing", 0, 1, "Thrown 30/120, Slow (STR-based)"),
+        ("Halberd",
+         "1d10", "slashing", 0, 1, "Reach, Heavy, Cleave"),
+        ("Yester Hill Axe",
+         "1d8", "slashing", 1, 1, "Versatile (1d10), +1d8 vs animals/plants/monstrosities"),
+    ]
+    for name, dd, dt, mb, im, notes in weapons:
+        conn.execute(
+            """UPDATE inventory
+               SET damage_dice=?, damage_type=?, magic_bonus=?,
+                   is_melee=?, damage_notes=?, is_weapon=1
+               WHERE name=?""",
+            (dd, dt, mb, im, notes, name),
+        )
     conn.execute("UPDATE characters SET save_proficiencies='str,con' WHERE name='Tomato'")
 
     # Set AC values on Tomato's items
