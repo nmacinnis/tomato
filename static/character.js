@@ -21,11 +21,21 @@ function renderCharacter() {
   document.getElementById("char-subtitle").textContent =
     `${char.race} ${char.class} — Level ${char.level}`;
 
+  const prof = profBonus(char.level);
+  const saveProfs = new Set((char.save_proficiencies || "").split(",").map(s => s.trim()).filter(Boolean));
+
   ["str", "dex", "con", "int", "wis", "cha"].forEach(stat => {
     const box = document.querySelector(`.stat-box[data-stat="${stat}"]`);
     box.querySelector(".stat-val").textContent = char[stat];
     box.querySelector(".stat-mod").textContent = modifier(char[stat]);
     box.onclick = () => editStat(stat);
+
+    const mod = Math.floor((char[stat] - 10) / 2);
+    const proficient = saveProfs.has(stat);
+    const saveVal = mod + (proficient ? prof : 0);
+    const saveEl = box.querySelector(".stat-save");
+    saveEl.textContent = `save ${saveVal >= 0 ? "+" : ""}${saveVal}`;
+    saveEl.className = "stat-save" + (proficient ? " save-proficient" : "");
   });
 
   updateHpDisplay();
@@ -35,7 +45,6 @@ function renderCharacter() {
   document.getElementById("notes-area").value = char.notes || "";
 
   // Derived stats
-  const prof = profBonus(char.level);
   const dexMod = Math.floor((char.dex - 10) / 2);
   const wisMod = Math.floor((char.wis - 10) / 2);
   document.getElementById("prof-val").textContent = `+${prof}`;

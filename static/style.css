@@ -129,6 +129,8 @@ main { padding: 1.5rem; }
 .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 .stat-val   { font-size: 1.5rem; font-weight: bold; color: var(--text); }
 .stat-mod   { font-size: 0.85rem; color: var(--accent2); }
+.stat-save  { font-size: 0.65rem; color: var(--muted); margin-top: 0.15rem; }
+.stat-save.save-proficient { color: #7ecfb0; font-weight: bold; }
 
 /* ── Combat ───────────────────────────────────────────────────────────────── */
 .combat-row {

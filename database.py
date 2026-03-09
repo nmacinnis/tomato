@@ -94,6 +94,11 @@ def init_db():
         conn.execute("ALTER TABLE characters ADD COLUMN flat_ac_bonus INTEGER NOT NULL DEFAULT 0")
     except sqlite3.OperationalError:
         pass
+    try:
+        conn.execute("ALTER TABLE characters ADD COLUMN save_proficiencies TEXT NOT NULL DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+    conn.execute("UPDATE characters SET save_proficiencies='str,con' WHERE name='Tomato'")
 
     # Set AC values on Tomato's items
     conn.execute("UPDATE inventory SET ac_bonus=17, sets_base_ac=1 WHERE name='Splint Armor'")
