@@ -116,8 +116,7 @@ main { padding: 1.5rem; }
 
 @media (max-width: 900px) {
   .sheet-layout { grid-template-columns: 1fr; }
-  .abilities-panel,
-  .skills-panel { grid-column: 1 / -1; }
+  .sheet-layout > * { grid-column: 1 / -1; }
 
   header { flex-wrap: wrap; }
   #char-title { flex: 1 1 100%; min-width: 0; order: 2; }
