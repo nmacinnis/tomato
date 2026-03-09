@@ -408,6 +408,18 @@ main { padding: 1.5rem; }
 .recharge-long  { background: #1a2a4a; color: #7eb0ef; }
 
 /* ── Death Saves ──────────────────────────────────────────────────────────── */
+.ds-adv-badge {
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: #4caf50;
+  border: 1px solid #4caf50;
+  border-radius: 3px;
+  padding: 1px 4px;
+  vertical-align: middle;
+  letter-spacing: 0.05em;
+  cursor: default;
+}
+
 .death-saves { display: flex; flex-direction: column; gap: 0.5rem; }
 
 .ds-row { display: flex; align-items: center; gap: 0.7rem; }
