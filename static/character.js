@@ -345,6 +345,7 @@ async function loadInventory() {
     document.getElementById("weight-total").textContent = "";
     return;
   }
+  items.sort((a, b) => b.equipped - a.equipped || a.name.localeCompare(b.name));
   items.forEach(i => list.appendChild(renderItemCard(i)));
   const total = items.reduce((s, i) => s + i.weight * i.quantity, 0);
   document.getElementById("weight-total").textContent = `Total weight: ${total.toFixed(1)} lbs`;
@@ -355,8 +356,9 @@ function renderItemCard(item) {
   div.className = "item-card";
   div.innerHTML = `
     <div class="item-card-header">
-      <span class="item-name">${escHtml(item.name)}${item.equipped ? ' <span class="equipped-badge">[equipped]</span>' : ""}</span>
+      <span class="item-name">${escHtml(item.name)}</span>
       <div class="card-actions">
+        <button class="equip-btn ${item.equipped ? "is-equipped" : ""}" data-id="${item.id}">${item.equipped ? "Equipped" : "Equip"}</button>
         <button class="edit-item-btn" data-id="${item.id}">Edit</button>
         <button class="del-item-btn" data-id="${item.id}">✕</button>
       </div>
@@ -368,6 +370,14 @@ function renderItemCard(item) {
     ${item.description ? `<div class="item-desc">${escHtml(item.description)}</div>` : ""}
   `;
 
+  div.querySelector(".equip-btn").addEventListener("click", async () => {
+    await fetch(`/api/inventory/${item.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ equipped: !item.equipped }),
+    });
+    loadInventory();
+  });
   div.querySelector(".edit-item-btn").addEventListener("click", () => openItemModal(item));
   div.querySelector(".del-item-btn").addEventListener("click", async () => {
     await fetch(`/api/inventory/${item.id}`, { method: "DELETE" });
