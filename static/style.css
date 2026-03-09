@@ -1,0 +1,241 @@
+/* ── Reset & Base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #1a1a2e;
+  --surface:   #16213e;
+  --panel:     #0f3460;
+  --accent:    #e94560;
+  --accent2:   #c7a026;
+  --text:      #e0e0e0;
+  --muted:     #888;
+  --border:    #2a3a5e;
+  --radius:    8px;
+  --font:      'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 2px solid var(--panel);
+}
+
+header h1 { flex: 1; font-size: 1.4rem; color: var(--accent2); }
+#char-subtitle { color: var(--muted); font-size: 0.9rem; }
+.back-link { color: var(--accent2); text-decoration: none; white-space: nowrap; }
+.back-link:hover { text-decoration: underline; }
+#char-title { flex: 1; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.btn {
+  padding: 0.5rem 1.1rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  background: var(--panel);
+  color: var(--text);
+  transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.85; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-danger  { background: #7a1e2e; color: #fff; }
+.btn-sm      { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+.btn-small   {
+  width: 28px; height: 28px;
+  border: none; border-radius: 50%;
+  background: var(--panel); color: var(--text);
+  font-size: 1.1rem; cursor: pointer; line-height: 1;
+}
+.btn-small:hover { background: var(--accent); }
+
+/* ── Index Page ───────────────────────────────────────────────────────────── */
+main { padding: 1.5rem; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.char-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.char-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.char-card h3 { color: var(--accent2); margin-bottom: 0.3rem; }
+.char-card p  { font-size: 0.85rem; color: var(--muted); }
+
+.empty-msg { color: var(--muted); text-align: center; margin-top: 4rem; font-size: 1.1rem; }
+
+/* ── Character Sheet Layout ───────────────────────────────────────────────── */
+.sheet-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .sheet-layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.panel h2 { font-size: 1rem; color: var(--accent2); border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+.panel-header { display: flex; justify-content: space-between; align-items: center; }
+.panel-header h2 { border: none; padding: 0; }
+
+/* ── Ability Scores ───────────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.stat-box {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 0.6rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.stat-box:hover { background: #1a4a7e; }
+.stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.stat-val   { font-size: 1.5rem; font-weight: bold; color: var(--text); }
+.stat-mod   { font-size: 0.85rem; color: var(--accent2); }
+
+/* ── Combat ───────────────────────────────────────────────────────────────── */
+.combat-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.combat-box {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 0.6rem;
+  text-align: center;
+}
+.combat-label { display: block; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+.combat-box span:last-child, .hp-controls { font-size: 1.2rem; font-weight: bold; color: var(--accent2); }
+.hp-controls { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+
+/* ── Notes ────────────────────────────────────────────────────────────────── */
+#notes-area {
+  width: 100%;
+  min-height: 100px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  padding: 0.6rem;
+  resize: vertical;
+}
+
+/* ── Ability / Item Cards ─────────────────────────────────────────────────── */
+.ability-card, .item-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.ability-card-header, .item-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.ability-name, .item-name { font-weight: bold; font-size: 0.95rem; }
+.ability-type { font-size: 0.75rem; color: var(--muted); background: var(--bg); padding: 0.1rem 0.4rem; border-radius: 4px; white-space: nowrap; }
+.ability-desc, .item-desc { font-size: 0.82rem; color: var(--muted); margin-top: 0.3rem; }
+.ability-uses { font-size: 0.82rem; color: var(--accent2); margin-top: 0.3rem; }
+
+.item-meta { display: flex; gap: 0.8rem; font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
+.equipped-badge { color: var(--accent2); font-size: 0.8rem; }
+
+.card-actions { display: flex; gap: 0.3rem; }
+.card-actions button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; padding: 0.1rem 0.3rem; border-radius: 4px; }
+.card-actions button:hover { color: var(--accent); background: var(--bg); }
+
+.weight-total { font-size: 0.85rem; color: var(--muted); text-align: right; margin-top: 0.5rem; }
+
+/* ── Modals ───────────────────────────────────────────────────────────────── */
+dialog {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 1.5rem;
+  width: min(420px, 90vw);
+  font-family: var(--font);
+}
+
+dialog::backdrop { background: rgba(0,0,0,0.7); }
+
+dialog h2, dialog h3 { color: var(--accent2); margin-bottom: 0.8rem; }
+
+dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+
+dialog input, dialog select, dialog textarea {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.6rem;
+  width: 100%;
+}
+
+dialog textarea { min-height: 70px; resize: vertical; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+.stats-grid.form-grid { grid-template-columns: repeat(3, 1fr); }
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1rem; }
+
+.checkbox-label { flex-direction: row !important; align-items: center; gap: 0.5rem !important; }
+.checkbox-label input { width: auto; }

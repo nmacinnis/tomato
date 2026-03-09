@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DnD Character Tracker</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>D&D Character Tracker</h1>
+    <button id="new-char-btn" class="btn btn-primary">+ New Character</button>
+  </header>
+
+  <main>
+    <div id="characters-grid" class="card-grid"></div>
+    <p id="empty-msg" class="empty-msg" hidden>No characters yet. Create one!</p>
+  </main>
+
+  <!-- New Character Modal -->
+  <dialog id="new-char-modal">
+    <form id="new-char-form">
+      <h2>New Character</h2>
+      <div class="form-grid">
+        <label>Name <input name="name" required placeholder="Tordek" /></label>
+        <label>Race <input name="race" placeholder="Dwarf" /></label>
+        <label>Class <input name="class" placeholder="Fighter" /></label>
+        <label>Level <input name="level" type="number" min="1" max="20" value="1" /></label>
+        <label>Max HP <input name="max_hp" type="number" min="1" value="10" /></label>
+        <label>AC <input name="ac" type="number" min="1" value="10" /></label>
+        <label>Speed <input name="speed" type="number" min="0" value="30" /></label>
+      </div>
+      <h3>Ability Scores</h3>
+      <div class="form-grid stats-grid">
+        <label>STR <input name="str" type="number" min="1" max="30" value="10" /></label>
+        <label>DEX <input name="dex" type="number" min="1" max="30" value="10" /></label>
+        <label>CON <input name="con" type="number" min="1" max="30" value="10" /></label>
+        <label>INT <input name="int" type="number" min="1" max="30" value="10" /></label>
+        <label>WIS <input name="wis" type="number" min="1" max="30" value="10" /></label>
+        <label>CHA <input name="cha" type="number" min="1" max="30" value="10" /></label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="cancel-new-char">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+  <script>
+    const modal = document.getElementById("new-char-modal");
+    document.getElementById("new-char-btn").onclick = () => modal.showModal();
+    document.getElementById("cancel-new-char").onclick = () => modal.close();
+
+    document.getElementById("new-char-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const body = Object.fromEntries(fd.entries());
+      ["level", "max_hp", "hp", "ac", "speed", "str", "dex", "con", "int", "wis", "cha"]
+        .forEach(k => { if (body[k] !== undefined) body[k] = Number(body[k]); });
+      body.hp = body.max_hp;
+      const res = await fetch("/api/characters", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const { id } = await res.json();
+      modal.close();
+      e.target.reset();
+      window.location.href = `/character/${id}`;
+    };
+
+    loadCharacters();
+  </script>
+</body>
+</html>

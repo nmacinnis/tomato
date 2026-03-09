@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Character Sheet</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/" class="back-link">← All Characters</a>
+    <div id="char-title">
+      <h1 id="char-name">Loading...</h1>
+      <span id="char-subtitle"></span>
+    </div>
+    <button id="delete-char-btn" class="btn btn-danger">Delete Character</button>
+  </header>
+
+  <main class="sheet-layout">
+
+    <!-- Left column: Stats + Combat -->
+    <section class="panel">
+      <h2>Stats</h2>
+      <div class="stats-grid">
+        <div class="stat-box" data-stat="str"><div class="stat-label">STR</div><div class="stat-val"></div><div class="stat-mod"></div></div>
+        <div class="stat-box" data-stat="dex"><div class="stat-label">DEX</div><div class="stat-val"></div><div class="stat-mod"></div></div>
+        <div class="stat-box" data-stat="con"><div class="stat-label">CON</div><div class="stat-val"></div><div class="stat-mod"></div></div>
+        <div class="stat-box" data-stat="int"><div class="stat-label">INT</div><div class="stat-val"></div><div class="stat-mod"></div></div>
+        <div class="stat-box" data-stat="wis"><div class="stat-label">WIS</div><div class="stat-val"></div><div class="stat-mod"></div></div>
+        <div class="stat-box" data-stat="cha"><div class="stat-label">CHA</div><div class="stat-val"></div><div class="stat-mod"></div></div>
+      </div>
+
+      <h2>Combat</h2>
+      <div class="combat-row">
+        <div class="combat-box">
+          <span class="combat-label">HP</span>
+          <div class="hp-controls">
+            <button class="btn-small" id="hp-down">−</button>
+            <span id="hp-display">10 / 10</span>
+            <button class="btn-small" id="hp-up">+</button>
+          </div>
+        </div>
+        <div class="combat-box"><span class="combat-label">AC</span><span id="ac-val"></span></div>
+        <div class="combat-box"><span class="combat-label">Speed</span><span id="speed-val"></span></div>
+        <div class="combat-box"><span class="combat-label">Level</span><span id="level-val"></span></div>
+      </div>
+
+      <h2>Notes</h2>
+      <textarea id="notes-area" placeholder="Session notes, backstory..."></textarea>
+      <button class="btn btn-primary" id="save-notes-btn">Save Notes</button>
+    </section>
+
+    <!-- Middle column: Abilities -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Abilities</h2>
+        <button class="btn btn-primary btn-sm" id="add-ability-btn">+ Add</button>
+      </div>
+      <div id="abilities-list"></div>
+    </section>
+
+    <!-- Right column: Inventory -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Inventory</h2>
+        <button class="btn btn-primary btn-sm" id="add-item-btn">+ Add</button>
+      </div>
+      <div id="inventory-list"></div>
+      <div id="weight-total" class="weight-total"></div>
+    </section>
+
+  </main>
+
+  <!-- Ability Modal -->
+  <dialog id="ability-modal">
+    <form id="ability-form">
+      <h2 id="ability-modal-title">Add Ability</h2>
+      <input type="hidden" name="id" />
+      <label>Name <input name="name" required /></label>
+      <label>Type
+        <select name="type">
+          <option value="passive">Passive</option>
+          <option value="active">Active</option>
+          <option value="spell">Spell</option>
+        </select>
+      </label>
+      <label>Description <textarea name="description"></textarea></label>
+      <label>Uses per Rest (leave blank if unlimited) <input name="uses_max" type="number" min="1" /></label>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="cancel-ability">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Item Modal -->
+  <dialog id="item-modal">
+    <form id="item-form">
+      <h2 id="item-modal-title">Add Item</h2>
+      <input type="hidden" name="id" />
+      <label>Name <input name="name" required /></label>
+      <label>Quantity <input name="quantity" type="number" min="1" value="1" /></label>
+      <label>Weight (lbs) <input name="weight" type="number" min="0" step="0.1" value="0" /></label>
+      <label>Description <textarea name="description"></textarea></label>
+      <label class="checkbox-label">
+        <input name="equipped" type="checkbox" />
+        Equipped
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="cancel-item">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const CHARACTER_ID = {{ character_id }};
+  </script>
+  <script src="/static/app.js"></script>
+  <script src="/static/character.js"></script>
+</body>
+</html>

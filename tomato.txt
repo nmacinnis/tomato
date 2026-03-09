@@ -1,0 +1,140 @@
+Lineage: Reborn Warforged “Salvage” flavor
+Level: 9
+Size: Medium (6’6 302lbs)
+Speed: 30 feet
+Base stats:
+Str 20 (15 + 1 + 2asi + 1 from mage slayer + 1 from sentinel) (+5)
+Con 16 (14 + 2) (+3)
+Dex 12 (+1)
+Wis 13 (+1)
+Cha 10 (+0)
+Int 8 (-1)
+Ability Scores: +1 Str, +2 Con
+Proficiency Bonus: +4 (level 9) table
+Armor Class: 19 (splint armor + defense + cloak of prot), 21 with shield
+Alignment: Chaotic Good
+
+Ancestral Legacy: Insight, Herbalism kit
+
+Deathless Nature:
+You have advantage on saving throws against disease and being poisoned, and you have resistance to poison damage.
+You have advantage on death saving throws.
+You don't need to eat, drink, or breathe.
+You don't need to sleep, and magic can't put you to sleep. You can finish a long rest in 4 hours if you spend those hours in an inactive, motionless state, during which you retain consciousness.
+
+Knowledge from a Past Life. You temporarily remember glimpses of the past, perhaps faded memories from ages ago or a previous life. When you make an ability check that uses a skill, you can roll a d6 immediately after seeing the number on the d20 and add the number on the d6 to the check. You can use this feature a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest.
+
+Warforged quirk: You don't understand clothing beyond its utility and assume it denotes a person's function.
+Trinket: a single seed from the Harvest House in Daggerford
+
+Languages: Common and Sylvan
+
+Class: Battlemaster Fighter
+Hit Dice: 9d10
+Hit Points at 1st Level: 13 (10 + your Constitution modifier)
+Hit Points at 2nd Level: 20 (rolled 4 + 3 con mod)
+Hit Points at 3rd Level: 25 (rolled 2 + 3 con mod)
+Hit Points at 4th Level: 33 (rolled 5 + 3 con mod)
+Hit Points at 5th Level: 44 (rolled 8 + 3 con mod)
+Hit Points at 6th Level: 57 (rolled 10 + 3 con mod)
+Hit Points at 7th Level: 68 (rolled 8 + 3 con mod)
+Hit Points at 8th Level: 78 (rolled 7 + 3 con mod)
+Hit Points at 8th Level: 78 (rolled 6 + 3 con mod)
+Hit Points at 9th Level: 87 (rolled 6 + 3 con mod)
+
+
+
+
+Hit Points at Higher Levels: 1d10 (or 6) + your Constitution modifier per Fighter level after 1st
+
+Superiority Die: 4D8
+
+Extra Attack: Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn.
+
+Proficiencies:
+Armor: light armor, medium armor, heavy armor, shields
+Weapons: simple weapons, martial weapons
+Saving Throws: Strength, Constitution
+Skills: Athletics, Perception
+
+Weapon Mastery (2024): 4 (4 at level 4) types of simple/martial weapons: spears (sap), hand axe (vex), javelin (slow), halberd (cleave)
+
+Starting Equipment: Chain mail, Spear, Shield, Two handaxes, Dungeoneer's pack (backpack, crowbar, hammer, 10 pitons, 10 torches, tinderbox, 10 days of rations, waterskin, 50 feet of hempen rope). Flavor: one of Tomato’s handaxes is actually her shovel (from folk hero background) sharpened WW1-style.
+
+Other equipment I have picked up along the way: Halberd (2h, 1d10, reach, cleave), Cloak of Protection (+1 ac, +1 to saving throws), Carpenter’s Tools, Splint Armor (ac17, disadv stealth), Yester Hill Axe (+1 battleaxe, +1d8 against animal/plant/monstrosity)
+
+Heraldic Sign: Crossed Wrench and Scythe (actually the maker’s mark, like a brand logo)
+Instructor: Military
+Style: Effortless
+
+Action Surge
+You can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action, except the Magic action. Once you use this feature, you can't do so again until you finish a Short or Long Rest.
+
+Second Wind
+You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level. Once you use this feature, you must finish a short or long rest before you can use it again. (2024: 3 uses at level 4)
+
+Tactical Mind (phb 2024)
+You have a mind for tactics on and off the battlefield. When you fail an ability check, you can expend a use of your Second Wind to push yourself toward success. Rather than regaining Hit Points, you roll 1d10 and add the number rolled to the ability check, potentially turning it into a success. If the check still fails, this use of Second Wind isn't expended.
+
+Know Your Enemy
+As a Bonus Action, you can discern certain strengths and weaknesses of a creature you can see within 30 feet of yourself; you know whether that creature has any Immunities, Resistances, or Vulnerabilities, and if the creature has any, you know what they are.
+
+Once you use this feature, you can't do so again until you finish a Long Rest. You can also restore a use of the feature by expending one Superiority Die (no action required).
+
+Extra Attack
+You can attack twice instead of once whenever you take the Attack action on your turn.
+
+Tactical Shift
+Whenever you activate your Second Wind with a Bonus Action, you can move up to half your Speed without provoking Opportunity Attacks.
+
+Fighting Style: Defense (+1 ac while wearing armor)
+
+Student of war: Carpenter's tools proficiency, stealth (2024)
+Maneuvers:
+goading attack (wis 13)
+rally (d8 + 4 [half of fighter level rounding down])
+riposte (reaction to attack upon being missed)
+precision (add d8 to missed roll)
+parry (reduce damage by d8 + str4)
+Saving Throws. If a maneuver requires a saving throw, the DC equals 8 plus your Strength modifier and Proficiency Bonus. Currently 17
+
+Indomitable: If you fail a saving throw, you can reroll it with a bonus equal to your Fighter level. You must use the new roll, and you can't use this feature again until you finish a Long Rest.
+
+Tactical Master: When you attack with a weapon whose mastery property you can use, you can replace that property with the Push, Sap, or Slow property for that attack.
+
+Background: Folk Hero
+Tomato’s sentience was reborn when defending her village against a raiding party of Zhentarim mercenaries, sent to burn crops in order to extort the smallfolk for protection. Tomato, a farming automaton, was harvesting wheat in the fields when armed soldiers set upon the homestead. Witnessing bloodshed seemed to awaken a dormant consciousness in her; she picked up a spear off the ground and quickly dispatched two surprised raiders. This rallied the farmers to drive off the soldiers, who had not expected armed resistance.
+
+Following this event, Tomato became something of a minor celebrity among the country folk - the scarecrow who came to life to protect them from their oppressors. However, her new status also became a point of difficulty within her community. The crops still needed to be harvested - would she go back to work? How could she be compensated for her labor? Why was her body in such a poorly maintained state? She had little memory of her past, and what she did remember placed her in a region nobody knew of. The townsfolk could not ignore the risk that she might kill again.
+
+Yet, her time cultivating the land was not lost. She is well familiarized with the culture and customs of her new homeland. She is a capable farmer and shepherd, self-reliant and perfectly at home in field and forest. Her innate magic makes her one with nature. And, if needed, she is always able to pass as just another mindless farm implement.
+
+Skill Proficiencies: Animal Handling, Survival
+Tool Proficiencies: Tinker’s tools, vehicles (land)
+Equipment: Tinker’s tools, a shovel, an iron pot, a set of common clothes, and a belt pouch containing 10 gp
+
+Feature: Rustic Hospitality
+Since you come from the ranks of the common folk, you fit in among them with ease. You can find a place to hide, rest, or recuperate among other commoners, unless you have shown yourself to be a danger to them. They will shield you from the law or anyone else searching for you, though they will not risk their lives for you.
+
+Defining Event: I stood up to a tyrant's agents.
+
+Personality Trait: If someone is in trouble, I'm always ready to lend help.
+Ideal: Freedom. Tyrants must not be allowed to oppress the people. (Chaotic)
+Bond: I protect those who cannot protect themselves.
+Flaw: The people who knew me when I was young know my shameful secret, so I can never go home again. (flavor: The villagers who owned me see me as a friend, but they are afraid of me anyway).
+
+Feat: Magic Initiate (Druid)
+Tomato has innate dryad magic.
+Cantrips: Druidcraft, Guidance
+Spell: Goodberry
+
+Feat: Mage Slayer
+Tomato’s half-organic, half-mechanical brain is inherently resistant to mind control. If one half is charmed, the other half can break the spell.
+
+Guarded Mind: If you fail an Intelligence, a Wisdom, or a Charisma saving throw, you can cause yourself to succeed instead (once per short or long rest).
+Concentration Breaker: When you damage a creature that is Concentrating, it has Disadvantage on the saving throw.
+
+Feat: Sentinel
+
+Guardian: Immediately after a creature within 5 feet of you takes the Disengage action or hits a target other than you with an attack, you can make an Opportunity Attack against that creature.
+Halt: When you hit a creature with an Opportunity Attack, the creature's Speed becomes 0 for the rest of the current turn.
