@@ -82,6 +82,25 @@ def init_db():
         conn.execute("ALTER TABLE abilities ADD COLUMN recharge TEXT")
     except sqlite3.OperationalError:
         pass
+    for col_def in (
+        "ac_bonus     INTEGER NOT NULL DEFAULT 0",
+        "sets_base_ac INTEGER NOT NULL DEFAULT 0",
+    ):
+        try:
+            conn.execute(f"ALTER TABLE inventory ADD COLUMN {col_def}")
+        except sqlite3.OperationalError:
+            pass
+    try:
+        conn.execute("ALTER TABLE characters ADD COLUMN flat_ac_bonus INTEGER NOT NULL DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+
+    # Set AC values on Tomato's items
+    conn.execute("UPDATE inventory SET ac_bonus=17, sets_base_ac=1 WHERE name='Splint Armor'")
+    conn.execute("UPDATE inventory SET ac_bonus=2  WHERE name='Shield'")
+    conn.execute("UPDATE inventory SET ac_bonus=1  WHERE name='Cloak of Protection'")
+    # Defense fighting style +1 AC while wearing armor
+    conn.execute("UPDATE characters SET flat_ac_bonus=1 WHERE name='Tomato'")
 
     # Seed hit_dice_remaining = level for freshly migrated characters
     conn.execute("UPDATE characters SET hit_dice_remaining = level WHERE hit_dice_remaining = 0")
