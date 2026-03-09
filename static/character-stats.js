@@ -124,7 +124,8 @@ function renderTomatoes() {
 // ── HP / Temp HP ────────────────────────────────────────────────────────────
 
 function updateHpDisplay() {
-  document.getElementById("hp-display").textContent = `${char.hp} / ${char.max_hp}`;
+  document.getElementById("hp-display").textContent = char.hp;
+  document.getElementById("hp-max-display").textContent = `${char.max_hp} max`;
 }
 
 function updateThpDisplay() {
