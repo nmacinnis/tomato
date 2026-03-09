@@ -53,6 +53,14 @@
         </div>
         <div class="combat-box"><span class="combat-label">Initiative</span><span id="init-val"></span></div>
         <div class="combat-box">
+          <span class="combat-label">Sup. Dice (d8)</span>
+          <div class="hp-controls">
+            <button class="btn-small" id="sd-down">−</button>
+            <span id="sd-display">—</span>
+            <button class="btn-small" id="sd-up">+</button>
+          </div>
+        </div>
+        <div class="combat-box">
           <span class="combat-label">Temp HP</span>
           <div class="hp-controls">
             <button class="btn-small" id="thp-down">−</button>
@@ -142,9 +150,11 @@
       <label>Name <input name="name" required /></label>
       <label>Type
         <select name="type">
+          <option value="action">Action</option>
+          <option value="bonus_action">Bonus Action</option>
+          <option value="reaction">Reaction</option>
+          <option value="free_action">Free Action</option>
           <option value="passive">Passive</option>
-          <option value="active">Active</option>
-          <option value="spell">Spell</option>
         </select>
       </label>
       <label>Description <textarea name="description"></textarea></label>

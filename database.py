@@ -115,6 +115,52 @@ def init_db():
         "UPDATE characters SET skill_proficiencies=? WHERE name='Tomato'",
         ("athletics,perception,animal_handling,survival,insight,stealth",),
     )
+
+    # Re-categorize Tomato's abilities into action-economy types
+    ability_types = {
+        "action": [
+            "Cantrip: Druidcraft",
+            "Cantrip: Guidance",
+            "Spell: Goodberry",
+            "Maneuver: Goading Attack",
+            "Maneuver: Precision Attack",
+        ],
+        "bonus_action": [
+            "Second Wind",
+            "Know Your Enemy",
+            "Maneuver: Rally",
+        ],
+        "reaction": [
+            "Maneuver: Riposte",
+            "Maneuver: Parry",
+            "Feat — Sentinel: Guardian",
+        ],
+        "free_action": [
+            "Action Surge",
+            "Knowledge from a Past Life",
+            "Indomitable",
+            "Feat — Mage Slayer: Guarded Mind",
+            "Superiority Dice Pool (d8)",
+        ],
+        "passive": [
+            "Deathless Nature",
+            "Extra Attack",
+            "Fighting Style: Defense",
+            "Tactical Mind (phb 2024)",
+            "Tactical Shift",
+            "Tactical Master",
+            "Feat — Mage Slayer: Concentration Breaker",
+            "Feat — Sentinel: Halt",
+            "Rustic Hospitality",
+            "Weapon Mastery: Spear (Sap)",
+            "Weapon Mastery: Hand Axe (Vex)",
+            "Weapon Mastery: Javelin (Slow)",
+            "Weapon Mastery: Halberd (Cleave)",
+        ],
+    }
+    for new_type, names in ability_types.items():
+        for name in names:
+            conn.execute("UPDATE abilities SET type=? WHERE name=?", (new_type, name))
     for tool in ("Carpenter's Tools", "Tinker's Tools", "Herbalism Kit"):
         conn.execute("UPDATE inventory SET tool_proficient=1 WHERE name=?", (tool,))
     conn.execute("UPDATE characters SET save_proficiencies='str,con' WHERE name='Tomato'")

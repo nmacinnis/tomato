@@ -2,6 +2,7 @@
 
 let char = null;
 let currentItems = [];
+let superiorityDie = null;  // the Superiority Dice Pool ability object
 
 const SKILLS = [
   { name: "Acrobatics",      key: "acrobatics",      stat: "dex" },
@@ -330,25 +331,95 @@ document.getElementById("delete-char-btn").onclick = async () => {
 
 // ── Abilities ──────────────────────────────────────────────────────────────────
 
+const ABILITY_GROUPS = [
+  { key: "action",       label: "Action" },
+  { key: "bonus_action", label: "Bonus Action" },
+  { key: "reaction",     label: "Reaction" },
+  { key: "free_action",  label: "Free Action" },
+  { key: "passive",      label: "Passive" },
+];
+
+// Map legacy type values to display groups
+function normalizeType(type) {
+  if (type === "active" || type === "spell") return "action";
+  return type;
+}
+
 async function loadAbilities() {
   const res = await fetch(`/api/characters/${CHARACTER_ID}/abilities`);
   const abilities = await res.json();
   const list = document.getElementById("abilities-list");
   list.innerHTML = "";
+
   if (abilities.length === 0) {
     list.innerHTML = `<p style="color:var(--muted);font-size:.85rem">No abilities yet.</p>`;
     return;
   }
-  abilities.forEach(a => list.appendChild(renderAbilityCard(a)));
+
+  // Pull out Superiority Dice Pool and render it in combat section
+  const poolIdx = abilities.findIndex(a => a.name === "Superiority Dice Pool (d8)");
+  if (poolIdx !== -1) {
+    superiorityDie = abilities.splice(poolIdx, 1)[0];
+    updateSdDisplay();
+  }
+
+  // Group by normalized type
+  const grouped = {};
+  ABILITY_GROUPS.forEach(g => { grouped[g.key] = []; });
+  abilities.forEach(a => {
+    const key = normalizeType(a.type);
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(a);
+  });
+
+  ABILITY_GROUPS.forEach(({ key, label }) => {
+    if (!grouped[key] || grouped[key].length === 0) return;
+    const header = document.createElement("div");
+    header.className = "ability-group-header";
+    header.textContent = label;
+    list.appendChild(header);
+    grouped[key].forEach(a => list.appendChild(renderAbilityCard(a)));
+  });
 }
+
+// ── Superiority Dice ───────────────────────────────────────────────────────────
+
+function updateSdDisplay() {
+  if (!superiorityDie) return;
+  document.getElementById("sd-display").textContent =
+    `${superiorityDie.uses_remaining} / ${superiorityDie.uses_max}`;
+}
+
+async function patchSuperiorityDie(uses_remaining) {
+  await fetch(`/api/abilities/${superiorityDie.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ uses_remaining }),
+  });
+  superiorityDie.uses_remaining = uses_remaining;
+  updateSdDisplay();
+}
+
+document.getElementById("sd-down").onclick = async () => {
+  if (!superiorityDie || superiorityDie.uses_remaining <= 0) return;
+  await patchSuperiorityDie(superiorityDie.uses_remaining - 1);
+};
+
+document.getElementById("sd-up").onclick = async () => {
+  if (!superiorityDie || superiorityDie.uses_remaining >= superiorityDie.uses_max) return;
+  await patchSuperiorityDie(superiorityDie.uses_remaining + 1);
+};
 
 const RECHARGE_LABEL = { short: "short rest", long: "long rest" };
 
 function renderAbilityCard(a) {
   const div = document.createElement("div");
   div.className = "ability-card";
+  const isManeuver = a.name.startsWith("Maneuver:");
+  const hasUses = a.uses_max != null;
+  const showUseBtn = hasUses || isManeuver;
   const rem = a.uses_remaining ?? a.uses_max;
-  const usesText = a.uses_max != null ? `${rem} / ${a.uses_max}` : "";
+  const usesText = hasUses ? `${rem} / ${a.uses_max}` : "";
   const rechargeBadge = a.recharge
     ? `<span class="recharge-badge recharge-${a.recharge}">${RECHARGE_LABEL[a.recharge]}</span>`
     : "";
@@ -356,11 +427,10 @@ function renderAbilityCard(a) {
     <div class="ability-card-header">
       <div>
         <span class="ability-name">${escHtml(a.name)}</span>
-        <span class="ability-type">${escHtml(a.type)}</span>
         ${rechargeBadge}
       </div>
       <div class="card-actions">
-        ${a.uses_max != null ? `<button class="use-btn" data-id="${a.id}" data-rem="${rem}">Use</button>` : ""}
+        ${showUseBtn ? `<button class="use-btn" data-id="${a.id}" data-rem="${rem ?? 99}">Use</button>` : ""}
         <button class="edit-ability-btn" data-id="${a.id}">Edit</button>
         <button class="del-ability-btn" data-id="${a.id}">✕</button>
       </div>
@@ -376,16 +446,25 @@ function renderAbilityCard(a) {
   });
   div.querySelector(".use-btn")?.addEventListener("click", async (e) => {
     const btn = e.currentTarget;
-    const rem = Number(btn.dataset.rem);
-    if (rem <= 0) return;
-    const newRem = rem - 1;
-    await fetch(`/api/abilities/${a.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uses_remaining: newRem }),
-    });
-    btn.dataset.rem = newRem;
-    div.querySelector(".ability-uses").textContent = `Uses: ${newRem} / ${a.uses_max}`;
+
+    // Consume own uses counter if present
+    if (hasUses) {
+      const cur = Number(btn.dataset.rem);
+      if (cur <= 0) return;
+      const next = cur - 1;
+      await fetch(`/api/abilities/${a.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uses_remaining: next }),
+      });
+      btn.dataset.rem = next;
+      div.querySelector(".ability-uses").textContent = `Uses: ${next} / ${a.uses_max}`;
+    }
+
+    // Maneuvers consume a superiority die
+    if (isManeuver && superiorityDie && superiorityDie.uses_remaining > 0) {
+      await patchSuperiorityDie(superiorityDie.uses_remaining - 1);
+    }
   });
 
   return div;
