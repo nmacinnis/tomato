@@ -102,6 +102,21 @@ def init_db():
         conn.execute("ALTER TABLE characters ADD COLUMN temp_hp INTEGER NOT NULL DEFAULT 0")
     except sqlite3.OperationalError:
         pass
+    try:
+        conn.execute("ALTER TABLE characters ADD COLUMN skill_proficiencies TEXT NOT NULL DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute("ALTER TABLE inventory ADD COLUMN tool_proficient INTEGER NOT NULL DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+
+    conn.execute(
+        "UPDATE characters SET skill_proficiencies=? WHERE name='Tomato'",
+        ("athletics,perception,animal_handling,survival,insight,stealth",),
+    )
+    for tool in ("Carpenter's Tools", "Tinker's Tools", "Herbalism Kit"):
+        conn.execute("UPDATE inventory SET tool_proficient=1 WHERE name=?", (tool,))
     conn.execute("UPDATE characters SET save_proficiencies='str,con' WHERE name='Tomato'")
 
     # Set AC values on Tomato's items

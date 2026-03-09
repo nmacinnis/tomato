@@ -82,7 +82,7 @@ def update_character(cid):
         "name", "race", "class", "level", "hp", "max_hp", "ac", "speed",
         "str", "dex", "con", "int", "wis", "cha", "notes",
         "hit_dice_remaining", "death_save_successes", "death_save_failures", "goodberries",
-        "flat_ac_bonus", "ac", "save_proficiencies", "temp_hp",
+        "flat_ac_bonus", "ac", "save_proficiencies", "temp_hp", "skill_proficiencies",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
@@ -226,7 +226,7 @@ def create_item(cid):
 def update_item(iid):
     data = request.json
     db = get_db()
-    fields = ["name", "quantity", "weight", "description", "equipped", "ac_bonus", "sets_base_ac"]
+    fields = ["name", "quantity", "weight", "description", "equipped", "ac_bonus", "sets_base_ac", "tool_proficient"]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
     if not set_clause:

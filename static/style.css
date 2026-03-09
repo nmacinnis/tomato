@@ -204,6 +204,53 @@ main { padding: 1.5rem; }
 
 .weight-total { font-size: 0.85rem; color: var(--muted); text-align: right; margin-top: 0.5rem; }
 
+/* ── Skills Panel ─────────────────────────────────────────────────────────── */
+.skills-panel { grid-column: 1 / -1; }
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.15rem 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .skills-grid { grid-template-columns: 1fr; }
+}
+
+.skill-row {
+  display: grid;
+  grid-template-columns: 1rem 1fr auto auto;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--muted);
+  transition: background 0.1s;
+}
+.skill-row:hover { background: var(--panel); color: var(--text); }
+.skill-row.skill-proficient { color: var(--text); }
+
+.skill-pip { font-size: 0.65rem; color: var(--muted); }
+.skill-row.skill-proficient .skill-pip { color: #7ecfb0; }
+
+.skill-name { }
+.skill-stat { font-size: 0.7rem; color: var(--muted); }
+.skill-val  { font-weight: bold; min-width: 2.5rem; text-align: right; }
+.skill-row.skill-proficient .skill-val { color: #7ecfb0; }
+
+.skill-divider {
+  grid-column: 1 / -1;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0.4rem 0.1rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.3rem;
+}
+
 /* ── Rest Buttons ─────────────────────────────────────────────────────────── */
 .rest-buttons { display: flex; gap: 0.6rem; }
 
