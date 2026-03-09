@@ -39,6 +39,7 @@ function renderCharacter() {
   });
 
   updateHpDisplay();
+  updateThpDisplay();
   document.getElementById("ac-val").textContent = char.ac;
   document.getElementById("speed-val").textContent = `${char.speed} ft`;
   document.getElementById("level-val").textContent = char.level;
@@ -144,6 +145,10 @@ function updateHpDisplay() {
   document.getElementById("hp-display").textContent = `${char.hp} / ${char.max_hp}`;
 }
 
+function updateThpDisplay() {
+  document.getElementById("thp-display").textContent = char.temp_hp ?? 0;
+}
+
 async function patchChar(fields) {
   await fetch(`/api/characters/${CHARACTER_ID}`, {
     method: "PUT",
@@ -164,6 +169,17 @@ document.getElementById("hp-up").onclick = async () => {
   if (char.hp >= char.max_hp) return;
   await patchChar({ hp: char.hp + 1 });
   updateHpDisplay();
+};
+
+document.getElementById("thp-down").onclick = async () => {
+  if ((char.temp_hp ?? 0) <= 0) return;
+  await patchChar({ temp_hp: char.temp_hp - 1 });
+  updateThpDisplay();
+};
+
+document.getElementById("thp-up").onclick = async () => {
+  await patchChar({ temp_hp: (char.temp_hp ?? 0) + 1 });
+  updateThpDisplay();
 };
 
 // Notes
