@@ -227,8 +227,11 @@ def create_item(cid):
     data = request.json
     db = get_db()
     cur = db.execute(
-        """INSERT INTO inventory (character_id, name, quantity, weight, description, equipped)
-           VALUES (?,?,?,?,?,?)""",
+        """INSERT INTO inventory
+           (character_id, name, quantity, weight, description, equipped,
+            ac_bonus, sets_base_ac, is_weapon, is_melee,
+            damage_dice, damage_type, magic_bonus, damage_notes)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             cid,
             data.get("name", "Item"),
@@ -236,6 +239,14 @@ def create_item(cid):
             data.get("weight", 0.0),
             data.get("description", ""),
             data.get("equipped", False),
+            data.get("ac_bonus", 0),
+            data.get("sets_base_ac", False),
+            data.get("is_weapon", False),
+            data.get("is_melee", True),
+            data.get("damage_dice", ""),
+            data.get("damage_type", ""),
+            data.get("magic_bonus", 0),
+            data.get("damage_notes", ""),
         ),
     )
     db.commit()
