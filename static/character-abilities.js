@@ -270,7 +270,7 @@ async function loadAbilities() {
   // Compute AC contribution from abilities and refresh the AC display
   const acAbilities = abilities.filter(a => a.ac_bonus);
   abilityAcBonus = acAbilities.reduce((s, a) => s + a.ac_bonus, 0);
-  abilityAcBreakdown = acAbilities.map(a => `+${a.ac_bonus} (${a.name})`);
+  abilityAcBreakdown = acAbilities.map(a => ({ id: a.id, name: a.name, ac_bonus: a.ac_bonus }));
   if (currentItems.length > 0) updateAcDisplay();
 
   const grouped = {};
