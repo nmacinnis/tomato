@@ -5,12 +5,17 @@ app = Flask(__name__)
 app.teardown_appcontext(close_db)
 init_db()
 
-# Seed Tomato's data on first run if the database is empty
+# Apply all character modules from the characters/ package
 import sqlite3 as _sqlite3
+import importlib
+import pkgutil
+import characters as _chars_pkg
 with _sqlite3.connect(DATABASE) as _c:
-    if _c.execute("SELECT COUNT(*) FROM characters").fetchone()[0] == 0:
-        import runpy
-        runpy.run_path("seed_tomato.py")
+    for _finder, _modname, _ispkg in pkgutil.iter_modules(_chars_pkg.__path__):
+        _mod = importlib.import_module(f"characters.{_modname}")
+        if callable(getattr(_mod, "apply", None)):
+            _mod.apply(_c)
+    _c.commit()
 
 
 # ── Pages ──────────────────────────────────────────────────────────────────────

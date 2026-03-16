@@ -59,7 +59,6 @@ function renderStandardActions(list, items) {
   attackCard.innerHTML = `
     <div class="ability-card-header">
       <span class="ability-name">Attack</span>
-      <span class="standard-action-note">Extra Attack: 2 per action</span>
     </div>
     <div class="attack-weapons">${weaponRows}</div>
   `;
