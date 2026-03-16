@@ -1,8 +1,35 @@
 // Stats, HP, hit dice, death saves, goodberries, notes, rest, delete.
 
+function editName() {
+  const el = document.getElementById("char-name");
+  const current = char.name;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = current;
+  input.style.cssText = "font-size:inherit;font-weight:inherit;font-family:inherit;background:#0f3460;border:1px solid var(--accent);color:var(--text);border-radius:4px;padding:0 4px;width:12rem;";
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+  const save = async () => {
+    const val = input.value.trim() || current;
+    await patchChar({ name: val });
+    input.replaceWith(el);
+    el.textContent = val;
+    document.title = val;
+  };
+  input.onblur = save;
+  input.onkeydown = e => {
+    if (e.key === "Enter") save();
+    if (e.key === "Escape") { input.value = current; input.blur(); }
+  };
+}
+
 function renderCharacter() {
   document.title = char.name;
-  document.getElementById("char-name").textContent = char.name;
+  const nameEl = document.getElementById("char-name");
+  nameEl.textContent = char.name;
+  nameEl.style.cursor = "pointer";
+  nameEl.onclick = editName;
   document.getElementById("char-subtitle").textContent =
     `${char.race} ${char.class} — Level ${char.level}`;
 
