@@ -9,13 +9,16 @@ A simple web app to manage your D&D 5e character sheets — ability scores, HP, 
 - **Combat stats** — HP tracker with +/− buttons, AC, speed, level
 - **Abilities & spells** — passive, active, and spell types; track uses-per-rest
 - **Inventory** — items with quantity, weight (auto-totals carry weight), and equipped status
+- **Skills & saving throws** — proficiency toggles, ability-linked bonuses
+- **Death saves** — track successes/failures with survival odds display
+- **AC breakdown** — collapsible equation with item/ability contribution detail
 - **Notes** — freeform text field per character
 
 ---
 
 ## Running locally
 
-**Requirements:** Python 3.10+
+**Requirements:** Python 3.10+, Node.js (for linting/formatting)
 
 ```bash
 # 1. Clone / enter the project directory
@@ -25,17 +28,34 @@ cd tomato
 python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate
 
-# 3. Install dependencies
+# 3. Install Python dependencies
 pip install -r requirements.txt
 
-# 4. Initialize the database (run once)
+# 4. Install JS dev dependencies (eslint + prettier)
+npm install
+
+# 5. Initialize the database (run once)
 python init_db.py
 
-# 5. Start the dev server
+# 6. Start the dev server
 python app.py
 ```
 
 Open http://localhost:5000 in your browser.
+
+### Linting & formatting
+
+```bash
+# Python (ruff)
+ruff check .          # lint
+ruff format .         # format
+
+# JavaScript (eslint + prettier)
+npm run lint          # lint
+npm run lint:fix      # lint + auto-fix
+npm run format        # format
+npm run format:check  # check formatting without writing
+```
 
 ---
 
@@ -65,20 +85,31 @@ Open http://localhost:5000 in your browser.
 
 ```
 tomato/
-├── app.py           — Flask REST API + page routes
-├── database.py      — SQLite connection + schema
-├── init_db.py       — One-time database setup
+├── app.py               — Flask REST API + page routes
+├── database.py          — SQLite connection + schema
+├── init_db.py           — One-time database setup
+├── characters/          — Character-specific logic
+│   ├── __init__.py
+│   └── tomato.py        — Character data helpers
 ├── requirements.txt
-├── Procfile         — gunicorn entry point for Railway/Render
-├── CLAUDE.md        — AI assistant context
+├── pyproject.toml       — ruff (Python linter/formatter) config
+├── package.json         — eslint + prettier config & scripts
+├── Procfile             — gunicorn entry point for Railway/Render
+├── CLAUDE.md            — AI assistant context
 ├── .gitignore
 ├── templates/
-│   ├── index.html   — Character roster
-│   └── character.html — Character sheet
+│   ├── index.html       — Character roster
+│   └── character.html   — Character sheet
 └── static/
-    ├── style.css    — Dark fantasy theme
-    ├── app.js       — Shared utilities
-    └── character.js — Sheet interactions
+    ├── style.css        — Dark fantasy theme
+    ├── app.js           — Shared utilities
+    ├── character.js     — Sheet entry point
+    ├── character-stats.js    — Ability scores & combat stats
+    ├── character-abilities.js — Abilities & spells
+    ├── character-inventory.js — Inventory management
+    ├── character-skills.js   — Skills & saving throws
+    ├── character-utils.js    — Shared helpers
+    └── character-theme.js    — Theme / UI utilities
 ```
 
 ---
@@ -126,3 +157,6 @@ All endpoints return/accept JSON.
 | Frontend | HTML + CSS + vanilla JS |
 | Prod server | gunicorn |
 | Hosting | Railway or Render |
+| Python linting | ruff |
+| JS linting | eslint |
+| JS formatting | prettier |
