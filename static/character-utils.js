@@ -3,6 +3,8 @@ let char = null;
 let currentItems = [];
 let superiorityDie = null;
 let secondWind = null;
+let abilityAcBonus = 0;
+let abilityAcBreakdown = [];
 
 // ── Toast ───────────────────────────────────────────────────────────────────
 

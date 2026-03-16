@@ -5,7 +5,7 @@ function calcAC(items) {
   const armor    = equipped.find(i => i.sets_base_ac);
   const base     = armor ? armor.ac_bonus : 10 + Math.floor((char.dex - 10) / 2);
   const bonuses  = equipped.reduce((s, i) => s + (i.sets_base_ac ? 0 : (i.ac_bonus || 0)), 0);
-  return base + bonuses + (char.flat_ac_bonus || 0);
+  return base + bonuses + (char.flat_ac_bonus || 0) + abilityAcBonus;
 }
 
 function acBreakdown(items) {
@@ -15,8 +15,16 @@ function acBreakdown(items) {
   if (armor) parts.push(`${armor.ac_bonus} (${armor.name})`);
   else       parts.push(`${10 + Math.floor((char.dex - 10) / 2)} (unarmored)`);
   equipped.filter(i => !i.sets_base_ac).forEach(i => parts.push(`+${i.ac_bonus} (${i.name})`));
+  abilityAcBreakdown.forEach(p => parts.push(p));
   if (char.flat_ac_bonus) parts.push(`+${char.flat_ac_bonus} (misc)`);
   return parts.join(" ");
+}
+
+function updateAcDisplay() {
+  const ac = calcAC(currentItems);
+  document.getElementById("ac-val").textContent       = ac;
+  document.getElementById("ac-breakdown").textContent = acBreakdown(currentItems);
+  char.ac = ac;
 }
 
 // ── Load inventory ───────────────────────────────────────────────────────────
@@ -37,13 +45,8 @@ async function loadInventory() {
     document.getElementById("weight-total").textContent = `Total weight: ${total.toFixed(1)} lbs`;
   }
 
-  // Recompute and display AC from equipped items (in-memory only)
-  const ac = calcAC(items);
-  document.getElementById("ac-val").textContent       = ac;
-  document.getElementById("ac-breakdown").textContent = acBreakdown(items);
-  char.ac = ac;
-
   currentItems = items;
+  updateAcDisplay();
   renderSkills();
   loadAbilities();
 }

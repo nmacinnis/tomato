@@ -58,7 +58,8 @@ def init_db():
             uses_max        INTEGER,
             uses_remaining  INTEGER,
             recharge        TEXT,   -- 'short', 'long', or NULL
-            die_type        TEXT    -- 'd4', 'd6', 'd8', 'd10', 'd12', 'd20', or NULL
+            die_type        TEXT,   -- 'd4', 'd6', 'd8', 'd10', 'd12', 'd20', or NULL
+            ac_bonus        INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS inventory (
@@ -136,6 +137,10 @@ def init_db():
         conn.execute("ALTER TABLE abilities ADD COLUMN die_type TEXT")
     except sqlite3.OperationalError:
         pass
+    try:
+        conn.execute("ALTER TABLE abilities ADD COLUMN ac_bonus INTEGER NOT NULL DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
     for col_def in (
         "alignment TEXT NOT NULL DEFAULT ''",
         "size      TEXT NOT NULL DEFAULT 'Medium'",
@@ -176,7 +181,8 @@ def _apply_tomato_data(conn):
         ("athletics,perception,animal_handling,survival,insight,stealth",),
     )
     conn.execute("UPDATE characters SET save_proficiencies='str,con' WHERE name='Tomato'")
-    conn.execute("UPDATE characters SET flat_ac_bonus=1 WHERE name='Tomato'")
+    conn.execute("UPDATE characters SET flat_ac_bonus=0 WHERE name='Tomato'")
+    conn.execute("UPDATE abilities SET ac_bonus=1 WHERE name='Fighting Style: Defense'")
     conn.execute(
         "UPDATE characters SET alignment=?, size=?, height=?, weight=? WHERE name='Tomato'",
         ("Chaotic Good", "Medium", "6'6\"", "302 lbs"),
