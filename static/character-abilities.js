@@ -1,21 +1,36 @@
 // Abilities panel — loading, rendering, superiority dice, and modal.
 
 const ABILITY_GROUPS = [
-  { key: "action",       label: "Action" },
+  { key: "action", label: "Action" },
   { key: "bonus_action", label: "Bonus Action" },
-  { key: "reaction",     label: "Reaction" },
-  { key: "free_action",  label: "Free Action" },
-  { key: "passive",      label: "Passive" },
+  { key: "reaction", label: "Reaction" },
+  { key: "free_action", label: "Free Action" },
+  { key: "passive", label: "Passive" },
 ];
 
 const STANDARD_ACTIONS = [
-  { name: "Dash",       desc: "Double your speed this turn." },
-  { name: "Disengage",  desc: "Your movement doesn't provoke opportunity attacks for the rest of the turn." },
-  { name: "Dodge",      desc: "Until the start of your next turn, attacks against you have Disadvantage and you have Advantage on DEX saves." },
-  { name: "Help",       desc: "Give an ally Advantage on their next ability check or attack roll." },
-  { name: "Hide",       desc: "Make a Stealth check to become hidden." },
-  { name: "Ready",      desc: "Prepare a reaction to trigger on a specified condition before your next turn." },
-  { name: "Search",     desc: "Make a Perception or Investigation check to locate something." },
+  { name: "Dash", desc: "Double your speed this turn." },
+  {
+    name: "Disengage",
+    desc: "Your movement doesn't provoke opportunity attacks for the rest of the turn.",
+  },
+  {
+    name: "Dodge",
+    desc: "Until the start of your next turn, attacks against you have Disadvantage and you have Advantage on DEX saves.",
+  },
+  {
+    name: "Help",
+    desc: "Give an ally Advantage on their next ability check or attack roll.",
+  },
+  { name: "Hide", desc: "Make a Stealth check to become hidden." },
+  {
+    name: "Ready",
+    desc: "Prepare a reaction to trigger on a specified condition before your next turn.",
+  },
+  {
+    name: "Search",
+    desc: "Make a Perception or Investigation check to locate something.",
+  },
 ];
 
 const RECHARGE_LABEL = { short: "short rest", long: "long rest" };
@@ -29,7 +44,7 @@ function normalizeType(type) {
 // ── Standard Actions ─────────────────────────────────────────────────────────
 
 function renderStandardActions(list, items) {
-  const weapons = items.filter(i => i.is_weapon && i.equipped && i.damage_dice);
+  const weapons = items.filter((i) => i.is_weapon && i.equipped && i.damage_dice);
   const prof = profBonus(char.level);
   const strMod = Math.floor((char.str - 10) / 2);
   const dexMod = Math.floor((char.dex - 10) / 2);
@@ -41,7 +56,7 @@ function renderStandardActions(list, items) {
   if (weapons.length === 0) {
     weaponRows = `<div class="attack-weapon-row muted">No weapons equipped.</div>`;
   } else {
-    weapons.forEach(w => {
+    weapons.forEach((w) => {
       const abilMod = w.is_melee ? strMod : dexMod;
       const toHit = abilMod + prof + w.magic_bonus;
       const dmgBonus = abilMod + w.magic_bonus;
@@ -88,7 +103,7 @@ function renderSdPips() {
     const btn = document.createElement("button");
     btn.className = "die-pip d8-pip" + (filled ? " die-filled" : "");
     btn.title = filled ? `Spend die ${i + 1}` : `Recover die ${i + 1}`;
-    btn.innerHTML = dieSvg('d8');
+    btn.innerHTML = dieSvg("d8");
     btn.addEventListener("click", async () => {
       const next = filled ? i : i + 1;
       await patchSuperiorityDie(next);
@@ -119,7 +134,7 @@ function renderSwPips() {
     const btn = document.createElement("button");
     btn.className = "die-pip d10-pip" + (filled ? " die-filled" : "");
     btn.title = filled ? `Spend die ${i + 1}` : `Recover die ${i + 1}`;
-    btn.innerHTML = dieSvg('d10');
+    btn.innerHTML = dieSvg("d10");
     btn.addEventListener("click", async () => {
       const next = filled ? i : i + 1;
       const res = await apiFetch(
@@ -131,7 +146,9 @@ function renderSwPips() {
       secondWind.uses_remaining = next;
       renderSwPips();
       // sync all card pip containers tied to this pool (Second Wind + Tactical Mind, etc.)
-      document.querySelectorAll(`.ability-pips[data-id="${secondWind.id}"]`).forEach(c => renderAbilityPips(c, secondWind));
+      document
+        .querySelectorAll(`.ability-pips[data-id="${secondWind.id}"]`)
+        .forEach((c) => renderAbilityPips(c, secondWind));
     });
     container.appendChild(btn);
   }
@@ -144,22 +161,25 @@ function renderAbilityCard(a) {
   div.className = "ability-card";
   const isManeuver = a.name.startsWith("Maneuver:");
   const hasUses = a.uses_max != null;
-  const hasDie  = !!a.die_type;
+  const hasDie = !!a.die_type;
   // Shared pool: no own uses but die_type matches an existing pool (e.g. Tactical Mind → Second Wind)
-  const sharedPool = hasDie && !hasUses && secondWind && secondWind.die_type === a.die_type
-    ? secondWind : null;
+  const sharedPool =
+    hasDie && !hasUses && secondWind && secondWind.die_type === a.die_type
+      ? secondWind
+      : null;
   // Abilities with a die type + own uses → show own clickable pip icons
   const showDiePips = hasDie && hasUses;
-  const showUseBtn  = !showDiePips && !sharedPool && (hasUses || isManeuver);
+  const showUseBtn = !showDiePips && !sharedPool && (hasUses || isManeuver);
   const rem = a.uses_remaining ?? a.uses_max;
   const usesText = hasUses && !showDiePips ? `${rem} / ${a.uses_max}` : "";
   const rechargeBadge = a.recharge
     ? `<span class="recharge-badge recharge-${a.recharge}">${RECHARGE_LABEL[a.recharge]}</span>`
     : "";
   // Passive die type with no shared pool → static badge next to name
-  const dieBadge = hasDie && !hasUses && !sharedPool
-    ? `<span class="die-type-badge">${dieSvg(a.die_type)}</span>`
-    : "";
+  const dieBadge =
+    hasDie && !hasUses && !sharedPool
+      ? `<span class="die-type-badge">${dieSvg(a.die_type)}</span>`
+      : "";
   div.innerHTML = `
     <div class="ability-card-header">
       <div>
@@ -178,10 +198,16 @@ function renderAbilityCard(a) {
     ${usesText ? `<div class="ability-uses">Uses: ${usesText}</div>` : ""}
   `;
 
-  div.querySelector(".edit-ability-btn")?.addEventListener("click", () => openAbilityModal(a));
+  div
+    .querySelector(".edit-ability-btn")
+    ?.addEventListener("click", () => openAbilityModal(a));
 
   div.querySelector(".del-ability-btn")?.addEventListener("click", async () => {
-    const res = await apiFetch(`/api/abilities/${a.id}`, { method: "DELETE" }, "Failed to delete ability.");
+    const res = await apiFetch(
+      `/api/abilities/${a.id}`,
+      { method: "DELETE" },
+      "Failed to delete ability."
+    );
     if (!res) return;
     loadAbilities();
   });
@@ -234,7 +260,9 @@ function renderAbilityPips(container, a) {
       if (!res) return;
       a.uses_remaining = next;
       // Re-render all card pip containers tied to this pool
-      document.querySelectorAll(`.ability-pips[data-id="${a.id}"]`).forEach(c => renderAbilityPips(c, a));
+      document
+        .querySelectorAll(`.ability-pips[data-id="${a.id}"]`)
+        .forEach((c) => renderAbilityPips(c, a));
       if (secondWind && secondWind.id === a.id) renderSwPips();
     });
     container.appendChild(btn);
@@ -254,38 +282,53 @@ async function loadAbilities() {
     return;
   }
 
-  const poolIdx = abilities.findIndex(a => a.name === "Superiority Dice Pool (d8)");
+  const poolIdx = abilities.findIndex((a) => a.name === "Superiority Dice Pool (d8)");
   if (poolIdx !== -1) {
     superiorityDie = abilities.splice(poolIdx, 1)[0];
     renderSdPips();
   }
 
-  const swIdx = abilities.findIndex(a => a.name === "Second Wind");
+  const swIdx = abilities.findIndex((a) => a.name === "Second Wind");
   if (swIdx !== -1) {
     secondWind = abilities[swIdx]; // keep in list; also render in combat panel
     renderSwPips();
   }
 
   // Compute AC contribution from abilities and refresh the AC display
-  const acAbilities = abilities.filter(a => a.ac_bonus);
+  const acAbilities = abilities.filter((a) => a.ac_bonus);
   abilityAcBonus = acAbilities.reduce((s, a) => s + a.ac_bonus, 0);
-  abilityAcBreakdown = acAbilities.map(a => ({ id: a.id, name: a.name, ac_bonus: a.ac_bonus }));
+  abilityAcBreakdown = acAbilities.map((a) => ({
+    id: a.id,
+    name: a.name,
+    ac_bonus: a.ac_bonus,
+  }));
   if (currentItems.length > 0) updateAcDisplay();
 
-  abilitySaveParts = abilities.filter(a => a.save_bonus)
-    .map(a => ({ type: "ability", id: a.id, name: a.name, save_bonus: a.save_bonus }));
+  abilitySaveParts = abilities
+    .filter((a) => a.save_bonus)
+    .map((a) => ({
+      type: "ability",
+      id: a.id,
+      name: a.name,
+      save_bonus: a.save_bonus,
+    }));
   renderSaves();
 
   const advBadge = document.getElementById("ds-adv-badge");
   if (advBadge) {
-    advBadge.hidden = !abilities.some(a =>
-      a.description && a.description.toLowerCase().includes("advantage on death saving throws")
+    advBadge.hidden = !abilities.some(
+      (a) =>
+        a.description &&
+        a.description.toLowerCase().includes("advantage on death saving throws")
     );
   }
+  updateDeathSaveOdds();
 
   const grouped = {};
-  ABILITY_GROUPS.forEach(g => { grouped[g.key] = []; });
-  abilities.forEach(a => {
+  ABILITY_GROUPS.forEach((g) => {
+    grouped[g.key] = [];
+  });
+  abilities.forEach((a) => {
     const key = normalizeType(a.type);
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push(a);
@@ -300,38 +343,40 @@ async function loadAbilities() {
     if (key === "action") renderStandardActions(list, currentItems);
 
     if (grouped[key] && grouped[key].length > 0)
-      grouped[key].forEach(a => list.appendChild(renderAbilityCard(a)));
+      grouped[key].forEach((a) => list.appendChild(renderAbilityCard(a)));
   });
 }
 
 // ── Ability modal ────────────────────────────────────────────────────────────
 
 const abilityModal = document.getElementById("ability-modal");
-const abilityForm  = document.getElementById("ability-form");
+const abilityForm = document.getElementById("ability-form");
 
 function openAbilityModal(ability = null) {
   abilityForm.reset();
-  document.getElementById("ability-modal-title").textContent = ability ? "Edit Ability" : "Add Ability";
+  document.getElementById("ability-modal-title").textContent = ability
+    ? "Edit Ability"
+    : "Add Ability";
   if (ability) {
-    abilityForm.id_field        = ability.id;
+    abilityForm.id_field = ability.id;
     abilityForm._uses_remaining = ability.uses_remaining;
-    abilityForm.name.value        = ability.name;
-    abilityForm.type.value        = ability.type;
+    abilityForm.name.value = ability.name;
+    abilityForm.type.value = ability.type;
     abilityForm.description.value = ability.description;
-    abilityForm.uses_max.value    = ability.uses_max ?? "";
-    abilityForm.recharge.value    = ability.recharge ?? "";
-    abilityForm.die_type.value    = ability.die_type ?? "";
-    abilityForm.ac_bonus.value    = ability.ac_bonus ?? 0;
-    abilityForm.save_bonus.value  = ability.save_bonus ?? 0;
+    abilityForm.uses_max.value = ability.uses_max ?? "";
+    abilityForm.recharge.value = ability.recharge ?? "";
+    abilityForm.die_type.value = ability.die_type ?? "";
+    abilityForm.ac_bonus.value = ability.ac_bonus ?? 0;
+    abilityForm.save_bonus.value = ability.save_bonus ?? 0;
   } else {
-    abilityForm.id_field        = null;
+    abilityForm.id_field = null;
     abilityForm._uses_remaining = null;
   }
   abilityModal.showModal();
 }
 
 document.getElementById("add-ability-btn").onclick = () => openAbilityModal();
-document.getElementById("cancel-ability").onclick  = () => abilityModal.close();
+document.getElementById("cancel-ability").onclick = () => abilityModal.close();
 
 abilityForm.onsubmit = async (e) => {
   e.preventDefault();
@@ -341,16 +386,15 @@ abilityForm.onsubmit = async (e) => {
   else body.uses_max = Number(body.uses_max);
   if (body.recharge === "") body.recharge = null;
   if (body.die_type === "") body.die_type = null;
-  body.ac_bonus   = Number(body.ac_bonus) || 0;
+  body.ac_bonus = Number(body.ac_bonus) || 0;
   body.save_bonus = Number(body.save_bonus) || 0;
 
   if (abilityForm.id_field) {
     // Preserve existing uses_remaining; only cap it if uses_max shrank
     const prevRemaining = abilityForm._uses_remaining;
     if (body.uses_max != null) {
-      body.uses_remaining = (prevRemaining != null)
-        ? Math.min(prevRemaining, body.uses_max)
-        : body.uses_max;
+      body.uses_remaining =
+        prevRemaining != null ? Math.min(prevRemaining, body.uses_max) : body.uses_max;
     }
     const res = await apiFetch(
       `/api/abilities/${abilityForm.id_field}`,

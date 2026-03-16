@@ -6,7 +6,8 @@ function editName() {
   const input = document.createElement("input");
   input.type = "text";
   input.value = current;
-  input.style.cssText = "font-size:inherit;font-weight:inherit;font-family:inherit;background:#0f3460;border:1px solid var(--accent);color:var(--text);border-radius:4px;padding:0 4px;width:12rem;";
+  input.style.cssText =
+    "font-size:inherit;font-weight:inherit;font-family:inherit;background:#0f3460;border:1px solid var(--accent);color:var(--text);border-radius:4px;padding:0 4px;width:12rem;";
   el.replaceWith(input);
   input.focus();
   input.select();
@@ -18,9 +19,12 @@ function editName() {
     document.title = val;
   };
   input.onblur = save;
-  input.onkeydown = e => {
+  input.onkeydown = (e) => {
     if (e.key === "Enter") save();
-    if (e.key === "Escape") { input.value = current; input.blur(); }
+    if (e.key === "Escape") {
+      input.value = current;
+      input.blur();
+    }
   };
 }
 
@@ -35,7 +39,7 @@ function renderCharacter() {
 
   const prof = profBonus(char.level);
 
-  ["str", "dex", "con", "int", "wis", "cha"].forEach(stat => {
+  ["str", "dex", "con", "int", "wis", "cha"].forEach((stat) => {
     const box = document.querySelector(`.stat-box[data-stat="${stat}"]`);
     box.querySelector(".stat-val").textContent = char[stat];
     box.querySelector(".stat-mod").textContent = modifier(char[stat]);
@@ -54,11 +58,15 @@ function renderCharacter() {
   const dexMod = Math.floor((char.dex - 10) / 2);
   const wisMod = Math.floor((char.wis - 10) / 2);
   document.getElementById("prof-val").textContent = `+${prof}`;
-  document.getElementById("init-val").textContent = dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
+  document.getElementById("init-val").textContent =
+    dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
   document.getElementById("perc-val").textContent = 10 + wisMod + prof;
   const strMod = Math.floor((char.str - 10) / 2);
-  document.getElementById("maneuver-dc-val").textContent = 8 + prof + Math.max(strMod, dexMod);
-  document.getElementById("alignment-val").textContent = abbreviateAlignment(char.alignment || "");
+  document.getElementById("maneuver-dc-val").textContent =
+    8 + prof + Math.max(strMod, dexMod);
+  document.getElementById("alignment-val").textContent = abbreviateAlignment(
+    char.alignment || ""
+  );
   document.getElementById("size-val").textContent = char.size || "";
   document.getElementById("height-val").textContent = char.height || "";
   document.getElementById("weight-val").textContent = char.weight || "";
@@ -72,18 +80,18 @@ function renderCharacter() {
 
 function computeDeathSurvival(s, f, saveBonus, hasAdvantage) {
   const threshold = Math.min(20, Math.max(2, 10 - saveBonus));
-  const failBase  = (threshold - 1) / 20;
+  const failBase = (threshold - 1) / 20;
   let p20, pS, pF, pF2;
   if (hasAdvantage) {
     p20 = 1 - Math.pow(19 / 20, 2);
-    pS  = Math.pow(19 / 20, 2) - Math.pow(failBase, 2);
+    pS = Math.pow(19 / 20, 2) - Math.pow(failBase, 2);
     pF2 = Math.pow(1 / 20, 2);
-    pF  = Math.pow(failBase, 2) - pF2;
+    pF = Math.pow(failBase, 2) - pF2;
   } else {
     p20 = 1 / 20;
-    pS  = (19 - threshold + 1) / 20;
+    pS = (19 - threshold + 1) / 20;
     pF2 = 1 / 20;
-    pF  = (threshold - 2) / 20;
+    pF = (threshold - 2) / 20;
   }
   const memo = {};
   function P(sv, fl) {
@@ -91,7 +99,8 @@ function computeDeathSurvival(s, f, saveBonus, hasAdvantage) {
     if (fl >= 3) return 0;
     const key = sv * 4 + fl;
     if (key in memo) return memo[key];
-    return (memo[key] = p20 + pS * P(sv + 1, fl) + pF * P(sv, fl + 1) + pF2 * P(sv, fl + 2));
+    return (memo[key] =
+      p20 + pS * P(sv + 1, fl) + pF * P(sv, fl + 1) + pF2 * P(sv, fl + 2));
   }
   return P(s, f);
 }
@@ -100,12 +109,18 @@ function updateDeathSaveOdds() {
   const el = document.getElementById("ds-odds");
   if (!el) return;
   const s = char?.death_save_successes ?? 0;
-  const f = char?.death_save_failures  ?? 0;
-  if (s >= 3 || f >= 3) { el.textContent = ""; return; }
-  const totalSaveBonus = [...itemSaveParts, ...abilitySaveParts].reduce((sum, p) => sum + p.save_bonus, 0);
+  const f = char?.death_save_failures ?? 0;
+  if (s >= 3 || f >= 3) {
+    el.textContent = "";
+    return;
+  }
+  const totalSaveBonus = [...itemSaveParts, ...abilitySaveParts].reduce(
+    (sum, p) => sum + p.save_bonus,
+    0
+  );
   const advBadge = document.getElementById("ds-adv-badge");
   const hasAdv = !!advBadge && !advBadge.hidden;
-  const pLive  = computeDeathSurvival(s, f, totalSaveBonus, hasAdv);
+  const pLive = computeDeathSurvival(s, f, totalSaveBonus, hasAdv);
   el.textContent = `${(pLive * 100).toFixed(1)}% chance of survival`;
 }
 
@@ -113,10 +128,16 @@ function updateDeathSaveOdds() {
 
 function renderSaves() {
   const prof = profBonus(char.level);
-  const saveProfs = new Set((char.save_proficiencies || "").split(",").map(s => s.trim()).filter(Boolean));
-  const totalSaveBonus = itemSaveParts.reduce((s, p) => s + p.save_bonus, 0)
-                       + abilitySaveParts.reduce((s, p) => s + p.save_bonus, 0);
-  ["str", "dex", "con", "int", "wis", "cha"].forEach(stat => {
+  const saveProfs = new Set(
+    (char.save_proficiencies || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  );
+  const totalSaveBonus =
+    itemSaveParts.reduce((s, p) => s + p.save_bonus, 0) +
+    abilitySaveParts.reduce((s, p) => s + p.save_bonus, 0);
+  ["str", "dex", "con", "int", "wis", "cha"].forEach((stat) => {
     const box = document.querySelector(`.stat-box[data-stat="${stat}"]`);
     const mod = Math.floor((char[stat] - 10) / 2);
     const proficient = saveProfs.has(stat);
@@ -135,24 +156,38 @@ function updateSaveBonusDisplay() {
   if (el) el.textContent = total ? `+${total}` : "—";
   const bd = document.getElementById("save-bonus-breakdown");
   if (bd) {
-    bd.innerHTML = allParts.map(p =>
-      `<button class="ac-link" data-type="${p.type}" data-id="${p.id}">${escHtml(`+${p.save_bonus} (${p.name})`)}</button>`
-    ).join(" ");
+    bd.innerHTML = allParts
+      .map(
+        (p) =>
+          `<button class="ac-link" data-type="${p.type}" data-id="${p.id}">${escHtml(`+${p.save_bonus} (${p.name})`)}</button>`
+      )
+      .join(" ");
   }
-  updateDeathSaveOdds();
   const ds = document.getElementById("ds-save-bonus");
   if (!ds) return;
-  if (!total) { ds.innerHTML = ""; ds.onclick = null; return; }
-  const detail = allParts.map(p =>
-    `<button class="ac-link" data-type="${p.type}" data-id="${p.id}">${escHtml(`+${p.save_bonus} (${p.name})`)}</button>`
-  ).join(" ");
+  if (!total) {
+    ds.innerHTML = "";
+    ds.onclick = null;
+    return;
+  }
+  const detail = allParts
+    .map(
+      (p) =>
+        `<button class="ac-link" data-type="${p.type}" data-id="${p.id}">${escHtml(`+${p.save_bonus} (${p.name})`)}</button>`
+    )
+    .join(" ");
   ds.innerHTML = `<span class="ac-equation">+${total} to rolls</span><span class="ac-detail" hidden>${detail}</span>`;
-  ds.onclick = e => {
+  ds.onclick = (e) => {
     const link = e.target.closest(".ac-link");
     if (link) {
       const { type, id } = link.dataset;
-      const sel  = type === "item" ? `.del-item-btn[data-id="${id}"]` : `.del-ability-btn[data-id="${id}"]`;
-      const card = document.querySelector(sel)?.closest(type === "item" ? ".item-card" : ".ability-card");
+      const sel =
+        type === "item"
+          ? `.del-item-btn[data-id="${id}"]`
+          : `.del-ability-btn[data-id="${id}"]`;
+      const card = document
+        .querySelector(sel)
+        ?.closest(type === "item" ? ".item-card" : ".ability-card");
       if (card) {
         card.scrollIntoView({ behavior: "smooth", block: "nearest" });
         card.classList.add("ac-highlight");
@@ -161,18 +196,21 @@ function updateSaveBonusDisplay() {
       return;
     }
     ds.querySelector(".ac-equation").hidden ^= true;
-    ds.querySelector(".ac-detail").hidden   ^= true;
+    ds.querySelector(".ac-detail").hidden ^= true;
   };
 }
 
-document.getElementById("save-bonus-breakdown")?.addEventListener("click", e => {
+document.getElementById("save-bonus-breakdown")?.addEventListener("click", (e) => {
   const btn = e.target.closest(".ac-link");
   if (!btn) return;
   const { type, id } = btn.dataset;
-  const selector = type === "item"
-    ? `.del-item-btn[data-id="${id}"]`
-    : `.del-ability-btn[data-id="${id}"]`;
-  const card = document.querySelector(selector)?.closest(type === "item" ? ".item-card" : ".ability-card");
+  const selector =
+    type === "item"
+      ? `.del-item-btn[data-id="${id}"]`
+      : `.del-ability-btn[data-id="${id}"]`;
+  const card = document
+    .querySelector(selector)
+    ?.closest(type === "item" ? ".item-card" : ".ability-card");
   if (!card) return;
   card.scrollIntoView({ behavior: "smooth", block: "nearest" });
   card.classList.add("ac-highlight");
@@ -189,7 +227,7 @@ function renderHdPips() {
     const btn = document.createElement("button");
     btn.className = "die-pip d10-pip" + (filled ? " die-filled" : "");
     btn.title = filled ? `Spend die ${i + 1}` : `Recover die ${i + 1}`;
-    btn.innerHTML = dieSvg('d10');
+    btn.innerHTML = dieSvg("d10");
     btn.addEventListener("click", async () => {
       const next = filled ? i : i + 1;
       await patchChar({ hit_dice_remaining: next });
@@ -202,13 +240,13 @@ function renderHdPips() {
 // ── Death Saves ─────────────────────────────────────────────────────────────
 
 function renderDeathSaves() {
-  ["success", "failure"].forEach(type => {
-    const count = type === "success" ? char.death_save_successes : char.death_save_failures;
+  ["success", "failure"].forEach((type) => {
+    const count =
+      type === "success" ? char.death_save_successes : char.death_save_failures;
     document.querySelectorAll(`[data-type="${type}"]`).forEach((pip, i) => {
       pip.classList.toggle("pip-filled", i < count);
     });
   });
-  updateDeathSaveOdds();
 }
 
 document.getElementById("ds-successes").addEventListener("click", async (e) => {
@@ -216,9 +254,10 @@ document.getElementById("ds-successes").addEventListener("click", async (e) => {
   if (!pip) return;
   const idx = Number(pip.dataset.idx);
   const current = char.death_save_successes;
-  const next = (idx < current) ? idx : idx + 1;
+  const next = idx < current ? idx : idx + 1;
   await patchChar({ death_save_successes: Math.min(3, next) });
   renderDeathSaves();
+  updateDeathSaveOdds();
 });
 
 document.getElementById("ds-failures").addEventListener("click", async (e) => {
@@ -226,14 +265,16 @@ document.getElementById("ds-failures").addEventListener("click", async (e) => {
   if (!pip) return;
   const idx = Number(pip.dataset.idx);
   const current = char.death_save_failures;
-  const next = (idx < current) ? idx : idx + 1;
+  const next = idx < current ? idx : idx + 1;
   await patchChar({ death_save_failures: Math.min(3, next) });
   renderDeathSaves();
+  updateDeathSaveOdds();
 });
 
 document.getElementById("reset-death-saves").onclick = async () => {
   await patchChar({ death_save_successes: 0, death_save_failures: 0 });
   renderDeathSaves();
+  updateDeathSaveOdds();
 };
 
 // ── Goodberries ─────────────────────────────────────────────────────────────
@@ -297,7 +338,9 @@ document.getElementById("thp-up").onclick = async () => {
 document.getElementById("save-notes-btn").onclick = async () => {
   await patchChar({ notes: document.getElementById("notes-area").value });
   document.getElementById("save-notes-btn").textContent = "Saved!";
-  setTimeout(() => { document.getElementById("save-notes-btn").textContent = "Save Notes"; }, 1500);
+  setTimeout(() => {
+    document.getElementById("save-notes-btn").textContent = "Save Notes";
+  }, 1500);
 };
 
 // ── Inline stat edit ────────────────────────────────────────────────────────
@@ -307,9 +350,12 @@ function editStat(stat) {
   const valEl = box.querySelector(".stat-val");
   const current = char[stat];
   const input = document.createElement("input");
-  input.type = "number"; input.min = 1; input.max = 30;
+  input.type = "number";
+  input.min = 1;
+  input.max = 30;
   input.value = current;
-  input.style.cssText = "width:3rem;font-size:1.2rem;background:#0f3460;border:1px solid #e94560;color:#e0e0e0;border-radius:4px;text-align:center;";
+  input.style.cssText =
+    "width:3rem;font-size:1.2rem;background:#0f3460;border:1px solid #e94560;color:#e0e0e0;border-radius:4px;text-align:center;";
   valEl.replaceWith(input);
   input.focus();
   const save = async () => {
@@ -321,7 +367,13 @@ function editStat(stat) {
     renderSkills();
   };
   input.onblur = save;
-  input.onkeydown = e => { if (e.key === "Enter") save(); if (e.key === "Escape") { input.value = current; input.blur(); } };
+  input.onkeydown = (e) => {
+    if (e.key === "Enter") save();
+    if (e.key === "Escape") {
+      input.value = current;
+      input.blur();
+    }
+  };
 }
 
 // ── Rest ────────────────────────────────────────────────────────────────────
@@ -339,16 +391,26 @@ async function doRest(type) {
   renderCharacter();
   loadAbilities();
 
-  const label = type === "short" ? "Short rest taken." : "Long rest taken — HP, abilities, and hit dice restored.";
+  const label =
+    type === "short"
+      ? "Short rest taken."
+      : "Long rest taken — HP, abilities, and hit dice restored.";
   const fb = document.getElementById("rest-feedback");
   fb.textContent = label;
   fb.hidden = false;
-  setTimeout(() => { fb.hidden = true; }, 3000);
+  setTimeout(() => {
+    fb.hidden = true;
+  }, 3000);
 }
 
 document.getElementById("short-rest-btn").onclick = () => doRest("short");
 document.getElementById("long-rest-btn").onclick = async () => {
-  if (!confirm("Take a long rest? This will restore HP, all abilities, and recover hit dice.")) return;
+  if (
+    !confirm(
+      "Take a long rest? This will restore HP, all abilities, and recover hit dice."
+    )
+  )
+    return;
   doRest("long");
 };
 
@@ -356,7 +418,11 @@ document.getElementById("long-rest-btn").onclick = async () => {
 
 document.getElementById("delete-char-btn").onclick = async () => {
   if (!confirm(`Delete ${char.name}? This cannot be undone.`)) return;
-  const res = await apiFetch(`/api/characters/${CHARACTER_ID}`, { method: "DELETE" }, "Failed to delete character.");
+  const res = await apiFetch(
+    `/api/characters/${CHARACTER_ID}`,
+    { method: "DELETE" },
+    "Failed to delete character."
+  );
   if (!res) return;
   window.location.href = "/";
 };

@@ -29,7 +29,10 @@ async function apiFetch(url, opts = {}, errorMsg = "Request failed.") {
     init.headers = { "Content-Type": "application/json", ...(init.headers || {}) };
   }
   const res = await fetch(url, init);
-  if (!res.ok) { showToast(errorMsg); return null; }
+  if (!res.ok) {
+    showToast(errorMsg);
+    return null;
+  }
   return res;
 }
 
@@ -48,10 +51,16 @@ async function patchChar(fields) {
 // ── Alignment abbreviation ───────────────────────────────────────────────────
 
 const ALIGNMENT_ABBR = {
-  "lawful good":      "LG", "neutral good":  "NG", "chaotic good":    "CG",
-  "lawful neutral":   "LN", "true neutral":  "N",  "chaotic neutral": "CN",
-  "lawful evil":      "LE", "neutral evil":  "NE", "chaotic evil":    "CE",
-  "unaligned":        "U",
+  "lawful good": "LG",
+  "neutral good": "NG",
+  "chaotic good": "CG",
+  "lawful neutral": "LN",
+  "true neutral": "N",
+  "chaotic neutral": "CN",
+  "lawful evil": "LE",
+  "neutral evil": "NE",
+  "chaotic evil": "CE",
+  unaligned: "U",
 };
 
 function abbreviateAlignment(a) {
@@ -70,10 +79,12 @@ function profBonus(level) {
 
 function dieSvg(type) {
   const base = `fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="20" aria-hidden="true"`;
-  if (type === 'd6') return `<svg viewBox="0 0 16 16" ${base}>
+  if (type === "d6")
+    return `<svg viewBox="0 0 16 16" ${base}>
     <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
   </svg>`;
-  if (type === 'd8') return `<svg viewBox="0 0 16 18" ${base}>
+  if (type === "d8")
+    return `<svg viewBox="0 0 16 18" ${base}>
     <polygon points="8,1 15,9 8,17 1,9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
     <line x1="1" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
     <line x1="8" y1="1" x2="8"  y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>

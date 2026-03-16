@@ -1,0 +1,24 @@
+{
+  "name": "tomato",
+  "version": "1.0.0",
+  "description": "A simple web app to manage your D&D 5e character sheets — ability scores, HP, abilities/spells, and inventory — all in one dark-themed interface.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint static/",
+    "lint:fix": "eslint static/ --fix",
+    "format": "prettier --write static/",
+    "format:check": "prettier --check static/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1"
+  }
+}

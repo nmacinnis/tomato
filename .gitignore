@@ -7,3 +7,5 @@ env/
 dnd.db
 *.db-journal
 .env
+node_modules/
+package-lock.json

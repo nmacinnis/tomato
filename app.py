@@ -1,15 +1,18 @@
-from flask import Flask, jsonify, request, render_template, abort
-from database import init_db, get_db, close_db, DATABASE
+from flask import Flask, abort, jsonify, render_template, request
+
+from database import DATABASE, close_db, get_db, init_db
 
 app = Flask(__name__)
 app.teardown_appcontext(close_db)
 init_db()
 
 # Apply all character modules from the characters/ package
-import sqlite3 as _sqlite3
 import importlib
 import pkgutil
+import sqlite3 as _sqlite3
+
 import characters as _chars_pkg
+
 with _sqlite3.connect(DATABASE) as _c:
     for _finder, _modname, _ispkg in pkgutil.iter_modules(_chars_pkg.__path__):
         _mod = importlib.import_module(f"characters.{_modname}")
@@ -19,6 +22,7 @@ with _sqlite3.connect(DATABASE) as _c:
 
 
 # ── Pages ──────────────────────────────────────────────────────────────────────
+
 
 @app.route("/")
 def index():
@@ -34,6 +38,7 @@ def character_page(character_id):
 
 
 # ── Characters ─────────────────────────────────────────────────────────────────
+
 
 @app.route("/api/characters", methods=["GET"])
 def list_characters():
@@ -86,10 +91,16 @@ def get_character(cid):
 
 _CHAR_INT_RANGES = {
     "level": (1, 20),
-    "ac": (0, 30), "speed": (0, 120),
-    "str": (1, 30), "dex": (1, 30), "con": (1, 30),
-    "int": (1, 30), "wis": (1, 30), "cha": (1, 30),
+    "ac": (0, 30),
+    "speed": (0, 120),
+    "str": (1, 30),
+    "dex": (1, 30),
+    "con": (1, 30),
+    "int": (1, 30),
+    "wis": (1, 30),
+    "cha": (1, 30),
 }
+
 
 @app.route("/api/characters/<int:cid>", methods=["PUT"])
 def update_character(cid):
@@ -100,11 +111,35 @@ def update_character(cid):
             data[field] = max(lo, min(hi, int(data[field])))
     db = get_db()
     fields = [
-        "name", "race", "class", "level", "hp", "max_hp", "ac", "speed",
-        "str", "dex", "con", "int", "wis", "cha", "notes",
-        "hit_dice_remaining", "death_save_successes", "death_save_failures", "goodberries",
-        "flat_ac_bonus", "ac", "save_proficiencies", "temp_hp", "skill_proficiencies", "languages",
-        "alignment", "size", "height", "weight",
+        "name",
+        "race",
+        "class",
+        "level",
+        "hp",
+        "max_hp",
+        "ac",
+        "speed",
+        "str",
+        "dex",
+        "con",
+        "int",
+        "wis",
+        "cha",
+        "notes",
+        "hit_dice_remaining",
+        "death_save_successes",
+        "death_save_failures",
+        "goodberries",
+        "flat_ac_bonus",
+        "ac",
+        "save_proficiencies",
+        "temp_hp",
+        "skill_proficiencies",
+        "languages",
+        "alignment",
+        "size",
+        "height",
+        "weight",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
@@ -125,12 +160,11 @@ def delete_character(cid):
 
 # ── Abilities ──────────────────────────────────────────────────────────────────
 
+
 @app.route("/api/characters/<int:cid>/abilities", methods=["GET"])
 def list_abilities(cid):
     db = get_db()
-    rows = db.execute(
-        "SELECT * FROM abilities WHERE character_id=? ORDER BY name", (cid,)
-    ).fetchall()
+    rows = db.execute("SELECT * FROM abilities WHERE character_id=? ORDER BY name", (cid,)).fetchall()
     return jsonify([dict(r) for r in rows])
 
 
@@ -139,7 +173,8 @@ def create_ability(cid):
     data = request.json
     db = get_db()
     cur = db.execute(
-        """INSERT INTO abilities (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type, ac_bonus, save_bonus)
+        """INSERT INTO abilities
+           (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type, ac_bonus, save_bonus)
            VALUES (?,?,?,?,?,?,?,?,?,?)""",
         (
             cid,
@@ -195,7 +230,8 @@ def do_rest(cid):
 
 
 _VALID_ABILITY_TYPES = {"action", "bonus_action", "reaction", "free_action", "passive"}
-_VALID_RECHARGE     = {"short", "long", None}
+_VALID_RECHARGE = {"short", "long", None}
+
 
 @app.route("/api/abilities/<int:aid>", methods=["PUT"])
 def update_ability(aid):
@@ -205,7 +241,17 @@ def update_ability(aid):
     if "recharge" in data and data["recharge"] not in _VALID_RECHARGE:
         return jsonify({"error": "recharge must be 'short', 'long', or null"}), 400
     db = get_db()
-    fields = ["name", "type", "description", "uses_max", "uses_remaining", "recharge", "die_type", "ac_bonus", "save_bonus"]
+    fields = [
+        "name",
+        "type",
+        "description",
+        "uses_max",
+        "uses_remaining",
+        "recharge",
+        "die_type",
+        "ac_bonus",
+        "save_bonus",
+    ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
     if not set_clause:
@@ -225,12 +271,11 @@ def delete_ability(aid):
 
 # ── Inventory ──────────────────────────────────────────────────────────────────
 
+
 @app.route("/api/characters/<int:cid>/inventory", methods=["GET"])
 def list_inventory(cid):
     db = get_db()
-    rows = db.execute(
-        "SELECT * FROM inventory WHERE character_id=? ORDER BY name", (cid,)
-    ).fetchall()
+    rows = db.execute("SELECT * FROM inventory WHERE character_id=? ORDER BY name", (cid,)).fetchall()
     return jsonify([dict(r) for r in rows])
 
 
@@ -271,9 +316,21 @@ def update_item(iid):
     data = request.json
     db = get_db()
     fields = [
-        "name", "quantity", "weight", "description", "equipped",
-        "ac_bonus", "save_bonus", "sets_base_ac", "tool_proficient",
-        "damage_dice", "damage_type", "damage_notes", "magic_bonus", "is_weapon", "is_melee",
+        "name",
+        "quantity",
+        "weight",
+        "description",
+        "equipped",
+        "ac_bonus",
+        "save_bonus",
+        "sets_base_ac",
+        "tool_proficient",
+        "damage_dice",
+        "damage_type",
+        "damage_notes",
+        "magic_bonus",
+        "is_weapon",
+        "is_melee",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
@@ -294,11 +351,14 @@ def delete_item(iid):
 
 # ── Theme ──────────────────────────────────────────────────────────────────────
 
-_THEME_FIELDS   = ["accent", "accent2", "bg", "surface", "panel_color", "border"]
+_THEME_FIELDS = ["accent", "accent2", "bg", "surface", "panel_color", "border"]
 _THEME_DEFAULTS = {
-    "accent": "#e94560", "accent2": "#c7a026",
-    "bg": "#1a1a2e", "surface": "#16213e",
-    "panel_color": "#0f3460", "border": "#2a3a5e",
+    "accent": "#e94560",
+    "accent2": "#c7a026",
+    "bg": "#1a1a2e",
+    "surface": "#16213e",
+    "panel_color": "#0f3460",
+    "border": "#2a3a5e",
 }
 _HEX_RE = __import__("re").compile(r"^#[0-9a-fA-F]{6}$")
 
@@ -318,11 +378,9 @@ def update_theme(cid):
             return jsonify({"error": f"Invalid color value for '{f}'"}), 400
     db = get_db()
     # Ensure a row exists, then update only the supplied fields
-    db.execute(
-        "INSERT OR IGNORE INTO themes (character_id) VALUES (?)", (cid,)
-    )
+    db.execute("INSERT OR IGNORE INTO themes (character_id) VALUES (?)", (cid,))
     set_clause = ", ".join(f"{f}=?" for f in _THEME_FIELDS if f in data)
-    values     = [data[f] for f in _THEME_FIELDS if f in data]
+    values = [data[f] for f in _THEME_FIELDS if f in data]
     if set_clause:
         db.execute(f"UPDATE themes SET {set_clause} WHERE character_id=?", values + [cid])
     db.commit()

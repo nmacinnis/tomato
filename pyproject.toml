@@ -1,0 +1,11 @@
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E402"]  # intentional: app.py loads character modules after initial setup code
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

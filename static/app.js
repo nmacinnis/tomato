@@ -16,7 +16,7 @@ async function loadCharacters() {
   emptyMsg.hidden = true;
   grid.innerHTML = "";
 
-  chars.forEach(c => {
+  chars.forEach((c) => {
     const card = document.createElement("div");
     card.className = "char-card";
     card.innerHTML = `

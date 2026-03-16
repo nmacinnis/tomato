@@ -3,10 +3,13 @@
 
 async function loadCharacter() {
   const res = await fetch(`/api/characters/${CHARACTER_ID}`);
-  if (!res.ok) { alert("Character not found"); return; }
+  if (!res.ok) {
+    alert("Character not found");
+    return;
+  }
   char = await res.json();
   renderCharacter();
-  await loadInventory();  // populates currentItems, then calls loadAbilities
+  await loadInventory(); // populates currentItems, then calls loadAbilities
 }
 
 loadCharacter();
