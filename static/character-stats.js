@@ -41,6 +41,46 @@ function renderCharacter() {
   renderTomatoes();
 }
 
+// ── Death save odds ──────────────────────────────────────────────────────────
+
+function computeDeathSurvival(s, f, saveBonus, hasAdvantage) {
+  const threshold = Math.min(20, Math.max(2, 10 - saveBonus));
+  const failBase  = (threshold - 1) / 20;
+  let p20, pS, pF, pF2;
+  if (hasAdvantage) {
+    p20 = 1 - Math.pow(19 / 20, 2);
+    pS  = Math.pow(19 / 20, 2) - Math.pow(failBase, 2);
+    pF2 = Math.pow(1 / 20, 2);
+    pF  = Math.pow(failBase, 2) - pF2;
+  } else {
+    p20 = 1 / 20;
+    pS  = (19 - threshold + 1) / 20;
+    pF2 = 1 / 20;
+    pF  = (threshold - 2) / 20;
+  }
+  const memo = {};
+  function P(sv, fl) {
+    if (sv >= 3) return 1;
+    if (fl >= 3) return 0;
+    const key = sv * 4 + fl;
+    if (key in memo) return memo[key];
+    return (memo[key] = p20 + pS * P(sv + 1, fl) + pF * P(sv, fl + 1) + pF2 * P(sv, fl + 2));
+  }
+  return P(s, f);
+}
+
+function updateDeathSaveOdds() {
+  const el = document.getElementById("ds-odds");
+  if (!el) return;
+  const s = char?.death_save_successes ?? 0;
+  const f = char?.death_save_failures  ?? 0;
+  if (s >= 3 || f >= 3) { el.textContent = ""; return; }
+  const totalSaveBonus = [...itemSaveParts, ...abilitySaveParts].reduce((sum, p) => sum + p.save_bonus, 0);
+  const hasAdv = !!document.querySelector(".ds-adv-badge");
+  const pLive  = computeDeathSurvival(s, f, totalSaveBonus, hasAdv);
+  el.textContent = `${(pLive * 100).toFixed(1)}% chance of survival`;
+}
+
 // ── Saves ────────────────────────────────────────────────────────────────────
 
 function renderSaves() {
@@ -71,6 +111,7 @@ function updateSaveBonusDisplay() {
       `<button class="ac-link" data-type="${p.type}" data-id="${p.id}">${escHtml(`+${p.save_bonus} (${p.name})`)}</button>`
     ).join(" ");
   }
+  updateDeathSaveOdds();
   const ds = document.getElementById("ds-save-bonus");
   if (!ds) return;
   if (!total) { ds.innerHTML = ""; ds.onclick = null; return; }
@@ -139,6 +180,7 @@ function renderDeathSaves() {
       pip.classList.toggle("pip-filled", i < count);
     });
   });
+  updateDeathSaveOdds();
 }
 
 document.getElementById("ds-successes").addEventListener("click", async (e) => {
