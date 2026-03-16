@@ -69,6 +69,9 @@ async function loadInventory() {
 
   currentItems = items;
   updateAcDisplay();
+  itemSaveParts = items.filter(i => i.equipped && i.save_bonus)
+    .map(i => ({ type: "item", id: i.id, name: i.name, save_bonus: i.save_bonus }));
+  renderSaves();
   renderSkills();
   loadAbilities();
 }
@@ -130,6 +133,7 @@ function openItemModal(item = null) {
     itemForm.weight.value        = item.weight;
     itemForm.description.value   = item.description;
     itemForm.ac_bonus.value      = item.ac_bonus || 0;
+    itemForm.save_bonus.value    = item.save_bonus || 0;
     itemForm.sets_base_ac.checked = !!item.sets_base_ac;
     itemForm.is_weapon.checked   = !!item.is_weapon;
     document.getElementById("weapon-fields").hidden = !item.is_weapon;
@@ -155,6 +159,7 @@ itemForm.onsubmit = async (e) => {
   body.quantity    = Number(body.quantity);
   body.weight      = Number(body.weight);
   body.ac_bonus    = Number(body.ac_bonus) || 0;
+  body.save_bonus  = Number(body.save_bonus) || 0;
   body.sets_base_ac = !!body.sets_base_ac;
   body.is_weapon   = !!body.is_weapon;
   body.magic_bonus = Number(body.magic_bonus) || 0;

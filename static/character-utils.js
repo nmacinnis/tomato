@@ -5,6 +5,8 @@ let superiorityDie = null;
 let secondWind = null;
 let abilityAcBonus = 0;
 let abilityAcBreakdown = [];
+let itemSaveParts = [];
+let abilitySaveParts = [];
 
 // ── Toast ───────────────────────────────────────────────────────────────────
 

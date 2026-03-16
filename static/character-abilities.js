@@ -273,6 +273,10 @@ async function loadAbilities() {
   abilityAcBreakdown = acAbilities.map(a => ({ id: a.id, name: a.name, ac_bonus: a.ac_bonus }));
   if (currentItems.length > 0) updateAcDisplay();
 
+  abilitySaveParts = abilities.filter(a => a.save_bonus)
+    .map(a => ({ type: "ability", id: a.id, name: a.name, save_bonus: a.save_bonus }));
+  renderSaves();
+
   const grouped = {};
   ABILITY_GROUPS.forEach(g => { grouped[g.key] = []; });
   abilities.forEach(a => {
@@ -312,6 +316,7 @@ function openAbilityModal(ability = null) {
     abilityForm.recharge.value    = ability.recharge ?? "";
     abilityForm.die_type.value    = ability.die_type ?? "";
     abilityForm.ac_bonus.value    = ability.ac_bonus ?? 0;
+    abilityForm.save_bonus.value  = ability.save_bonus ?? 0;
   } else {
     abilityForm.id_field        = null;
     abilityForm._uses_remaining = null;
@@ -330,7 +335,8 @@ abilityForm.onsubmit = async (e) => {
   else body.uses_max = Number(body.uses_max);
   if (body.recharge === "") body.recharge = null;
   if (body.die_type === "") body.die_type = null;
-  body.ac_bonus = Number(body.ac_bonus) || 0;
+  body.ac_bonus   = Number(body.ac_bonus) || 0;
+  body.save_bonus = Number(body.save_bonus) || 0;
 
   if (abilityForm.id_field) {
     // Preserve existing uses_remaining; only cap it if uses_max shrank

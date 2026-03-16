@@ -7,21 +7,15 @@ function renderCharacter() {
     `${char.race} ${char.class} — Level ${char.level}`;
 
   const prof = profBonus(char.level);
-  const saveProfs = new Set((char.save_proficiencies || "").split(",").map(s => s.trim()).filter(Boolean));
 
   ["str", "dex", "con", "int", "wis", "cha"].forEach(stat => {
     const box = document.querySelector(`.stat-box[data-stat="${stat}"]`);
     box.querySelector(".stat-val").textContent = char[stat];
     box.querySelector(".stat-mod").textContent = modifier(char[stat]);
     box.onclick = () => editStat(stat);
-
-    const mod = Math.floor((char[stat] - 10) / 2);
-    const proficient = saveProfs.has(stat);
-    const saveVal = mod + (proficient ? prof : 0);
-    const saveEl = box.querySelector(".stat-save");
-    saveEl.textContent = `save ${saveVal >= 0 ? "+" : ""}${saveVal}`;
-    saveEl.className = "stat-save" + (proficient ? " save-proficient" : "");
   });
+
+  renderSaves();
 
   updateHpDisplay();
   updateThpDisplay();
@@ -46,6 +40,51 @@ function renderCharacter() {
   renderDeathSaves();
   renderTomatoes();
 }
+
+// ── Saves ────────────────────────────────────────────────────────────────────
+
+function renderSaves() {
+  const prof = profBonus(char.level);
+  const saveProfs = new Set((char.save_proficiencies || "").split(",").map(s => s.trim()).filter(Boolean));
+  const totalSaveBonus = itemSaveParts.reduce((s, p) => s + p.save_bonus, 0)
+                       + abilitySaveParts.reduce((s, p) => s + p.save_bonus, 0);
+  ["str", "dex", "con", "int", "wis", "cha"].forEach(stat => {
+    const box = document.querySelector(`.stat-box[data-stat="${stat}"]`);
+    const mod = Math.floor((char[stat] - 10) / 2);
+    const proficient = saveProfs.has(stat);
+    const saveVal = mod + (proficient ? prof : 0) + totalSaveBonus;
+    const saveEl = box.querySelector(".stat-save");
+    saveEl.textContent = `save ${saveVal >= 0 ? "+" : ""}${saveVal}`;
+    saveEl.className = "stat-save" + (proficient ? " save-proficient" : "");
+  });
+  updateSaveBonusDisplay();
+}
+
+function updateSaveBonusDisplay() {
+  const allParts = [...itemSaveParts, ...abilitySaveParts];
+  const total = allParts.reduce((s, p) => s + p.save_bonus, 0);
+  const el = document.getElementById("save-bonus-val");
+  if (el) el.textContent = total ? `+${total}` : "—";
+  const bd = document.getElementById("save-bonus-breakdown");
+  if (!bd) return;
+  bd.innerHTML = allParts.map(p =>
+    `<button class="ac-link" data-type="${p.type}" data-id="${p.id}">${escHtml(`+${p.save_bonus} (${p.name})`)}</button>`
+  ).join(" ");
+}
+
+document.getElementById("save-bonus-breakdown")?.addEventListener("click", e => {
+  const btn = e.target.closest(".ac-link");
+  if (!btn) return;
+  const { type, id } = btn.dataset;
+  const selector = type === "item"
+    ? `.del-item-btn[data-id="${id}"]`
+    : `.del-ability-btn[data-id="${id}"]`;
+  const card = document.querySelector(selector)?.closest(type === "item" ? ".item-card" : ".ability-card");
+  if (!card) return;
+  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  card.classList.add("ac-highlight");
+  setTimeout(() => card.classList.remove("ac-highlight"), 1200);
+});
 
 // ── Hit Dice ────────────────────────────────────────────────────────────────
 

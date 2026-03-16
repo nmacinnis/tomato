@@ -129,8 +129,8 @@ def create_ability(cid):
     data = request.json
     db = get_db()
     cur = db.execute(
-        """INSERT INTO abilities (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type, ac_bonus)
-           VALUES (?,?,?,?,?,?,?,?,?)""",
+        """INSERT INTO abilities (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type, ac_bonus, save_bonus)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
         (
             cid,
             data.get("name", "New Ability"),
@@ -141,6 +141,7 @@ def create_ability(cid):
             data.get("recharge", None),
             data.get("die_type", None),
             data.get("ac_bonus", 0),
+            data.get("save_bonus", 0),
         ),
     )
     db.commit()
@@ -194,7 +195,7 @@ def update_ability(aid):
     if "recharge" in data and data["recharge"] not in _VALID_RECHARGE:
         return jsonify({"error": "recharge must be 'short', 'long', or null"}), 400
     db = get_db()
-    fields = ["name", "type", "description", "uses_max", "uses_remaining", "recharge", "die_type", "ac_bonus"]
+    fields = ["name", "type", "description", "uses_max", "uses_remaining", "recharge", "die_type", "ac_bonus", "save_bonus"]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
     if not set_clause:
@@ -230,9 +231,9 @@ def create_item(cid):
     cur = db.execute(
         """INSERT INTO inventory
            (character_id, name, quantity, weight, description, equipped,
-            ac_bonus, sets_base_ac, is_weapon, is_melee,
+            ac_bonus, save_bonus, sets_base_ac, is_weapon, is_melee,
             damage_dice, damage_type, magic_bonus, damage_notes)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             cid,
             data.get("name", "Item"),
@@ -241,6 +242,7 @@ def create_item(cid):
             data.get("description", ""),
             data.get("equipped", False),
             data.get("ac_bonus", 0),
+            data.get("save_bonus", 0),
             data.get("sets_base_ac", False),
             data.get("is_weapon", False),
             data.get("is_melee", True),
@@ -260,7 +262,7 @@ def update_item(iid):
     db = get_db()
     fields = [
         "name", "quantity", "weight", "description", "equipped",
-        "ac_bonus", "sets_base_ac", "tool_proficient",
+        "ac_bonus", "save_bonus", "sets_base_ac", "tool_proficient",
         "damage_dice", "damage_type", "damage_notes", "magic_bonus", "is_weapon", "is_melee",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)

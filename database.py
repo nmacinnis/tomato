@@ -59,7 +59,8 @@ def init_db():
             uses_remaining  INTEGER,
             recharge        TEXT,   -- 'short', 'long', or NULL
             die_type        TEXT,   -- 'd4', 'd6', 'd8', 'd10', 'd12', 'd20', or NULL
-            ac_bonus        INTEGER NOT NULL DEFAULT 0
+            ac_bonus        INTEGER NOT NULL DEFAULT 0,
+            save_bonus      INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS inventory (
@@ -69,7 +70,8 @@ def init_db():
             quantity        INTEGER NOT NULL DEFAULT 1,
             weight          REAL    NOT NULL DEFAULT 0.0,
             description     TEXT    NOT NULL DEFAULT '',
-            equipped        INTEGER NOT NULL DEFAULT 0
+            equipped        INTEGER NOT NULL DEFAULT 0,
+            save_bonus      INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE INDEX IF NOT EXISTS idx_abilities_char ON abilities(character_id);
@@ -139,6 +141,14 @@ def init_db():
         pass
     try:
         conn.execute("ALTER TABLE abilities ADD COLUMN ac_bonus INTEGER NOT NULL DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute("ALTER TABLE abilities ADD COLUMN save_bonus INTEGER NOT NULL DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute("ALTER TABLE inventory ADD COLUMN save_bonus INTEGER NOT NULL DEFAULT 0")
     except sqlite3.OperationalError:
         pass
     for col_def in (
@@ -263,7 +273,7 @@ def _apply_tomato_data(conn):
     # AC values
     conn.execute("UPDATE inventory SET ac_bonus=17, sets_base_ac=1 WHERE name='Splint Armor'")
     conn.execute("UPDATE inventory SET ac_bonus=2  WHERE name='Shield'")
-    conn.execute("UPDATE inventory SET ac_bonus=1  WHERE name='Cloak of Protection'")
+    conn.execute("UPDATE inventory SET ac_bonus=1, save_bonus=1 WHERE name='Cloak of Protection'")
 
     # Tool proficiencies
     for tool in ("Carpenter's Tools", "Tinker's Tools", "Herbalism Kit"):
