@@ -8,46 +8,55 @@ function calcAC(items) {
   return base + bonuses + (char.flat_ac_bonus || 0) + abilityAcBonus;
 }
 
-function acLink(label, type, id) {
-  return `<button class="ac-link" data-type="${type}" data-id="${id}">${escHtml(label)}</button>`;
-}
-
-function acBreakdown(items) {
+function acBreakdownParts(items) {
   const equipped = items.filter(i => i.equipped && i.ac_bonus);
   const armor    = equipped.find(i => i.sets_base_ac);
   const parts    = [];
-  if (armor) parts.push(acLink(`${armor.ac_bonus} (${armor.name})`, "item", armor.id));
-  else       parts.push(`${10 + Math.floor((char.dex - 10) / 2)} (unarmored)`);
+  if (armor) parts.push({ value: armor.ac_bonus, label: armor.name, type: "item", id: armor.id });
+  else       parts.push({ value: 10 + Math.floor((char.dex - 10) / 2), label: "unarmored", type: null });
   equipped.filter(i => !i.sets_base_ac).forEach(i =>
-    parts.push(acLink(`+${i.ac_bonus} (${i.name})`, "item", i.id))
+    parts.push({ value: i.ac_bonus, label: i.name, type: "item", id: i.id })
   );
   abilityAcBreakdown.forEach(p =>
-    parts.push(acLink(`+${p.ac_bonus} (${p.name})`, "ability", p.id))
+    parts.push({ value: p.ac_bonus, label: p.name, type: "ability", id: p.id })
   );
-  if (char.flat_ac_bonus) parts.push(`+${char.flat_ac_bonus} (misc)`);
-  return parts.join(" ");
+  if (char.flat_ac_bonus) parts.push({ value: char.flat_ac_bonus, label: "misc", type: null });
+  return parts;
 }
 
 function updateAcDisplay() {
   const ac = calcAC(currentItems);
-  document.getElementById("ac-val").textContent    = ac;
-  document.getElementById("ac-breakdown").innerHTML = acBreakdown(currentItems);
+  document.getElementById("ac-val").textContent = ac;
   char.ac = ac;
-}
 
-document.getElementById("ac-breakdown").addEventListener("click", e => {
-  const btn = e.target.closest(".ac-link");
-  if (!btn) return;
-  const { type, id } = btn.dataset;
-  const selector = type === "item"
-    ? `.del-item-btn[data-id="${id}"]`
-    : `.del-ability-btn[data-id="${id}"]`;
-  const card = document.querySelector(selector)?.closest(type === "item" ? ".item-card" : ".ability-card");
-  if (!card) return;
-  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  card.classList.add("ac-highlight");
-  setTimeout(() => card.classList.remove("ac-highlight"), 1200);
-});
+  const parts = acBreakdownParts(currentItems);
+  const equation = parts.map((p, i) => (i === 0 ? p.value : `+ ${p.value}`)).join(" ") + ` = ${ac}`;
+  const detail   = parts.map(p => {
+    const text = `${p.value} (${p.label})`;
+    return p.type
+      ? `<button class="ac-link" data-type="${p.type}" data-id="${p.id}">${escHtml(text)}</button>`
+      : escHtml(text);
+  }).join(" ");
+
+  const bd = document.getElementById("ac-breakdown");
+  bd.innerHTML = `<span class="ac-equation">${escHtml(equation)}</span><span class="ac-detail" hidden>${detail}</span>`;
+  bd.onclick = e => {
+    const link = e.target.closest(".ac-link");
+    if (link) {
+      const { type, id } = link.dataset;
+      const sel  = type === "item" ? `.del-item-btn[data-id="${id}"]` : `.del-ability-btn[data-id="${id}"]`;
+      const card = document.querySelector(sel)?.closest(type === "item" ? ".item-card" : ".ability-card");
+      if (card) {
+        card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        card.classList.add("ac-highlight");
+        setTimeout(() => card.classList.remove("ac-highlight"), 1200);
+      }
+      return;
+    }
+    bd.querySelector(".ac-equation").hidden ^= true;
+    bd.querySelector(".ac-detail").hidden   ^= true;
+  };
+}
 
 // ── Load inventory ───────────────────────────────────────────────────────────
 
