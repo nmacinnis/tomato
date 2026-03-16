@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, abort
 from database import init_db, get_db, close_db, DATABASE
 
 app = Flask(__name__)
@@ -27,6 +27,9 @@ def index():
 
 @app.route("/character/<int:character_id>")
 def character_page(character_id):
+    db = get_db()
+    if not db.execute("SELECT 1 FROM characters WHERE id=?", (character_id,)).fetchone():
+        abort(404)
     return render_template("character.html", character_id=character_id)
 
 
@@ -43,16 +46,17 @@ def list_characters():
 def create_character():
     data = request.json
     db = get_db()
+    level = data.get("level", 1)
     cur = db.execute(
         """INSERT INTO characters
            (name, race, class, level, hp, max_hp, ac, speed,
-            str, dex, con, int, wis, cha, notes)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            str, dex, con, int, wis, cha, notes, hit_dice_remaining)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             data.get("name", "Unnamed Hero"),
             data.get("race", "Human"),
             data.get("class", "Fighter"),
-            data.get("level", 1),
+            level,
             data.get("hp", 10),
             data.get("max_hp", 10),
             data.get("ac", 10),
@@ -64,6 +68,7 @@ def create_character():
             data.get("wis", 10),
             data.get("cha", 10),
             data.get("notes", ""),
+            level,  # hit_dice_remaining starts at max
         ),
     )
     db.commit()
@@ -189,7 +194,7 @@ def do_rest(cid):
     return jsonify({"ok": True, "type": rest_type})
 
 
-_VALID_ABILITY_TYPES = {"action", "bonus_action", "reaction", "free_action", "passive", "active", "spell"}
+_VALID_ABILITY_TYPES = {"action", "bonus_action", "reaction", "free_action", "passive"}
 _VALID_RECHARGE     = {"short", "long", None}
 
 @app.route("/api/abilities/<int:aid>", methods=["PUT"])

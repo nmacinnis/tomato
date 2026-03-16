@@ -46,7 +46,12 @@ def init_db():
             alignment              TEXT    NOT NULL DEFAULT '',
             size                   TEXT    NOT NULL DEFAULT 'Medium',
             height                 TEXT    NOT NULL DEFAULT '',
-            weight                 TEXT    NOT NULL DEFAULT ''
+            weight                 TEXT    NOT NULL DEFAULT '',
+            flat_ac_bonus          INTEGER NOT NULL DEFAULT 0,
+            save_proficiencies     TEXT    NOT NULL DEFAULT '',
+            temp_hp                INTEGER NOT NULL DEFAULT 0,
+            skill_proficiencies    TEXT    NOT NULL DEFAULT '',
+            languages              TEXT    NOT NULL DEFAULT ''
         );
 
         CREATE TABLE IF NOT EXISTS abilities (
@@ -57,8 +62,8 @@ def init_db():
             description     TEXT    NOT NULL DEFAULT '',
             uses_max        INTEGER,
             uses_remaining  INTEGER,
-            recharge        TEXT,   -- 'short', 'long', or NULL
-            die_type        TEXT,   -- 'd4', 'd6', 'd8', 'd10', 'd12', 'd20', or NULL
+            recharge        TEXT,    -- 'short', 'long', or NULL
+            die_type        TEXT,    -- 'd4', 'd6', 'd8', 'd10', 'd12', 'd20', or NULL
             ac_bonus        INTEGER NOT NULL DEFAULT 0,
             save_bonus      INTEGER NOT NULL DEFAULT 0
         );
@@ -71,7 +76,16 @@ def init_db():
             weight          REAL    NOT NULL DEFAULT 0.0,
             description     TEXT    NOT NULL DEFAULT '',
             equipped        INTEGER NOT NULL DEFAULT 0,
-            save_bonus      INTEGER NOT NULL DEFAULT 0
+            save_bonus      INTEGER NOT NULL DEFAULT 0,
+            ac_bonus        INTEGER NOT NULL DEFAULT 0,
+            sets_base_ac    INTEGER NOT NULL DEFAULT 0,
+            tool_proficient INTEGER NOT NULL DEFAULT 0,
+            damage_dice     TEXT    NOT NULL DEFAULT '',
+            damage_type     TEXT    NOT NULL DEFAULT '',
+            damage_notes    TEXT    NOT NULL DEFAULT '',
+            magic_bonus     INTEGER NOT NULL DEFAULT 0,
+            is_weapon       INTEGER NOT NULL DEFAULT 0,
+            is_melee        INTEGER NOT NULL DEFAULT 1
         );
 
         CREATE INDEX IF NOT EXISTS idx_abilities_char ON abilities(character_id);
@@ -174,9 +188,6 @@ def init_db():
             conn.execute(f"ALTER TABLE inventory ADD COLUMN {col_def}")
         except sqlite3.OperationalError:
             pass
-
-    # Seed hit_dice_remaining = level for freshly migrated characters
-    conn.execute("UPDATE characters SET hit_dice_remaining = level WHERE hit_dice_remaining = 0")
 
     conn.commit()
     conn.close()

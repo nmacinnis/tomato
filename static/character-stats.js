@@ -103,7 +103,8 @@ function updateDeathSaveOdds() {
   const f = char?.death_save_failures  ?? 0;
   if (s >= 3 || f >= 3) { el.textContent = ""; return; }
   const totalSaveBonus = [...itemSaveParts, ...abilitySaveParts].reduce((sum, p) => sum + p.save_bonus, 0);
-  const hasAdv = !!document.querySelector(".ds-adv-badge");
+  const advBadge = document.getElementById("ds-adv-badge");
+  const hasAdv = !!advBadge && !advBadge.hidden;
   const pLive  = computeDeathSurvival(s, f, totalSaveBonus, hasAdv);
   el.textContent = `${(pLive * 100).toFixed(1)}% chance of survival`;
 }

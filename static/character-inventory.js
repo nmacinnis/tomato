@@ -77,12 +77,10 @@ async function loadInventory() {
   }
 
   currentItems = items;
-  updateAcDisplay();
   itemSaveParts = items.filter(i => i.equipped && i.save_bonus)
     .map(i => ({ type: "item", id: i.id, name: i.name, save_bonus: i.save_bonus }));
-  renderSaves();
   renderSkills();
-  loadAbilities();
+  await loadAbilities(); // computes abilityAcBonus/abilitySaveParts, then calls updateAcDisplay + renderSaves
 }
 
 // ── Item card ────────────────────────────────────────────────────────────────

@@ -276,6 +276,13 @@ async function loadAbilities() {
     .map(a => ({ type: "ability", id: a.id, name: a.name, save_bonus: a.save_bonus }));
   renderSaves();
 
+  const advBadge = document.getElementById("ds-adv-badge");
+  if (advBadge) {
+    advBadge.hidden = !abilities.some(a =>
+      a.description && a.description.toLowerCase().includes("advantage on death saving throws")
+    );
+  }
+
   const grouped = {};
   ABILITY_GROUPS.forEach(g => { grouped[g.key] = []; });
   abilities.forEach(a => {
