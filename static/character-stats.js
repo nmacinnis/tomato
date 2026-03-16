@@ -66,10 +66,34 @@ function updateSaveBonusDisplay() {
   const el = document.getElementById("save-bonus-val");
   if (el) el.textContent = total ? `+${total}` : "—";
   const bd = document.getElementById("save-bonus-breakdown");
-  if (!bd) return;
-  bd.innerHTML = allParts.map(p =>
+  if (bd) {
+    bd.innerHTML = allParts.map(p =>
+      `<button class="ac-link" data-type="${p.type}" data-id="${p.id}">${escHtml(`+${p.save_bonus} (${p.name})`)}</button>`
+    ).join(" ");
+  }
+  const ds = document.getElementById("ds-save-bonus");
+  if (!ds) return;
+  if (!total) { ds.innerHTML = ""; ds.onclick = null; return; }
+  const detail = allParts.map(p =>
     `<button class="ac-link" data-type="${p.type}" data-id="${p.id}">${escHtml(`+${p.save_bonus} (${p.name})`)}</button>`
   ).join(" ");
+  ds.innerHTML = `<span class="ac-equation">+${total} to rolls</span><span class="ac-detail" hidden>${detail}</span>`;
+  ds.onclick = e => {
+    const link = e.target.closest(".ac-link");
+    if (link) {
+      const { type, id } = link.dataset;
+      const sel  = type === "item" ? `.del-item-btn[data-id="${id}"]` : `.del-ability-btn[data-id="${id}"]`;
+      const card = document.querySelector(sel)?.closest(type === "item" ? ".item-card" : ".ability-card");
+      if (card) {
+        card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        card.classList.add("ac-highlight");
+        setTimeout(() => card.classList.remove("ac-highlight"), 1200);
+      }
+      return;
+    }
+    ds.querySelector(".ac-equation").hidden ^= true;
+    ds.querySelector(".ac-detail").hidden   ^= true;
+  };
 }
 
 document.getElementById("save-bonus-breakdown")?.addEventListener("click", e => {
