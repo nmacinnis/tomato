@@ -402,7 +402,8 @@ def apply(conn):
     )
     conn.execute(
         "UPDATE characters SET save_proficiencies='str,con', flat_ac_bonus=0,"
-        " alignment='Chaotic Good', size='Medium', height='6''6\"', weight='302 lbs'"
+        " alignment='Chaotic Good', size='Medium', height='6''6\"', weight='302 lbs',"
+        " hit_die='d10'"
         " WHERE id=?",
         (cid,),
     )

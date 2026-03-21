@@ -92,24 +92,43 @@ function renderStandardActions(list, items) {
   });
 }
 
+// ── Combat panel pip helper ───────────────────────────────────────────────────
+// Renders clickable pips into a container, syncing with an ability object.
+// dieType: a dieSvg() key ("d8", "d10", "dot", etc.)
+
+function renderCombatPips(containerId, ability, dieType, onUpdate) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = "";
+  for (let i = 0; i < ability.uses_max; i++) {
+    const filled = i < ability.uses_remaining;
+    const btn = document.createElement("button");
+    btn.className = `die-pip ${dieType}-pip` + (filled ? " die-filled" : "");
+    btn.title = filled ? `Use ${i + 1}` : `Recover ${i + 1}`;
+    btn.innerHTML = dieSvg(dieType);
+    btn.addEventListener("click", async () => {
+      const next = filled ? i : i + 1;
+      const res = await apiFetch(
+        `/api/abilities/${ability.id}`,
+        { method: "PUT", body: { uses_remaining: next } },
+        "Failed to update."
+      );
+      if (!res) return;
+      ability.uses_remaining = next;
+      renderCombatPips(containerId, ability, dieType, onUpdate);
+      if (onUpdate) onUpdate(ability);
+    });
+    container.appendChild(btn);
+  }
+}
+
 // ── Superiority Dice ─────────────────────────────────────────────────────────
 
 function renderSdPips() {
   if (!superiorityDie) return;
-  const container = document.getElementById("sd-pips");
-  container.innerHTML = "";
-  for (let i = 0; i < superiorityDie.uses_max; i++) {
-    const filled = i < superiorityDie.uses_remaining;
-    const btn = document.createElement("button");
-    btn.className = "die-pip d8-pip" + (filled ? " die-filled" : "");
-    btn.title = filled ? `Spend die ${i + 1}` : `Recover die ${i + 1}`;
-    btn.innerHTML = dieSvg("d8");
-    btn.addEventListener("click", async () => {
-      const next = filled ? i : i + 1;
-      await patchSuperiorityDie(next);
-    });
-    container.appendChild(btn);
-  }
+  const dieType = superiorityDie.die_type || "d8";
+  document.getElementById("sd-label").textContent = `Sup. Dice (${dieType})`;
+  renderCombatPips("sd-pips", superiorityDie, dieType, () => {});
 }
 
 async function patchSuperiorityDie(uses_remaining) {
@@ -127,31 +146,35 @@ async function patchSuperiorityDie(uses_remaining) {
 
 function renderSwPips() {
   if (!secondWind) return;
-  const container = document.getElementById("sw-pips");
-  container.innerHTML = "";
-  for (let i = 0; i < secondWind.uses_max; i++) {
-    const filled = i < secondWind.uses_remaining;
-    const btn = document.createElement("button");
-    btn.className = "die-pip d10-pip" + (filled ? " die-filled" : "");
-    btn.title = filled ? `Spend die ${i + 1}` : `Recover die ${i + 1}`;
-    btn.innerHTML = dieSvg("d10");
-    btn.addEventListener("click", async () => {
-      const next = filled ? i : i + 1;
-      const res = await apiFetch(
-        `/api/abilities/${secondWind.id}`,
-        { method: "PUT", body: { uses_remaining: next } },
-        "Failed to update Second Wind."
-      );
-      if (!res) return;
-      secondWind.uses_remaining = next;
-      renderSwPips();
-      // sync all card pip containers tied to this pool (Second Wind + Tactical Mind, etc.)
-      document
-        .querySelectorAll(`.ability-pips[data-id="${secondWind.id}"]`)
-        .forEach((c) => renderAbilityPips(c, secondWind));
-    });
-    container.appendChild(btn);
-  }
+  const dieType = secondWind.die_type || "d10";
+  document.getElementById("sw-label").textContent = `Second Wind (${dieType})`;
+  renderCombatPips("sw-pips", secondWind, dieType, (a) => {
+    document
+      .querySelectorAll(`.ability-pips[data-id="${a.id}"]`)
+      .forEach((c) => renderAbilityPips(c, a));
+  });
+}
+
+// ── Sorcery Points (combat panel) ────────────────────────────────────────────
+
+function renderSpPips() {
+  if (!sorceryPoints) return;
+  renderCombatPips("sp-pips", sorceryPoints, "dot", (a) => {
+    document
+      .querySelectorAll(`.ability-pips[data-id="${a.id}"]`)
+      .forEach((c) => renderAbilityPips(c, a));
+  });
+}
+
+// ── Spell Slots (combat panel) ───────────────────────────────────────────────
+
+function renderSlotPips(ability, containerId) {
+  if (!ability) return;
+  renderCombatPips(containerId, ability, "dot", (a) => {
+    document
+      .querySelectorAll(`.ability-pips[data-id="${a.id}"]`)
+      .forEach((c) => renderAbilityPips(c, a));
+  });
 }
 
 // ── Ability cards ────────────────────────────────────────────────────────────
@@ -282,17 +305,38 @@ async function loadAbilities() {
     return;
   }
 
+  // ── Detect named abilities for combat panel widgets ──────────────────────
+
   const poolIdx = abilities.findIndex((a) => a.name === "Superiority Dice Pool (d8)");
-  if (poolIdx !== -1) {
-    superiorityDie = abilities.splice(poolIdx, 1)[0];
-    renderSdPips();
-  }
+  superiorityDie = poolIdx !== -1 ? abilities.splice(poolIdx, 1)[0] : null;
+  document.getElementById("sd-box").hidden = !superiorityDie;
+  document.getElementById("maneuver-dc-box").hidden = !superiorityDie;
+  if (superiorityDie) renderSdPips();
 
   const swIdx = abilities.findIndex((a) => a.name === "Second Wind");
-  if (swIdx !== -1) {
-    secondWind = abilities[swIdx]; // keep in list; also render in combat panel
-    renderSwPips();
-  }
+  secondWind = swIdx !== -1 ? abilities[swIdx] : null;
+  document.getElementById("sw-box").hidden = !secondWind;
+  if (secondWind) renderSwPips();
+
+  const spIdx = abilities.findIndex((a) => a.name === "Sorcery Points");
+  sorceryPoints = spIdx !== -1 ? abilities[spIdx] : null;
+  document.getElementById("sp-box").hidden = !sorceryPoints;
+  if (sorceryPoints) renderSpPips();
+
+  const sl1Idx = abilities.findIndex((a) => a.name === "Spell Slots — 1st Level");
+  spellSlotsL1 = sl1Idx !== -1 ? abilities[sl1Idx] : null;
+  document.getElementById("slots-1-box").hidden = !spellSlotsL1;
+  if (spellSlotsL1) renderSlotPips(spellSlotsL1, "slots-1-pips");
+
+  const sl2Idx = abilities.findIndex((a) => a.name === "Spell Slots — 2nd Level");
+  spellSlotsL2 = sl2Idx !== -1 ? abilities[sl2Idx] : null;
+  document.getElementById("slots-2-box").hidden = !spellSlotsL2;
+  if (spellSlotsL2) renderSlotPips(spellSlotsL2, "slots-2-pips");
+
+  const hasGoodberry = abilities.some((a) =>
+    a.name.toLowerCase().includes("goodberry")
+  );
+  document.getElementById("tomato-section").hidden = !hasGoodberry;
 
   // Compute AC contribution from abilities and refresh the AC display
   const acAbilities = abilities.filter((a) => a.ac_bonus);

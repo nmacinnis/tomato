@@ -52,18 +52,30 @@
         <div class="combat-box"><span class="combat-label">Speed</span><span id="speed-val"></span></div>
         <div class="combat-box"><span class="combat-label">Level</span><span id="level-val"></span></div>
         <div class="combat-box">
-          <span class="combat-label">Hit Dice (d10)</span>
+          <span class="combat-label" id="hd-label">Hit Dice</span>
           <div id="hd-pips" class="dice-pips"></div>
         </div>
         <div class="combat-box"><span class="combat-label">Initiative</span><span id="init-val"></span></div>
-        <div class="combat-box"><span class="combat-label">Maneuver DC</span><span id="maneuver-dc-val"></span></div>
-        <div class="combat-box">
-          <span class="combat-label">Sup. Dice (d8)</span>
+        <div class="combat-box" id="maneuver-dc-box" hidden><span class="combat-label">Maneuver DC</span><span id="maneuver-dc-val"></span></div>
+        <div class="combat-box" id="sd-box" hidden>
+          <span class="combat-label" id="sd-label">Sup. Dice</span>
           <div id="sd-pips" class="dice-pips"></div>
         </div>
-        <div class="combat-box">
-          <span class="combat-label">Second Wind (d10)</span>
+        <div class="combat-box" id="sw-box" hidden>
+          <span class="combat-label" id="sw-label">Second Wind</span>
           <div id="sw-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box" id="sp-box" hidden>
+          <span class="combat-label">Sorcery Points</span>
+          <div id="sp-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box" id="slots-1-box" hidden>
+          <span class="combat-label">Spell Slots (1st)</span>
+          <div id="slots-1-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box" id="slots-2-box" hidden>
+          <span class="combat-label">Spell Slots (2nd)</span>
+          <div id="slots-2-pips" class="dice-pips"></div>
         </div>
         <div class="combat-box">
           <span class="combat-label">Temp HP</span>
@@ -115,10 +127,12 @@
         <div id="ds-odds" class="ac-breakdown"></div>
       </div>
 
-      <h2>Tomatoes</h2>
-      <div class="tomato-counter">
-        <div class="tomato-pips" id="tomato-pips"></div>
-        <div class="tomato-count"><span id="tomato-count">0</span> / 10</div>
+      <div id="tomato-section" hidden>
+        <h2>Tomatoes</h2>
+        <div class="tomato-counter">
+          <div class="tomato-pips" id="tomato-pips"></div>
+          <div class="tomato-count"><span id="tomato-count">0</span> / 10</div>
+        </div>
       </div>
 
     </section>

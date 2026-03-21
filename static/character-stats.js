@@ -220,14 +220,16 @@ document.getElementById("save-bonus-breakdown")?.addEventListener("click", (e) =
 // ── Hit Dice ────────────────────────────────────────────────────────────────
 
 function renderHdPips() {
+  const dieType = char.hit_die || "d10";
+  document.getElementById("hd-label").textContent = `Hit Dice (${dieType})`;
   const container = document.getElementById("hd-pips");
   container.innerHTML = "";
   for (let i = 0; i < char.level; i++) {
     const filled = i < char.hit_dice_remaining;
     const btn = document.createElement("button");
-    btn.className = "die-pip d10-pip" + (filled ? " die-filled" : "");
+    btn.className = `die-pip ${dieType}-pip` + (filled ? " die-filled" : "");
     btn.title = filled ? `Spend die ${i + 1}` : `Recover die ${i + 1}`;
-    btn.innerHTML = dieSvg("d10");
+    btn.innerHTML = dieSvg(dieType);
     btn.addEventListener("click", async () => {
       const next = filled ? i : i + 1;
       await patchChar({ hit_dice_remaining: next });

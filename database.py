@@ -52,7 +52,8 @@ def init_db():
             save_proficiencies     TEXT    NOT NULL DEFAULT '',
             temp_hp                INTEGER NOT NULL DEFAULT 0,
             skill_proficiencies    TEXT    NOT NULL DEFAULT '',
-            languages              TEXT    NOT NULL DEFAULT ''
+            languages              TEXT    NOT NULL DEFAULT '',
+            hit_die                TEXT    NOT NULL DEFAULT 'd10'
         );
 
         CREATE TABLE IF NOT EXISTS abilities (
@@ -148,6 +149,10 @@ def init_db():
         pass
     try:
         conn.execute("ALTER TABLE characters ADD COLUMN languages TEXT NOT NULL DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute("ALTER TABLE characters ADD COLUMN hit_die TEXT NOT NULL DEFAULT 'd10'")
     except sqlite3.OperationalError:
         pass
     try:

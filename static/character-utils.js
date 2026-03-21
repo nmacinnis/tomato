@@ -3,6 +3,9 @@ let char = null;
 let currentItems = [];
 let superiorityDie = null;
 let secondWind = null;
+let sorceryPoints = null;
+let spellSlotsL1 = null;
+let spellSlotsL2 = null;
 let abilityAcBonus = 0;
 let abilityAcBreakdown = [];
 let itemSaveParts = [];
@@ -79,6 +82,8 @@ function profBonus(level) {
 
 function dieSvg(type) {
   const base = `fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="20" aria-hidden="true"`;
+  if (type === "dot")
+    return `<svg viewBox="0 0 16 16" ${base}><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/></svg>`;
   if (type === "d6")
     return `<svg viewBox="0 0 16 16" ${base}>
     <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
