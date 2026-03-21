@@ -799,6 +799,36 @@ main {
   margin-left: 4px;
 }
 
+/* ── Money ─────────────────────────────────────────────────────────────────── */
+.money-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+.money-box {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.4rem;
+  text-align: center;
+}
+.money-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.money-val {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--accent2);
+  min-height: 1.5rem;
+}
+.money-val:hover {
+  color: var(--accent);
+}
+
 /* ── Goodberry / Tomato Counter ───────────────────────────────────────────── */
 .tomato-counter {
   display: flex;

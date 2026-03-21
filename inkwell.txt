@@ -45,14 +45,13 @@ Starting Equipment:
 Backpack	5 lb. 	2 GP
 Clothes, Traveler's	4 lb.	2 GP
 Ball Bearings	2 lb.	1 GP
+Healer's Kit	3 lb.	5 GP
+Book	5 lb.	25 GP
+2 x Dagger	2 lb.	4 GP
 Blanket	3 lb.	5 SP
 5 x Rations	10 lb.	25 SP
-Ball Bearings	2 lb.	1 GP
-2 x Dagger	2 lb.	4 GP
 Waterskin	5 lb. (full)	2 SP
-Book	5 lb.	25 GP
-Healer's Kit	3 lb.	5 GP
-5gp 2silver
+7gp 8silver
 
 Spellcasting
 Drawing from your innate magic, you can cast spells. 

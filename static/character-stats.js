@@ -71,6 +71,7 @@ function renderCharacter() {
   document.getElementById("height-val").textContent = char.height || "";
   document.getElementById("weight-val").textContent = char.weight || "";
 
+  renderMoney();
   renderHdPips();
   renderDeathSaves();
   renderTomatoes();
@@ -215,6 +216,45 @@ document.getElementById("save-bonus-breakdown")?.addEventListener("click", (e) =
   card.scrollIntoView({ behavior: "smooth", block: "nearest" });
   card.classList.add("ac-highlight");
   setTimeout(() => card.classList.remove("ac-highlight"), 1200);
+});
+
+// ── Money ────────────────────────────────────────────────────────────────────
+
+function renderMoney() {
+  ["pp", "gp", "sp", "cp"].forEach((coin) => {
+    const el = document.getElementById(`money-${coin}`);
+    el.textContent = char[`coins_${coin}`] ?? 0;
+  });
+}
+
+function editCoin(el) {
+  const coin = el.dataset.coin;
+  const current = char[coin] ?? 0;
+  const input = document.createElement("input");
+  input.type = "number";
+  input.min = 0;
+  input.value = current;
+  input.style.cssText =
+    "width:4rem;font-size:1.2rem;font-weight:bold;background:#0f3460;border:1px solid var(--accent);color:var(--accent2);border-radius:4px;text-align:center;";
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+  const save = async () => {
+    const val = Math.max(0, parseInt(input.value, 10) || 0);
+    await patchChar({ [coin]: val });
+    input.replaceWith(el);
+    el.textContent = val;
+  };
+  input.onblur = save;
+  input.onkeydown = (e) => {
+    if (e.key === "Enter") save();
+    if (e.key === "Escape") { input.value = current; input.blur(); }
+  };
+}
+
+document.querySelectorAll(".money-val").forEach((el) => {
+  el.style.cursor = "pointer";
+  el.addEventListener("click", () => editCoin(el));
 });
 
 // ── Hit Dice ────────────────────────────────────────────────────────────────

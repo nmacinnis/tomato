@@ -53,7 +53,11 @@ def init_db():
             temp_hp                INTEGER NOT NULL DEFAULT 0,
             skill_proficiencies    TEXT    NOT NULL DEFAULT '',
             languages              TEXT    NOT NULL DEFAULT '',
-            hit_die                TEXT    NOT NULL DEFAULT 'd10'
+            hit_die                TEXT    NOT NULL DEFAULT 'd10',
+            coins_pp               INTEGER NOT NULL DEFAULT 0,
+            coins_gp               INTEGER NOT NULL DEFAULT 0,
+            coins_sp               INTEGER NOT NULL DEFAULT 0,
+            coins_cp               INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS abilities (
@@ -155,6 +159,16 @@ def init_db():
         conn.execute("ALTER TABLE characters ADD COLUMN hit_die TEXT NOT NULL DEFAULT 'd10'")
     except sqlite3.OperationalError:
         pass
+    for col_def in (
+        "coins_pp INTEGER NOT NULL DEFAULT 0",
+        "coins_gp INTEGER NOT NULL DEFAULT 0",
+        "coins_sp INTEGER NOT NULL DEFAULT 0",
+        "coins_cp INTEGER NOT NULL DEFAULT 0",
+    ):
+        try:
+            conn.execute(f"ALTER TABLE characters ADD COLUMN {col_def}")
+        except sqlite3.OperationalError:
+            pass
     try:
         conn.execute("ALTER TABLE abilities ADD COLUMN die_type TEXT")
     except sqlite3.OperationalError:
