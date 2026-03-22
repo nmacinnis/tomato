@@ -72,7 +72,8 @@ def init_db():
             die_type        TEXT,    -- 'd4', 'd6', 'd8', 'd10', 'd12', 'd20', or NULL
             ac_bonus        INTEGER NOT NULL DEFAULT 0,
             save_bonus      INTEGER NOT NULL DEFAULT 0,
-            flavor          TEXT    NOT NULL DEFAULT ''
+            flavor          TEXT    NOT NULL DEFAULT '',
+            components      TEXT    NOT NULL DEFAULT ''
         );
 
         CREATE TABLE IF NOT EXISTS inventory (
@@ -216,6 +217,10 @@ def init_db():
             conn.execute(f"ALTER TABLE {tbl} ADD COLUMN flavor TEXT NOT NULL DEFAULT ''")
         except sqlite3.OperationalError:
             pass
+    try:
+        conn.execute("ALTER TABLE abilities ADD COLUMN components TEXT NOT NULL DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
 
     conn.commit()
     conn.close()

@@ -393,6 +393,14 @@ main {
   color: var(--muted);
   margin-top: 0.3rem;
 }
+.ability-components {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+.components-label {
+  font-weight: 600;
+}
 .ability-flavor,
 .item-flavor {
   font-size: 0.8rem;
