@@ -71,7 +71,8 @@ def init_db():
             recharge        TEXT,    -- 'short', 'long', or NULL
             die_type        TEXT,    -- 'd4', 'd6', 'd8', 'd10', 'd12', 'd20', or NULL
             ac_bonus        INTEGER NOT NULL DEFAULT 0,
-            save_bonus      INTEGER NOT NULL DEFAULT 0
+            save_bonus      INTEGER NOT NULL DEFAULT 0,
+            flavor          TEXT    NOT NULL DEFAULT ''
         );
 
         CREATE TABLE IF NOT EXISTS inventory (
@@ -91,7 +92,8 @@ def init_db():
             damage_notes    TEXT    NOT NULL DEFAULT '',
             magic_bonus     INTEGER NOT NULL DEFAULT 0,
             is_weapon       INTEGER NOT NULL DEFAULT 0,
-            is_melee        INTEGER NOT NULL DEFAULT 1
+            is_melee        INTEGER NOT NULL DEFAULT 1,
+            flavor          TEXT    NOT NULL DEFAULT ''
         );
 
         CREATE INDEX IF NOT EXISTS idx_abilities_char ON abilities(character_id);
@@ -206,6 +208,12 @@ def init_db():
     ):
         try:
             conn.execute(f"ALTER TABLE inventory ADD COLUMN {col_def}")
+        except sqlite3.OperationalError:
+            pass
+
+    for tbl in ("abilities", "inventory"):
+        try:
+            conn.execute(f"ALTER TABLE {tbl} ADD COLUMN flavor TEXT NOT NULL DEFAULT ''")
         except sqlite3.OperationalError:
             pass
 

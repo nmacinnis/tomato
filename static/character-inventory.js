@@ -129,6 +129,7 @@ function renderItemCard(item) {
       <span>${item.weight} lbs ea.</span>
     </div>
     ${item.description ? `<div class="item-desc">${escHtml(item.description)}</div>` : ""}
+    ${item.flavor ? `<div class="item-flavor">${escHtml(item.flavor)}</div>` : ""}
   `;
 
   div.querySelector(".equip-btn").addEventListener("click", async () => {
@@ -184,6 +185,7 @@ function openItemModal(item = null) {
     itemForm.magic_bonus.value = item.magic_bonus || 0;
     itemForm.is_melee.checked = item.is_melee !== 0;
     itemForm.damage_notes.value = item.damage_notes || "";
+    itemForm.flavor.value = item.flavor || "";
     itemForm.equipped.checked = !!item.equipped;
   } else {
     itemForm.id_field = null;

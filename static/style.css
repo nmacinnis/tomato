@@ -393,6 +393,14 @@ main {
   color: var(--muted);
   margin-top: 0.3rem;
 }
+.ability-flavor,
+.item-flavor {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--muted);
+  margin-top: 0.2rem;
+  opacity: 0.8;
+}
 .ability-uses {
   font-size: 0.82rem;
   color: var(--accent2);

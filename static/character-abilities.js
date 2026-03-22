@@ -217,6 +217,7 @@ function renderAbilityCard(a) {
       </div>
     </div>
     ${a.description ? `<div class="ability-desc">${escHtml(a.description)}</div>` : ""}
+    ${a.flavor ? `<div class="ability-flavor">${escHtml(a.flavor)}</div>` : ""}
     ${showDiePips || sharedPool ? `<div class="ability-pips" data-id="${(sharedPool ?? a).id}"></div>` : ""}
     ${usesText ? `<div class="ability-uses">Uses: ${usesText}</div>` : ""}
   `;
@@ -412,6 +413,7 @@ function openAbilityModal(ability = null) {
     abilityForm.die_type.value = ability.die_type ?? "";
     abilityForm.ac_bonus.value = ability.ac_bonus ?? 0;
     abilityForm.save_bonus.value = ability.save_bonus ?? 0;
+    abilityForm.flavor.value = ability.flavor ?? "";
   } else {
     abilityForm.id_field = null;
     abilityForm._uses_remaining = null;

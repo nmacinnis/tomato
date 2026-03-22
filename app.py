@@ -179,8 +179,8 @@ def create_ability(cid):
     db = get_db()
     cur = db.execute(
         """INSERT INTO abilities
-           (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type, ac_bonus, save_bonus)
-           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+           (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type, ac_bonus, save_bonus, flavor)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
         (
             cid,
             data.get("name", "New Ability"),
@@ -192,6 +192,7 @@ def create_ability(cid):
             data.get("die_type", None),
             data.get("ac_bonus", 0),
             data.get("save_bonus", 0),
+            data.get("flavor", ""),
         ),
     )
     db.commit()
@@ -256,6 +257,7 @@ def update_ability(aid):
         "die_type",
         "ac_bonus",
         "save_bonus",
+        "flavor",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
@@ -292,8 +294,8 @@ def create_item(cid):
         """INSERT INTO inventory
            (character_id, name, quantity, weight, description, equipped,
             ac_bonus, save_bonus, sets_base_ac, is_weapon, is_melee,
-            damage_dice, damage_type, magic_bonus, damage_notes)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            damage_dice, damage_type, magic_bonus, damage_notes, flavor)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             cid,
             data.get("name", "Item"),
@@ -310,6 +312,7 @@ def create_item(cid):
             data.get("damage_type", ""),
             data.get("magic_bonus", 0),
             data.get("damage_notes", ""),
+            data.get("flavor", ""),
         ),
     )
     db.commit()
@@ -336,6 +339,7 @@ def update_item(iid):
         "magic_bonus",
         "is_weapon",
         "is_melee",
+        "flavor",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
