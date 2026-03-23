@@ -73,7 +73,10 @@ def init_db():
             ac_bonus        INTEGER NOT NULL DEFAULT 0,
             save_bonus      INTEGER NOT NULL DEFAULT 0,
             flavor          TEXT    NOT NULL DEFAULT '',
-            components      TEXT    NOT NULL DEFAULT ''
+            components      TEXT    NOT NULL DEFAULT '',
+            spell_range     TEXT    NOT NULL DEFAULT '',
+            duration        TEXT    NOT NULL DEFAULT '',
+            concentration   INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS inventory (
@@ -221,6 +224,15 @@ def init_db():
         conn.execute("ALTER TABLE abilities ADD COLUMN components TEXT NOT NULL DEFAULT ''")
     except sqlite3.OperationalError:
         pass
+    for col_def in (
+        "spell_range   TEXT    NOT NULL DEFAULT ''",
+        "duration      TEXT    NOT NULL DEFAULT ''",
+        "concentration INTEGER NOT NULL DEFAULT 0",
+    ):
+        try:
+            conn.execute(f"ALTER TABLE abilities ADD COLUMN {col_def}")
+        except sqlite3.OperationalError:
+            pass
 
     conn.commit()
     conn.close()

@@ -216,7 +216,13 @@ function renderAbilityCard(a) {
         <button class="del-ability-btn" data-id="${a.id}">✕</button>
       </div>
     </div>
-    ${a.components ? `<div class="ability-components"><span class="components-label">Components:</span> ${escHtml(a.components)}</div>` : ""}
+    ${(a.spell_range || a.duration || a.concentration || a.components) ? `
+    <div class="ability-meta">
+      ${a.spell_range ? `<span><span class="meta-label">Range:</span> ${escHtml(a.spell_range)}</span>` : ""}
+      ${a.duration ? `<span><span class="meta-label">Duration:</span> ${escHtml(a.duration)}</span>` : ""}
+      ${a.concentration ? `<span class="conc-badge">Concentration</span>` : ""}
+      ${a.components ? `<span><span class="meta-label">Components:</span> ${escHtml(a.components)}</span>` : ""}
+    </div>` : ""}
     ${a.description ? `<div class="ability-desc">${escHtml(a.description)}</div>` : ""}
     ${a.flavor ? `<div class="ability-flavor">${escHtml(a.flavor)}</div>` : ""}
     ${showDiePips || sharedPool ? `<div class="ability-pips" data-id="${(sharedPool ?? a).id}"></div>` : ""}
@@ -416,6 +422,9 @@ function openAbilityModal(ability = null) {
     abilityForm.save_bonus.value = ability.save_bonus ?? 0;
     abilityForm.flavor.value = ability.flavor ?? "";
     abilityForm.components.value = ability.components ?? "";
+    abilityForm.spell_range.value = ability.spell_range ?? "";
+    abilityForm.duration.value = ability.duration ?? "";
+    abilityForm.concentration.checked = !!ability.concentration;
   } else {
     abilityForm.id_field = null;
     abilityForm._uses_remaining = null;
@@ -436,6 +445,7 @@ abilityForm.onsubmit = async (e) => {
   if (body.die_type === "") body.die_type = null;
   body.ac_bonus = Number(body.ac_bonus) || 0;
   body.save_bonus = Number(body.save_bonus) || 0;
+  body.concentration = abilityForm.concentration.checked ? 1 : 0;
 
   if (abilityForm.id_field) {
     // Preserve existing uses_remaining; only cap it if uses_max shrank

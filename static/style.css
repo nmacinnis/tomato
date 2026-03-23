@@ -393,13 +393,25 @@ main {
   color: var(--muted);
   margin-top: 0.3rem;
 }
-.ability-components {
+.ability-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   font-size: 0.78rem;
   color: var(--muted);
   margin-top: 0.2rem;
 }
-.components-label {
+.meta-label {
   font-weight: 600;
+}
+.conc-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent2);
+  border: 1px solid var(--accent2);
+  border-radius: 3px;
+  padding: 0 4px;
+  line-height: 1.4;
 }
 .ability-flavor,
 .item-flavor {
