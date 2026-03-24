@@ -497,7 +497,7 @@ def apply(conn):
         " alignment='Chaotic Neutral', size='Medium', height='5''4\"', weight='130 lbs',"
         " languages='Common,Common Sign,Elvish',"
         " hit_dice_remaining=3, hit_die='d6',"
-        " coins_gp=7, coins_sp=8"
+        " coins_gp=22, coins_sp=8"
         " WHERE id=?",
         (cid,),
     )
