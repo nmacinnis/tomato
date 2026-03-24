@@ -18,11 +18,14 @@ _CHAR = (
     16,  # wis
     19,  # cha (17 base + 2 Changeling)
     (
-        "Creature Type: Fey\n\n"
-        "Background: Audit Analyst (Scribe). Bookkeeper turned adventurer; perpetually ink-stained fingers.\n"
+        "Background: Audit Gatherer (Scribe). Bookkeeper turned adventurer; perpetually ink-stained fingers.\n"
         "Estranged from her family — the Lord and Lady of Port Ellsmyre, a minor fishing village in the Riverlands.\n\n"
-        "Languages: Ionian, Ionian Sign, Whisper\n"
-        "Feat — Skilled: Insight, Stealth, Disguise Kit"
+        "Languages: Ionian, Ionian Sign, Whisper\n\n"
+        "Personality: I form many shallow friendships, but almost no close relationships.\n"
+        "Ideal: Change. Adaptation is survival.\n"
+        "Flaw: I can't resist trying on a pretty face.\n"
+        "Bond: I owe much to the Audit, but I was claimed by Neris first.\n"
+        "Trinket: A cone snail shell (empty).\n"
     ),
 )
 
@@ -492,7 +495,7 @@ def apply(conn):
     conn.execute(
         "UPDATE characters SET save_proficiencies='con,cha',"
         " alignment='Chaotic Neutral', size='Medium', height='5''4\"', weight='130 lbs',"
-        " languages='Common,Common Sign,Elvish',"
+        " languages='Ionian,Ionian Sign,Whisper',"
         " hit_dice_remaining=3, hit_die='d6',"
         " coins_gp=22, coins_sp=8"
         " WHERE id=?",
