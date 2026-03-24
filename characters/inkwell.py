@@ -503,7 +503,7 @@ def apply(conn):
     conn.execute(
         """UPDATE inventory
            SET damage_dice=?, damage_type=?, magic_bonus=?,
-               is_melee=?, damage_notes=?, is_weapon=1
+               is_melee=?, finesse=1, damage_notes=?, is_weapon=1
            WHERE character_id=? AND name=?""",
         ("1d4", "piercing", 0, 1, "Light, Finesse, Thrown 20/60", cid, "Dagger"),
     )

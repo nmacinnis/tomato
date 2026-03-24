@@ -97,6 +97,7 @@ def init_db():
             magic_bonus     INTEGER NOT NULL DEFAULT 0,
             is_weapon       INTEGER NOT NULL DEFAULT 0,
             is_melee        INTEGER NOT NULL DEFAULT 1,
+            finesse         INTEGER NOT NULL DEFAULT 0,
             flavor          TEXT    NOT NULL DEFAULT ''
         );
 
@@ -209,6 +210,7 @@ def init_db():
         "magic_bonus  INTEGER NOT NULL DEFAULT 0",
         "is_weapon    INTEGER NOT NULL DEFAULT 0",
         "is_melee     INTEGER NOT NULL DEFAULT 1",
+        "finesse      INTEGER NOT NULL DEFAULT 0",
     ):
         try:
             conn.execute(f"ALTER TABLE inventory ADD COLUMN {col_def}")

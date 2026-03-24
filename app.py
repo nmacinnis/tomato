@@ -301,9 +301,9 @@ def create_item(cid):
     cur = db.execute(
         """INSERT INTO inventory
            (character_id, name, quantity, weight, description, equipped,
-            ac_bonus, save_bonus, sets_base_ac, is_weapon, is_melee,
+            ac_bonus, save_bonus, sets_base_ac, is_weapon, is_melee, finesse,
             damage_dice, damage_type, magic_bonus, damage_notes, flavor)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             cid,
             data.get("name", "Item"),
@@ -316,6 +316,7 @@ def create_item(cid):
             data.get("sets_base_ac", False),
             data.get("is_weapon", False),
             data.get("is_melee", True),
+            data.get("finesse", False),
             data.get("damage_dice", ""),
             data.get("damage_type", ""),
             data.get("magic_bonus", 0),
@@ -347,6 +348,7 @@ def update_item(iid):
         "magic_bonus",
         "is_weapon",
         "is_melee",
+        "finesse",
         "flavor",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)

@@ -57,7 +57,9 @@ function renderStandardActions(list, items) {
     weaponRows = `<div class="attack-weapon-row muted">No weapons equipped.</div>`;
   } else {
     weapons.forEach((w) => {
-      const abilMod = w.is_melee ? strMod : dexMod;
+      const abilMod = w.finesse
+        ? Math.max(strMod, dexMod)
+        : w.is_melee ? strMod : dexMod;
       const toHit = abilMod + prof + w.magic_bonus;
       const dmgBonus = abilMod + w.magic_bonus;
       const sign = dmgBonus >= 0 ? "+" : "";
