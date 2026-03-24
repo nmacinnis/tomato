@@ -331,6 +331,18 @@ async function loadAbilities() {
   document.getElementById("sp-box").hidden = !sorceryPoints;
   if (sorceryPoints) renderSpPips();
 
+  // Spell Save DC and Spell Attack Bonus (CHA-based caster, shown when sorcery points present)
+  const hasSorcerer = !!sorceryPoints;
+  document.getElementById("spell-dc-box").hidden = !hasSorcerer;
+  document.getElementById("spell-atk-box").hidden = !hasSorcerer;
+  if (hasSorcerer) {
+    const prof = profBonus(char.level);
+    const chaMod = Math.floor((char.cha - 10) / 2);
+    document.getElementById("spell-dc-val").textContent = 8 + prof + chaMod;
+    const atk = prof + chaMod;
+    document.getElementById("spell-atk-val").textContent = atk >= 0 ? `+${atk}` : `${atk}`;
+  }
+
   const sl1Idx = abilities.findIndex((a) => a.name === "Spell Slots — 1st Level");
   spellSlotsL1 = sl1Idx !== -1 ? abilities[sl1Idx] : null;
   document.getElementById("slots-1-box").hidden = !spellSlotsL1;
