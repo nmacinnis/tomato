@@ -18,13 +18,10 @@ _CHAR = (
     16,  # wis
     19,  # cha (17 base + 2 Changeling)
     (
-        "Spell save DC: 14  |  Spell attack bonus: +6  |  Prof. bonus: +2\n"
-        "Alignment: Chaotic Neutral  |  Size: Medium (5'4\", 130 lbs)  |  Creature Type: Fey\n\n"
+        "Creature Type: Fey\n\n"
         "Background: Audit Analyst (Scribe). Bookkeeper turned adventurer; perpetually ink-stained fingers.\n"
         "Estranged from her family — the Lord and Lady of Port Ellsmyre, a minor fishing village in the Riverlands.\n\n"
-        "Languages: Common, Common Sign, Elvish\n"
-        "Sorcery Points: 3/long rest  |  Innate Sorcery: 2/long rest\n"
-        "Metamagic: Extended Spell (1 SP), Subtle Spell (1 SP)\n"
+        "Languages: Ionian, Ionian Sign, Whisper\n"
         "Feat — Skilled: Insight, Stealth, Disguise Kit"
     ),
 )
@@ -240,7 +237,7 @@ _ABILITIES = [
         None,
         None,
         "Drive a spike of psychic energy into the mind of one creature you can see within range. "
-        "The target must succeed on an Intelligence saving throw (DC 14) or take 1d6 psychic damage "
+        "The target must succeed on an Intelligence saving throw or take 1d6 psychic damage "
         "and subtract 1d4 from the next saving throw it makes before the end of your next turn. "
         "Always prepared via Aberrant Sorcery subclass.",
         "V",
@@ -286,7 +283,7 @@ _ABILITIES = [
         None,
         "Choose one object weighing 1–5 lbs within range that isn't being worn or carried. It flies in "
         "a straight line up to 90 ft in a direction you choose, stopping early if it hits a solid surface. "
-        "If it would strike a creature, that creature makes a DC 14 Dexterity save or takes 3d8 "
+        "If it would strike a creature, that creature makes a Dexterity save or takes 3d8 "
         "bludgeoning damage (save for half). At Higher Levels: +1d8 per slot level above 1st.",
         "S",
         "60 ft",
@@ -299,7 +296,7 @@ _ABILITIES = [
         None,
         None,
         None,
-        "One humanoid you can see within range makes a DC 14 Wisdom saving throw (with Advantage if "
+        "One humanoid you can see within range makes a Wisdom saving throw (with Advantage if "
         "you or your companions are fighting it). On a failure, the target is charmed for 1 hour or "
         "until you or your allies harm it. While charmed, it regards you as a friendly acquaintance. "
         "It knows it was charmed when the spell ends. At Higher Levels: +1 target per slot level above 1st.",
@@ -315,7 +312,7 @@ _ABILITIES = [
         None,
         None,
         "One creature or object (up to 500 lbs) you can see within range rises vertically up to 20 ft "
-        "and remains suspended for the duration. An unwilling creature makes a DC 14 Constitution save "
+        "and remains suspended for the duration. An unwilling creature makes a Constitution save "
         "to resist. The target can only move horizontally by pushing or pulling against fixed surfaces — "
         "it cannot ascend or descend under its own power.",
         "V, S, M (a small leather loop or golden wire bent into a cup)",
@@ -329,7 +326,7 @@ _ABILITIES = [
         None,
         None,
         None,
-        "One humanoid you can see within range makes a DC 14 Wisdom save or is Paralyzed for the "
+        "One humanoid you can see within range makes a Wisdom save or is Paralyzed for the "
         "duration. At the end of each of its turns it repeats the save, ending the spell on a success. "
         "While paralyzed, attacks against it have Advantage, and hits from within 5 ft are critical hits. "
         "At Higher Levels: +1 humanoid per slot level above 2nd.",
@@ -346,7 +343,7 @@ _ABILITIES = [
         None,
         None,
         "Tendrils of dark energy erupt from you in a 10-ft radius. Each creature in the area makes a "
-        "DC 14 Strength save. On a failure: 2d6 necrotic damage and can't take reactions until its next "
+        "Strength save. On a failure: 2d6 necrotic damage and can't take reactions until its next "
         "turn. On a success: half damage only. Always prepared via Aberrant Sorcery. "
         "At Higher Levels: +1d6 per slot level above 1st.",
         "V, S",
@@ -360,7 +357,7 @@ _ABILITIES = [
         None,
         None,
         None,
-        "Each humanoid in a 20-ft radius centered on a point within range makes a DC 14 Charisma save "
+        "Each humanoid in a 20-ft radius centered on a point within range makes a Charisma save "
         "(creatures may choose to fail). On a failure, choose one effect: suppress any effect causing "
         "the target to be Charmed or Frightened; OR make the target indifferent toward creatures it is "
         "hostile to (ends if attacked or harmed). Always prepared via Aberrant Sorcery.",
@@ -376,7 +373,7 @@ _ABILITIES = [
         None,
         None,
         "Read the surface thoughts of one creature you can see within 30 ft as an action each turn. "
-        "You can probe deeper — the target makes a DC 14 Wisdom save or you gain insight into its "
+        "You can probe deeper — the target makes a Wisdom save or you gain insight into its "
         "reasoning, emotional state, and dominant thoughts. You can also use this spell to detect the "
         "presence of thinking creatures you can't see. Always prepared via Aberrant Sorcery.",
         "V, S, M (a copper piece)",
@@ -391,7 +388,7 @@ _ABILITIES = [
         None,
         None,
         "Whisper a discordant melody only one creature within range can hear. The target makes a "
-        "DC 14 Wisdom save. On a failure: 3d6 psychic damage and must use its reaction to move its "
+        "Wisdom save. On a failure: 3d6 psychic damage and must use its reaction to move its "
         "full speed directly away from you. On a success: half damage, no forced movement. Opportunity "
         "attacks against the fleeing target have Advantage. Deafened creatures auto-succeed. "
         "Always prepared. At Higher Levels: +1d6 per slot level above 1st.",
