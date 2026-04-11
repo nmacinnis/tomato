@@ -6,6 +6,8 @@ let secondWind = null;
 let sorceryPoints = null;
 let spellSlotsL1 = null;
 let spellSlotsL2 = null;
+// Map of spell slot level (1-9) → ability object, populated by loadAbilities
+const spellSlots = {};
 let abilityAcBonus = 0;
 let abilityAcBreakdown = [];
 let itemSaveParts = [];

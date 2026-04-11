@@ -85,6 +85,34 @@
           <span class="combat-label">Spell Slots (2nd)</span>
           <div id="slots-2-pips" class="dice-pips"></div>
         </div>
+        <div class="combat-box" id="slots-3-box" hidden>
+          <span class="combat-label">Spell Slots (3rd)</span>
+          <div id="slots-3-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box" id="slots-4-box" hidden>
+          <span class="combat-label">Spell Slots (4th)</span>
+          <div id="slots-4-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box" id="slots-5-box" hidden>
+          <span class="combat-label">Spell Slots (5th)</span>
+          <div id="slots-5-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box" id="slots-6-box" hidden>
+          <span class="combat-label">Spell Slots (6th)</span>
+          <div id="slots-6-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box" id="slots-7-box" hidden>
+          <span class="combat-label">Spell Slots (7th)</span>
+          <div id="slots-7-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box" id="slots-8-box" hidden>
+          <span class="combat-label">Spell Slots (8th)</span>
+          <div id="slots-8-pips" class="dice-pips"></div>
+        </div>
+        <div class="combat-box" id="slots-9-box" hidden>
+          <span class="combat-label">Spell Slots (9th)</span>
+          <div id="slots-9-pips" class="dice-pips"></div>
+        </div>
         <div class="combat-box">
           <span class="combat-label">Temp HP</span>
           <div class="hp-controls">
@@ -221,6 +249,21 @@
       <label class="checkbox-label"><input name="concentration" type="checkbox" value="1" /> Concentration</label>
       <label>AC Bonus <input name="ac_bonus" type="number" value="0" /></label>
       <label>Save Bonus <input name="save_bonus" type="number" value="0" /></label>
+      <label>Spell Level
+        <select name="spell_level">
+          <option value="">— not a spell —</option>
+          <option value="1">1st</option>
+          <option value="2">2nd</option>
+          <option value="3">3rd</option>
+          <option value="4">4th</option>
+          <option value="5">5th</option>
+          <option value="6">6th</option>
+          <option value="7">7th</option>
+          <option value="8">8th</option>
+          <option value="9">9th</option>
+        </select>
+      </label>
+      <label class="checkbox-label"><input name="upcastable" type="checkbox" value="1" /> Can be upcast</label>
       <label>Uses per Rest (leave blank if unlimited) <input name="uses_max" type="number" min="1" /></label>
       <label>Recharges on
         <select name="recharge">

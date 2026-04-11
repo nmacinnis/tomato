@@ -76,7 +76,9 @@ def init_db():
             components      TEXT    NOT NULL DEFAULT '',
             spell_range     TEXT    NOT NULL DEFAULT '',
             duration        TEXT    NOT NULL DEFAULT '',
-            concentration   INTEGER NOT NULL DEFAULT 0
+            concentration   INTEGER NOT NULL DEFAULT 0,
+            spell_level     INTEGER,
+            upcastable      INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS inventory (
@@ -230,6 +232,8 @@ def init_db():
         "spell_range   TEXT    NOT NULL DEFAULT ''",
         "duration      TEXT    NOT NULL DEFAULT ''",
         "concentration INTEGER NOT NULL DEFAULT 0",
+        "spell_level   INTEGER",
+        "upcastable    INTEGER NOT NULL DEFAULT 0",
     ):
         try:
             conn.execute(f"ALTER TABLE abilities ADD COLUMN {col_def}")

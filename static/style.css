@@ -457,6 +457,37 @@ main {
   color: var(--accent);
   background: var(--bg);
 }
+.cast-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.cast-btn {
+  background: var(--panel);
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cast-btn:hover {
+  background: var(--accent2);
+  color: #000;
+}
+.cast-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.upcast-btn {
+  border-color: var(--muted);
+  color: var(--muted);
+}
+.upcast-btn:hover {
+  background: var(--muted);
+  color: #000;
+}
 
 .equip-btn {
   font-size: 0.75rem !important;

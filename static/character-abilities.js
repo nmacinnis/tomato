@@ -170,6 +170,8 @@ function renderSpPips() {
 
 // ── Spell Slots (combat panel) ───────────────────────────────────────────────
 
+const SLOT_ORDINALS = ["1st","2nd","3rd","4th","5th","6th","7th","8th","9th"];
+
 function renderSlotPips(ability, containerId) {
   if (!ability) return;
   renderCombatPips(containerId, ability, "dot", (a) => {
@@ -177,6 +179,28 @@ function renderSlotPips(ability, containerId) {
       .querySelectorAll(`.ability-pips[data-id="${a.id}"]`)
       .forEach((c) => renderAbilityPips(c, a));
   });
+}
+
+// Consume one spell slot at `level` and refresh its pips.
+async function useSpellSlot(level) {
+  const slot = spellSlots[level];
+  if (!slot || slot.uses_remaining <= 0) {
+    showToast(`No ${SLOT_ORDINALS[level - 1]}-level spell slots remaining.`);
+    return false;
+  }
+  const next = slot.uses_remaining - 1;
+  const res = await apiFetch(
+    `/api/abilities/${slot.id}`,
+    { method: "PUT", body: { uses_remaining: next } },
+    "Failed to use spell slot."
+  );
+  if (!res) return false;
+  slot.uses_remaining = next;
+  renderSlotPips(slot, `slots-${level}-pips`);
+  document
+    .querySelectorAll(`.ability-pips[data-id="${slot.id}"]`)
+    .forEach((c) => renderAbilityPips(c, slot));
+  return true;
 }
 
 // ── Ability cards ────────────────────────────────────────────────────────────
@@ -205,6 +229,22 @@ function renderAbilityCard(a) {
     hasDie && !hasUses && !sharedPool
       ? `<span class="die-type-badge">${dieSvg(a.die_type)}</span>`
       : "";
+  // Spell slot buttons
+  const spellLevel = a.spell_level ? Number(a.spell_level) : null;
+  const isSpell = spellLevel != null && spellLevel >= 1;
+  let castBtns = "";
+  if (isSpell) {
+    const ord = SLOT_ORDINALS[spellLevel - 1];
+    castBtns += `<button class="cast-btn" data-level="${spellLevel}">Cast (${ord})</button>`;
+    if (a.upcastable) {
+      for (let lvl = spellLevel + 1; lvl <= 9; lvl++) {
+        if (spellSlots[lvl]) {
+          const upOrd = SLOT_ORDINALS[lvl - 1];
+          castBtns += `<button class="cast-btn upcast-btn" data-level="${lvl}">↑ ${upOrd}</button>`;
+        }
+      }
+    }
+  }
   div.innerHTML = `
     <div class="ability-card-header">
       <div>
@@ -229,6 +269,7 @@ function renderAbilityCard(a) {
     ${a.flavor ? `<div class="ability-flavor">${escHtml(a.flavor)}</div>` : ""}
     ${showDiePips || sharedPool ? `<div class="ability-pips" data-id="${(sharedPool ?? a).id}"></div>` : ""}
     ${usesText ? `<div class="ability-uses">Uses: ${usesText}</div>` : ""}
+    ${castBtns ? `<div class="cast-actions">${castBtns}</div>` : ""}
   `;
 
   div
@@ -263,6 +304,10 @@ function renderAbilityCard(a) {
     if (isManeuver && superiorityDie && superiorityDie.uses_remaining > 0) {
       await patchSuperiorityDie(superiorityDie.uses_remaining - 1);
     }
+  });
+
+  div.querySelectorAll(".cast-btn").forEach((btn) => {
+    btn.addEventListener("click", () => useSpellSlot(Number(btn.dataset.level)));
   });
 
   if (showDiePips) {
@@ -345,15 +390,32 @@ async function loadAbilities() {
     document.getElementById("spell-atk-val").textContent = atk >= 0 ? `+${atk}` : `${atk}`;
   }
 
-  const sl1Idx = abilities.findIndex((a) => a.name === "Spell Slots — 1st Level");
-  spellSlotsL1 = sl1Idx !== -1 ? abilities[sl1Idx] : null;
-  document.getElementById("slots-1-box").hidden = !spellSlotsL1;
-  if (spellSlotsL1) renderSlotPips(spellSlotsL1, "slots-1-pips");
+  // Clear existing slot map
+  for (let lvl = 1; lvl <= 9; lvl++) delete spellSlots[lvl];
 
-  const sl2Idx = abilities.findIndex((a) => a.name === "Spell Slots — 2nd Level");
-  spellSlotsL2 = sl2Idx !== -1 ? abilities[sl2Idx] : null;
-  document.getElementById("slots-2-box").hidden = !spellSlotsL2;
-  if (spellSlotsL2) renderSlotPips(spellSlotsL2, "slots-2-pips");
+  const SLOT_NAMES = [
+    "Spell Slots — 1st Level",
+    "Spell Slots — 2nd Level",
+    "Spell Slots — 3rd Level",
+    "Spell Slots — 4th Level",
+    "Spell Slots — 5th Level",
+    "Spell Slots — 6th Level",
+    "Spell Slots — 7th Level",
+    "Spell Slots — 8th Level",
+    "Spell Slots — 9th Level",
+  ];
+  SLOT_NAMES.forEach((slotName, i) => {
+    const lvl = i + 1;
+    const idx = abilities.findIndex((a) => a.name === slotName);
+    const slot = idx !== -1 ? abilities[idx] : null;
+    // Keep L1/L2 legacy globals in sync
+    if (lvl === 1) spellSlotsL1 = slot;
+    if (lvl === 2) spellSlotsL2 = slot;
+    if (slot) spellSlots[lvl] = slot;
+    const box = document.getElementById(`slots-${lvl}-box`);
+    if (box) box.hidden = !slot;
+    if (slot) renderSlotPips(slot, `slots-${lvl}-pips`);
+  });
 
   const hasGoodberry = abilities.some((a) =>
     a.name.toLowerCase().includes("goodberry")
@@ -439,6 +501,8 @@ function openAbilityModal(ability = null) {
     abilityForm.spell_range.value = ability.spell_range ?? "";
     abilityForm.duration.value = ability.duration ?? "";
     abilityForm.concentration.checked = !!ability.concentration;
+    abilityForm.spell_level.value = ability.spell_level ?? "";
+    abilityForm.upcastable.checked = !!ability.upcastable;
   } else {
     abilityForm.id_field = null;
     abilityForm._uses_remaining = null;
@@ -460,6 +524,8 @@ abilityForm.onsubmit = async (e) => {
   body.ac_bonus = Number(body.ac_bonus) || 0;
   body.save_bonus = Number(body.save_bonus) || 0;
   body.concentration = abilityForm.concentration.checked ? 1 : 0;
+  body.spell_level = body.spell_level !== "" ? Number(body.spell_level) : null;
+  body.upcastable = abilityForm.upcastable.checked ? 1 : 0;
 
   if (abilityForm.id_field) {
     // Preserve existing uses_remaining; only cap it if uses_max shrank
