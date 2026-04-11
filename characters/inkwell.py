@@ -151,6 +151,36 @@ _ABILITIES = [
         0,
         None, 0,
     ),
+    # ── Font of Magic Conversions ────────────────────────────────────────────
+    (
+        "Font of Magic: Slot → Sorcery Points",
+        "free_action",
+        None,
+        None,
+        None,
+        "Expend a spell slot to gain Sorcery Points equal to the slot's level (no action required). "
+        "1st-level slot → 1 SP, 2nd-level slot → 2 SP, etc.",
+        "",
+        "",
+        "",
+        0,
+        None, 0,
+    ),
+    (
+        "Font of Magic: Sorcery Points → Slot",
+        "free_action",
+        None,
+        None,
+        None,
+        "Spend Sorcery Points to create a spell slot (no action required). "
+        "1st-level slot: 2 SP (min level 2), 2nd-level slot: 3 SP (min level 3). "
+        "Created slots vanish on Long Rest.",
+        "",
+        "",
+        "",
+        0,
+        None, 0,
+    ),
     # ── Spell Slot Trackers ──────────────────────────────────────────────────
     (
         "Spell Slots — 1st Level",

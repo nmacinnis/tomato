@@ -205,11 +205,15 @@ async function useSpellSlot(level) {
 
 // ── Ability cards ────────────────────────────────────────────────────────────
 
+const SP_SLOT_COST = { 1: 2, 2: 3, 3: 5, 4: 6, 5: 7 };
+
 function renderAbilityCard(a) {
   const div = document.createElement("div");
   div.className = "ability-card";
   const isManeuver = a.name.startsWith("Maneuver:");
   const isMetamagic = a.name.startsWith("Metamagic:");
+  const isFontSlotToSP = a.name === "Font of Magic: Slot → Sorcery Points";
+  const isFontSPToSlot = a.name === "Font of Magic: Sorcery Points → Slot";
   const hasUses = a.uses_max != null;
   const hasDie = !!a.die_type;
   // Shared pool: no own uses but die_type matches an existing pool (e.g. Tactical Mind → Second Wind)
@@ -252,6 +256,34 @@ function renderAbilityCard(a) {
   const activeBadge = showActive ? `<span class="active-spell-badge">Active</span>` : "";
   const endBtn = showActive ? `<button class="end-spell-btn" data-id="${a.id}">End</button>` : "";
 
+  // Font of Magic conversion buttons (built dynamically from current slot/SP state)
+  let fontConvBtns = "";
+  if (isFontSlotToSP) {
+    [1, 2, 3, 4, 5].forEach((lvl) => {
+      const slot = spellSlots[lvl];
+      const spAtMax = sorceryPoints && sorceryPoints.uses_remaining >= sorceryPoints.uses_max;
+      if (slot && slot.uses_remaining > 0 && !spAtMax) {
+        const ord = SLOT_ORDINALS[lvl - 1];
+        fontConvBtns += `<button class="cast-btn font-conv-btn" data-dir="to-sp" data-level="${lvl}">${ord} slot → ${lvl} SP</button>`;
+      }
+    });
+    if (!fontConvBtns)
+      fontConvBtns = `<span class="muted" style="font-size:.8rem">No slots available to convert.</span>`;
+  }
+  if (isFontSPToSlot) {
+    const spRem = sorceryPoints ? (sorceryPoints.uses_remaining ?? 0) : 0;
+    [1, 2, 3, 4, 5].forEach((lvl) => {
+      const cost = SP_SLOT_COST[lvl];
+      const slot = spellSlots[lvl];
+      if (slot && slot.uses_remaining < slot.uses_max && spRem >= cost) {
+        const ord = SLOT_ORDINALS[lvl - 1];
+        fontConvBtns += `<button class="cast-btn font-conv-btn" data-dir="to-slot" data-level="${lvl}" data-cost="${cost}">${ord} slot (${cost} SP)</button>`;
+      }
+    });
+    if (!fontConvBtns)
+      fontConvBtns = `<span class="muted" style="font-size:.8rem">Insufficient SP or all slots full.</span>`;
+  }
+
   div.innerHTML = `
     <div class="ability-card-header">
       <div>
@@ -279,6 +311,7 @@ function renderAbilityCard(a) {
     ${showDiePips || sharedPool ? `<div class="ability-pips" data-id="${(sharedPool ?? a).id}"></div>` : ""}
     ${usesText ? `<div class="ability-uses">Uses: ${usesText}</div>` : ""}
     ${castBtns ? `<div class="cast-actions">${castBtns}</div>` : ""}
+    ${fontConvBtns ? `<div class="cast-actions">${fontConvBtns}</div>` : ""}
   `;
 
   div
@@ -349,6 +382,62 @@ function renderAbilityCard(a) {
     if (!res) return;
     a.active = 0;
     loadAbilities();
+  });
+
+  div.querySelectorAll(".font-conv-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const dir = btn.dataset.dir;
+      const lvl = Number(btn.dataset.level);
+      if (dir === "to-sp") {
+        const slot = spellSlots[lvl];
+        if (!slot || slot.uses_remaining <= 0) {
+          showToast("No slots of that level remaining.");
+          return;
+        }
+        if (!sorceryPoints || sorceryPoints.uses_remaining >= sorceryPoints.uses_max) {
+          showToast("Sorcery points already at maximum.");
+          return;
+        }
+        const spNext = Math.min(sorceryPoints.uses_remaining + lvl, sorceryPoints.uses_max);
+        const r1 = await apiFetch(
+          `/api/abilities/${slot.id}`,
+          { method: "PUT", body: { uses_remaining: slot.uses_remaining - 1 } },
+          "Failed to use spell slot."
+        );
+        if (!r1) return;
+        const r2 = await apiFetch(
+          `/api/abilities/${sorceryPoints.id}`,
+          { method: "PUT", body: { uses_remaining: spNext } },
+          "Failed to update sorcery points."
+        );
+        if (!r2) return;
+        loadAbilities();
+      } else {
+        const cost = Number(btn.dataset.cost);
+        const slot = spellSlots[lvl];
+        if (!sorceryPoints || sorceryPoints.uses_remaining < cost) {
+          showToast(`Not enough sorcery points (need ${cost}).`);
+          return;
+        }
+        if (!slot || slot.uses_remaining >= slot.uses_max) {
+          showToast("Spell slots already at maximum for that level.");
+          return;
+        }
+        const r1 = await apiFetch(
+          `/api/abilities/${sorceryPoints.id}`,
+          { method: "PUT", body: { uses_remaining: sorceryPoints.uses_remaining - cost } },
+          "Failed to use sorcery points."
+        );
+        if (!r1) return;
+        const r2 = await apiFetch(
+          `/api/abilities/${slot.id}`,
+          { method: "PUT", body: { uses_remaining: slot.uses_remaining + 1 } },
+          "Failed to update spell slot."
+        );
+        if (!r2) return;
+        loadAbilities();
+      }
+    });
   });
 
   div.querySelectorAll(".cast-btn").forEach((btn) => {
