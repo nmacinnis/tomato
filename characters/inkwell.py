@@ -29,7 +29,7 @@ _CHAR = (
     ),
 )
 
-# (name, type, uses_max, recharge, die_type, description, components, spell_range, duration, concentration)
+# (name, type, uses_max, recharge, die_type, description, components, spell_range, duration, concentration, spell_level, upcastable)
 _ABILITIES = [
     # ── Changeling (Fey) ─────────────────────────────────────────────────────
     (
@@ -46,6 +46,7 @@ _ABILITIES = [
         "",
         "",
         0,
+        None, 0,
     ),
     (
         "Changeling Instincts",
@@ -58,6 +59,7 @@ _ABILITIES = [
         "",
         "",
         0,
+        None, 0,
     ),
     # ── Sorcerer Core ────────────────────────────────────────────────────────
     (
@@ -73,10 +75,11 @@ _ABILITIES = [
         "",
         "1 minute",
         0,
+        None, 0,
     ),
     (
         "Sorcery Points",
-        "free_action",
+        "passive",
         3,
         "long",
         None,
@@ -88,6 +91,7 @@ _ABILITIES = [
         "",
         "",
         0,
+        None, 0,
     ),
     (
         "Metamagic: Extended Spell",
@@ -101,6 +105,7 @@ _ABILITIES = [
         "",
         "",
         0,
+        None, 0,
     ),
     (
         "Metamagic: Subtle Spell",
@@ -114,6 +119,7 @@ _ABILITIES = [
         "",
         "",
         0,
+        None, 0,
     ),
     # ── Aberrant Sorcery (Subclass) ──────────────────────────────────────────
     (
@@ -129,6 +135,7 @@ _ABILITIES = [
         "",
         "3 minutes",
         0,
+        None, 0,
     ),
     (
         "Psionic Spells (Always Prepared)",
@@ -142,11 +149,12 @@ _ABILITIES = [
         "",
         "",
         0,
+        None, 0,
     ),
     # ── Spell Slot Trackers ──────────────────────────────────────────────────
     (
         "Spell Slots — 1st Level",
-        "free_action",
+        "passive",
         4,
         "long",
         None,
@@ -156,10 +164,11 @@ _ABILITIES = [
         "",
         "",
         0,
+        None, 0,
     ),
     (
         "Spell Slots — 2nd Level",
-        "free_action",
+        "passive",
         2,
         "long",
         None,
@@ -169,6 +178,7 @@ _ABILITIES = [
         "",
         "",
         0,
+        None, 0,
     ),
     # ── Cantrips ─────────────────────────────────────────────────────────────
     (
@@ -185,6 +195,7 @@ _ABILITIES = [
         "30 ft",
         "1 minute",
         1,
+        None, 0,
     ),
     (
         "Cantrip: Prestidigitation",
@@ -200,6 +211,7 @@ _ABILITIES = [
         "10 ft",
         "Up to 1 hour",
         0,
+        None, 0,
     ),
     (
         "Cantrip: Friends",
@@ -217,6 +229,7 @@ _ABILITIES = [
         "Self",
         "1 minute",
         1,
+        None, 0,
     ),
     (
         "Cantrip: Sorcerous Burst",
@@ -232,6 +245,7 @@ _ABILITIES = [
         "120 ft",
         "Instantaneous",
         0,
+        None, 0,
     ),
     (
         "Psionic Cantrip: Mind Sliver",
@@ -247,6 +261,7 @@ _ABILITIES = [
         "60 ft",
         "1 round",
         0,
+        None, 0,
     ),
     # ── Prepared Spells (use slots) ──────────────────────────────────────────
     (
@@ -262,6 +277,7 @@ _ABILITIES = [
         "Touch",
         "8 hours",
         0,
+        1, 0,
     ),
     (
         "Spell: Shield (1st)",
@@ -277,6 +293,7 @@ _ABILITIES = [
         "Self",
         "1 round",
         0,
+        1, 0,
     ),
     (
         "Spell: Catapult (1st)",
@@ -292,6 +309,7 @@ _ABILITIES = [
         "60 ft",
         "Instantaneous",
         0,
+        1, 1,
     ),
     (
         "Spell: Charm Person (1st)",
@@ -307,6 +325,7 @@ _ABILITIES = [
         "30 ft",
         "1 hour",
         0,
+        1, 1,
     ),
     (
         "Spell: Levitate (2nd)",
@@ -322,6 +341,7 @@ _ABILITIES = [
         "60 ft",
         "10 minutes",
         1,
+        2, 0,
     ),
     (
         "Spell: Hold Person (2nd)",
@@ -337,6 +357,7 @@ _ABILITIES = [
         "60 ft",
         "1 minute",
         1,
+        2, 1,
     ),
     # ── Psionic Spells (Always Prepared, use slots) ──────────────────────────
     (
@@ -353,6 +374,7 @@ _ABILITIES = [
         "Self (10-ft radius)",
         "Instantaneous",
         0,
+        1, 1,
     ),
     (
         "Psionic: Calm Emotions (2nd)",
@@ -368,6 +390,7 @@ _ABILITIES = [
         "60 ft",
         "1 minute",
         1,
+        2, 0,
     ),
     (
         "Psionic: Detect Thoughts (2nd)",
@@ -383,6 +406,7 @@ _ABILITIES = [
         "Self (30-ft radius)",
         "1 minute",
         1,
+        2, 0,
     ),
     (
         "Psionic: Dissonant Whispers (1st)",
@@ -399,6 +423,7 @@ _ABILITIES = [
         "60 ft",
         "Instantaneous",
         0,
+        1, 1,
     ),
 ]
 
@@ -442,12 +467,12 @@ def apply(conn):
 
     cid = conn.execute("SELECT id FROM characters WHERE name=?", (_NAME,)).fetchone()[0]
 
-    for name, atype, uses, recharge, die_type, desc, components, spell_range, duration, concentration in _ABILITIES:
+    for name, atype, uses, recharge, die_type, desc, components, spell_range, duration, concentration, spell_level, upcastable in _ABILITIES:
         conn.execute(
             """INSERT INTO abilities
                    (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type,
-                    components, spell_range, duration, concentration)
-               SELECT ?,?,?,?,?,?,?,?,?,?,?,?
+                    components, spell_range, duration, concentration, spell_level, upcastable)
+               SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?
                WHERE NOT EXISTS (
                    SELECT 1 FROM abilities WHERE character_id=? AND name=?
                )""",
@@ -464,6 +489,8 @@ def apply(conn):
                 spell_range,
                 duration,
                 concentration,
+                spell_level,
+                upcastable,
                 cid,
                 name,
             ),
@@ -471,9 +498,10 @@ def apply(conn):
         # Idempotent spell field updates (keeps data current on re-runs)
         conn.execute(
             """UPDATE abilities
-               SET description=?, components=?, spell_range=?, duration=?, concentration=?
+               SET description=?, components=?, spell_range=?, duration=?, concentration=?,
+                   spell_level=?, upcastable=?
                WHERE character_id=? AND name=?""",
-            (desc, components, spell_range, duration, concentration, cid, name),
+            (desc, components, spell_range, duration, concentration, spell_level, upcastable, cid, name),
         )
 
     for name, qty, weight, desc, equipped in _ITEMS:
