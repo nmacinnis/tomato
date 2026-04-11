@@ -1,4 +1,4 @@
-"""Character sheet for ••TOMATO• — Reborn Warforged Battlemaster Fighter 9."""
+"""Character sheet for ••TOMATO• — Reborn Warforged Battlemaster Fighter 10."""
 
 _NAME = "••TOMATO•"
 
@@ -6,9 +6,9 @@ _CHAR = (
     _NAME,
     "Reborn Warforged",
     "Battlemaster Fighter",
-    9,
-    87,
-    87,
+    10,
+    100,
+    100,
     19,  # splint + defense + cloak (shield bumps to 21 in combat)
     30,
     20,
@@ -133,14 +133,14 @@ _ABILITIES = [
         "When attacking with a weapon whose Mastery property you can use, you may replace "
         "that property with Push, Sap, or Slow for that attack.",
     ),
-    # Battlemaster Maneuvers — shared pool of 4d8 superiority dice
+    # Battlemaster Maneuvers — shared pool of 5d10 superiority dice
     (
-        "Superiority Dice Pool (d8)",
+        "Superiority Dice Pool (d10)",
         "free_action",
-        4,
+        5,
         "short",
-        "d8",
-        "Pool of 4 superiority dice (d8) shared across all maneuvers. "
+        "d10",
+        "Pool of 5 superiority dice (d10) shared across all maneuvers. "
         "Regain all on Short or Long Rest. "
         "Maneuver save DC: 17 (8 + STR mod +4 prof + 1).",
     ),
@@ -188,7 +188,27 @@ _ABILITIES = [
         None,
         None,
         "Reaction: when you take damage from a melee attack, expend 1 Superiority Die "
-        "to reduce the damage by the die result + STR modifier (+5). Total reduction: d8+5.",
+        "to reduce the damage by the die result + STR modifier (+5). Total reduction: d10+5.",
+    ),
+    (
+        "Maneuver: Lunging Attack",
+        "bonus_action",
+        None,
+        None,
+        None,
+        "As a Bonus Action, you can expend one Superiority Die and take the Dash action. "
+        "If you move at least 5 feet in a straight line immediately before hitting with a melee attack "
+        "as part of the Attack action on this turn, you can add the Superiority Die to the attack's damage roll.",
+    ),
+    (
+        "Maneuver: Commander's Strike",
+        "action",
+        None,
+        None,
+        None,
+        "When you take the Attack action, forgo one attack and use a Bonus Action to direct an ally. "
+        "Expend 1 Superiority Die — the chosen ally can immediately use their Reaction to make one weapon attack, "
+        "adding the superiority die to the damage roll.",
     ),
     # Feats
     (
@@ -304,6 +324,15 @@ _ABILITIES = [
         "On a hit with a Halberd, you may make an additional attack against a second creature "
         "within reach that is within 5 ft of the original target. No attack roll bonus applies.",
     ),
+    (
+        "Weapon Mastery: Longsword (Sap)",
+        "passive",
+        None,
+        None,
+        None,
+        "When you hit a creature with a Longsword, you can apply the Sap mastery effect: "
+        "the target has Disadvantage on its next attack roll before the start of your next turn.",
+    ),
 ]
 
 # name, qty, weight, description, equipped
@@ -401,10 +430,41 @@ def apply(conn):
         ("athletics,perception,animal_handling,survival,insight,stealth", cid),
     )
     conn.execute(
-        "UPDATE characters SET save_proficiencies='str,con', flat_ac_bonus=0,"
+        "UPDATE characters SET level=10, hp=100, max_hp=100,"
+        " save_proficiencies='str,con', flat_ac_bonus=0,"
         " alignment='Chaotic Good', size='Medium', height='6''6\"', weight='302 lbs',"
         " hit_die='d10', coins_gp=10"
         " WHERE id=?",
+        (cid,),
+    )
+
+    # Rename old d8 pool entry if it still exists
+    conn.execute(
+        "UPDATE abilities SET name='Superiority Dice Pool (d10)', die_type='d10',"
+        " uses_max=5, uses_remaining=5,"
+        " description='Pool of 5 superiority dice (d10) shared across all maneuvers. "
+        "Regain all on Short or Long Rest. Maneuver save DC: 17 (8 + STR mod +4 prof + 1).'"
+        " WHERE character_id=? AND name='Superiority Dice Pool (d8)'",
+        (cid,),
+    )
+    # Ensure the d10 pool has correct values even if already renamed
+    conn.execute(
+        "UPDATE abilities SET die_type='d10', uses_max=5,"
+        " description='Pool of 5 superiority dice (d10) shared across all maneuvers. "
+        "Regain all on Short or Long Rest. Maneuver save DC: 17 (8 + STR mod +4 prof + 1).'"
+        " WHERE character_id=? AND name='Superiority Dice Pool (d10)'",
+        (cid,),
+    )
+    # Update Parry description to reference d10
+    conn.execute(
+        "UPDATE abilities SET description='Reaction: when you take damage from a melee attack, "
+        "expend 1 Superiority Die to reduce the damage by the die result + STR modifier (+5). "
+        "Total reduction: d10+5.' WHERE character_id=? AND name='Maneuver: Parry'",
+        (cid,),
+    )
+    # Ensure Lunging Attack is bonus_action
+    conn.execute(
+        "UPDATE abilities SET type='bonus_action' WHERE character_id=? AND name='Maneuver: Lunging Attack'",
         (cid,),
     )
 

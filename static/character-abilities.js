@@ -128,7 +128,7 @@ function renderCombatPips(containerId, ability, dieType, onUpdate) {
 
 function renderSdPips() {
   if (!superiorityDie) return;
-  const dieType = superiorityDie.die_type || "d8";
+  const dieType = (superiorityDie.name.match(/\((d\d+)\)/) || [])[1] || "d8";
   document.getElementById("sd-label").textContent = `Sup. Dice (${dieType})`;
   renderCombatPips("sd-pips", superiorityDie, dieType, () => {});
 }
@@ -509,7 +509,7 @@ async function loadAbilities() {
 
   // ── Detect named abilities for combat panel widgets ──────────────────────
 
-  const poolIdx = abilities.findIndex((a) => a.name === "Superiority Dice Pool (d8)");
+  const poolIdx = abilities.findIndex((a) => /^Superiority Dice Pool \(d\d+\)$/.test(a.name));
   superiorityDie = poolIdx !== -1 ? abilities.splice(poolIdx, 1)[0] : null;
   document.getElementById("sd-box").hidden = !superiorityDie;
   document.getElementById("maneuver-dc-box").hidden = !superiorityDie;
