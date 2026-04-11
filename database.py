@@ -240,5 +240,14 @@ def init_db():
         except sqlite3.OperationalError:
             pass
 
+    for col_def in (
+        "sets_base_ac INTEGER NOT NULL DEFAULT 0",
+        "active       INTEGER NOT NULL DEFAULT 0",
+    ):
+        try:
+            conn.execute(f"ALTER TABLE abilities ADD COLUMN {col_def}")
+        except sqlite3.OperationalError:
+            pass
+
     conn.commit()
     conn.close()

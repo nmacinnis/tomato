@@ -530,6 +530,12 @@ def apply(conn):
         (cid,),
     )
 
+    # Mage Armor: sets base AC when active (13 + DEX mod 1 = 14 for Inkwell)
+    conn.execute(
+        "UPDATE abilities SET sets_base_ac=1, ac_bonus=14 WHERE character_id=? AND name=?",
+        (cid, "Spell: Mage Armor (1st)"),
+    )
+
     # Weapon stats
     conn.execute(
         """UPDATE inventory

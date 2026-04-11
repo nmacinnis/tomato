@@ -2,8 +2,12 @@
 
 function calcAC(items) {
   const equipped = items.filter((i) => i.equipped);
-  const armor = equipped.find((i) => i.sets_base_ac);
-  const base = armor ? armor.ac_bonus : 10 + Math.floor((char.dex - 10) / 2);
+  const armorItem = equipped.find((i) => i.sets_base_ac);
+  const base = armorItem
+    ? armorItem.ac_bonus
+    : abilityBaseAcAbility
+    ? abilityBaseAcAbility.ac_bonus
+    : 10 + Math.floor((char.dex - 10) / 2);
   const bonuses = equipped.reduce(
     (s, i) => s + (i.sets_base_ac ? 0 : i.ac_bonus || 0),
     0
@@ -13,14 +17,21 @@ function calcAC(items) {
 
 function acBreakdownParts(items) {
   const equipped = items.filter((i) => i.equipped && i.ac_bonus);
-  const armor = equipped.find((i) => i.sets_base_ac);
+  const armorItem = equipped.find((i) => i.sets_base_ac);
   const parts = [];
-  if (armor)
+  if (armorItem)
     parts.push({
-      value: armor.ac_bonus,
-      label: armor.name,
+      value: armorItem.ac_bonus,
+      label: armorItem.name,
       type: "item",
-      id: armor.id,
+      id: armorItem.id,
+    });
+  else if (abilityBaseAcAbility)
+    parts.push({
+      value: abilityBaseAcAbility.ac_bonus,
+      label: abilityBaseAcAbility.name,
+      type: "ability",
+      id: abilityBaseAcAbility.id,
     });
   else
     parts.push({

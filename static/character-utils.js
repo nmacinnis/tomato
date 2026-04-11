@@ -10,6 +10,7 @@ let spellSlotsL2 = null;
 const spellSlots = {};
 let abilityAcBonus = 0;
 let abilityAcBreakdown = [];
+let abilityBaseAcAbility = null; // active ability that sets base AC (e.g. Mage Armor)
 let itemSaveParts = [];
 let abilitySaveParts = [];
 

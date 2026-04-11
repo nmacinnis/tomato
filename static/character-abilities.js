@@ -232,8 +232,9 @@ function renderAbilityCard(a) {
   // Spell slot buttons
   const spellLevel = a.spell_level ? Number(a.spell_level) : null;
   const isSpell = spellLevel != null && spellLevel >= 1;
+  const isActiveBaseAc = !!(a.sets_base_ac && a.active);
   let castBtns = "";
-  if (isSpell) {
+  if (isSpell && !isActiveBaseAc) {
     const ord = SLOT_ORDINALS[spellLevel - 1];
     castBtns += `<button class="cast-btn" data-level="${spellLevel}">Cast (${ord})</button>`;
     if (a.upcastable) {
@@ -245,15 +246,20 @@ function renderAbilityCard(a) {
       }
     }
   }
+  const activeBadge = isActiveBaseAc ? `<span class="active-spell-badge">Active</span>` : "";
+  const endBtn = isActiveBaseAc ? `<button class="end-spell-btn" data-id="${a.id}">End</button>` : "";
+
   div.innerHTML = `
     <div class="ability-card-header">
       <div>
         <span class="ability-name">${escHtml(a.name)}</span>
         ${dieBadge}
         ${rechargeBadge}
+        ${activeBadge}
       </div>
       <div class="card-actions">
         ${showUseBtn ? `<button class="use-btn" data-id="${a.id}" data-rem="${rem ?? 99}">Use</button>` : ""}
+        ${endBtn}
         <button class="edit-ability-btn" data-id="${a.id}">Edit</button>
         <button class="del-ability-btn" data-id="${a.id}">✕</button>
       </div>
@@ -306,8 +312,32 @@ function renderAbilityCard(a) {
     }
   });
 
+  div.querySelector(".end-spell-btn")?.addEventListener("click", async () => {
+    const res = await apiFetch(
+      `/api/abilities/${a.id}`,
+      { method: "PUT", body: { active: 0 } },
+      "Failed to end spell."
+    );
+    if (!res) return;
+    a.active = 0;
+    loadAbilities();
+  });
+
   div.querySelectorAll(".cast-btn").forEach((btn) => {
-    btn.addEventListener("click", () => useSpellSlot(Number(btn.dataset.level)));
+    btn.addEventListener("click", async () => {
+      const ok = await useSpellSlot(Number(btn.dataset.level));
+      if (!ok) return;
+      if (a.sets_base_ac) {
+        const res = await apiFetch(
+          `/api/abilities/${a.id}`,
+          { method: "PUT", body: { active: 1 } },
+          "Failed to activate spell."
+        );
+        if (!res) return;
+        a.active = 1;
+        loadAbilities();
+      }
+    });
   });
 
   if (showDiePips) {
@@ -423,7 +453,8 @@ async function loadAbilities() {
   document.getElementById("tomato-section").hidden = !hasGoodberry;
 
   // Compute AC contribution from abilities and refresh the AC display
-  const acAbilities = abilities.filter((a) => a.ac_bonus);
+  abilityBaseAcAbility = abilities.find((a) => a.sets_base_ac && a.active) || null;
+  const acAbilities = abilities.filter((a) => a.ac_bonus && !a.sets_base_ac);
   abilityAcBonus = acAbilities.reduce((s, a) => s + a.ac_bonus, 0);
   abilityAcBreakdown = acAbilities.map((a) => ({
     id: a.id,
@@ -501,6 +532,7 @@ function openAbilityModal(ability = null) {
     abilityForm.spell_range.value = ability.spell_range ?? "";
     abilityForm.duration.value = ability.duration ?? "";
     abilityForm.concentration.checked = !!ability.concentration;
+    abilityForm.sets_base_ac.checked = !!ability.sets_base_ac;
     abilityForm.spell_level.value = ability.spell_level ?? "";
     abilityForm.upcastable.checked = !!ability.upcastable;
   } else {
@@ -524,6 +556,7 @@ abilityForm.onsubmit = async (e) => {
   body.ac_bonus = Number(body.ac_bonus) || 0;
   body.save_bonus = Number(body.save_bonus) || 0;
   body.concentration = abilityForm.concentration.checked ? 1 : 0;
+  body.sets_base_ac = abilityForm.sets_base_ac.checked ? 1 : 0;
   body.spell_level = body.spell_level !== "" ? Number(body.spell_level) : null;
   body.upcastable = abilityForm.upcastable.checked ? 1 : 0;
 

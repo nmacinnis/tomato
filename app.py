@@ -179,8 +179,8 @@ def create_ability(cid):
     db = get_db()
     cur = db.execute(
         """INSERT INTO abilities
-           (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type, ac_bonus, save_bonus, flavor, components, spell_range, duration, concentration, spell_level, upcastable)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+           (character_id, name, type, description, uses_max, uses_remaining, recharge, die_type, ac_bonus, save_bonus, flavor, components, spell_range, duration, concentration, spell_level, upcastable, sets_base_ac)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             cid,
             data.get("name", "New Ability"),
@@ -199,6 +199,7 @@ def create_ability(cid):
             1 if data.get("concentration") else 0,
             data.get("spell_level", None),
             1 if data.get("upcastable") else 0,
+            1 if data.get("sets_base_ac") else 0,
         ),
     )
     db.commit()
@@ -270,6 +271,8 @@ def update_ability(aid):
         "concentration",
         "spell_level",
         "upcastable",
+        "sets_base_ac",
+        "active",
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
