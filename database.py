@@ -241,8 +241,9 @@ def init_db():
             pass
 
     for col_def in (
-        "sets_base_ac INTEGER NOT NULL DEFAULT 0",
-        "active       INTEGER NOT NULL DEFAULT 0",
+        "sets_base_ac  INTEGER NOT NULL DEFAULT 0",
+        "active        INTEGER NOT NULL DEFAULT 0",
+        "activatable   INTEGER NOT NULL DEFAULT 0",
     ):
         try:
             conn.execute(f"ALTER TABLE abilities ADD COLUMN {col_def}")

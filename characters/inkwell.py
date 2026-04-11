@@ -530,6 +530,12 @@ def apply(conn):
         (cid,),
     )
 
+    # Innate Sorcery: activatable — Use button sets active=1 (+1 DC, ADV on spell attacks)
+    conn.execute(
+        "UPDATE abilities SET activatable=1 WHERE character_id=? AND name=?",
+        (cid, "Innate Sorcery"),
+    )
+
     # Mage Armor: sets base AC when active (13 + DEX mod 1 = 14 for Inkwell)
     conn.execute(
         "UPDATE abilities SET sets_base_ac=1, ac_bonus=14 WHERE character_id=? AND name=?",

@@ -209,6 +209,7 @@ function renderAbilityCard(a) {
   const div = document.createElement("div");
   div.className = "ability-card";
   const isManeuver = a.name.startsWith("Maneuver:");
+  const isMetamagic = a.name.startsWith("Metamagic:");
   const hasUses = a.uses_max != null;
   const hasDie = !!a.die_type;
   // Shared pool: no own uses but die_type matches an existing pool (e.g. Tactical Mind → Second Wind)
@@ -218,7 +219,7 @@ function renderAbilityCard(a) {
       : null;
   // Abilities with a die type + own uses → show own clickable pip icons
   const showDiePips = hasDie && hasUses;
-  const showUseBtn = !showDiePips && !sharedPool && (hasUses || isManeuver);
+  const showUseBtn = !showDiePips && !sharedPool && (hasUses || isManeuver || isMetamagic);
   const rem = a.uses_remaining ?? a.uses_max;
   const usesText = hasUses && !showDiePips ? `${rem} / ${a.uses_max}` : "";
   const rechargeBadge = a.recharge
@@ -246,8 +247,10 @@ function renderAbilityCard(a) {
       }
     }
   }
-  const activeBadge = isActiveBaseAc ? `<span class="active-spell-badge">Active</span>` : "";
-  const endBtn = isActiveBaseAc ? `<button class="end-spell-btn" data-id="${a.id}">End</button>` : "";
+  const isActivatable = !!a.activatable;
+  const showActive = isActiveBaseAc || (isActivatable && a.active);
+  const activeBadge = showActive ? `<span class="active-spell-badge">Active</span>` : "";
+  const endBtn = showActive ? `<button class="end-spell-btn" data-id="${a.id}">End</button>` : "";
 
   div.innerHTML = `
     <div class="ability-card-header">
@@ -258,7 +261,7 @@ function renderAbilityCard(a) {
         ${activeBadge}
       </div>
       <div class="card-actions">
-        ${showUseBtn ? `<button class="use-btn" data-id="${a.id}" data-rem="${rem ?? 99}">Use</button>` : ""}
+        ${showUseBtn ? `<button class="use-btn" data-id="${a.id}" data-rem="${rem ?? 99}">${isMetamagic ? "Use (1 SP)" : "Use"}</button>` : ""}
         ${endBtn}
         <button class="edit-ability-btn" data-id="${a.id}">Edit</button>
         <button class="del-ability-btn" data-id="${a.id}">✕</button>
@@ -298,17 +301,42 @@ function renderAbilityCard(a) {
       const cur = Number(btn.dataset.rem);
       if (cur <= 0) return;
       const next = cur - 1;
+      const body = { uses_remaining: next };
+      if (isActivatable) body.active = 1;
       const res = await apiFetch(
         `/api/abilities/${a.id}`,
-        { method: "PUT", body: { uses_remaining: next } },
+        { method: "PUT", body },
         "Failed to use ability."
       );
       if (!res) return;
+      if (isActivatable) {
+        a.active = 1;
+        loadAbilities();
+        return;
+      }
       btn.dataset.rem = next;
       div.querySelector(".ability-uses").textContent = `Uses: ${next} / ${a.uses_max}`;
     }
     if (isManeuver && superiorityDie && superiorityDie.uses_remaining > 0) {
       await patchSuperiorityDie(superiorityDie.uses_remaining - 1);
+    }
+    if (isMetamagic) {
+      if (!sorceryPoints || sorceryPoints.uses_remaining <= 0) {
+        showToast("No sorcery points remaining.");
+        return;
+      }
+      const next = sorceryPoints.uses_remaining - 1;
+      const res = await apiFetch(
+        `/api/abilities/${sorceryPoints.id}`,
+        { method: "PUT", body: { uses_remaining: next } },
+        "Failed to use sorcery point."
+      );
+      if (!res) return;
+      sorceryPoints.uses_remaining = next;
+      renderSpPips();
+      document
+        .querySelectorAll(`.ability-pips[data-id="${sorceryPoints.id}"]`)
+        .forEach((c) => renderAbilityPips(c, sorceryPoints));
     }
   });
 
@@ -408,6 +436,9 @@ async function loadAbilities() {
   document.getElementById("sp-box").hidden = !sorceryPoints;
   if (sorceryPoints) renderSpPips();
 
+  const isIdx = abilities.findIndex((a) => a.name === "Innate Sorcery");
+  innateSorcery = isIdx !== -1 ? abilities[isIdx] : null;
+
   // Spell Save DC and Spell Attack Bonus (CHA-based caster, shown when sorcery points present)
   const hasSorcerer = !!sorceryPoints;
   document.getElementById("spell-dc-box").hidden = !hasSorcerer;
@@ -415,9 +446,16 @@ async function loadAbilities() {
   if (hasSorcerer) {
     const prof = profBonus(char.level);
     const chaMod = Math.floor((char.cha - 10) / 2);
-    document.getElementById("spell-dc-val").textContent = 8 + prof + chaMod;
+    const innateActive = !!(innateSorcery && innateSorcery.active);
+    const dc = 8 + prof + chaMod + (innateActive ? 1 : 0);
+    document.getElementById("spell-dc-val").innerHTML = innateActive
+      ? `${dc} <span class="active-spell-badge">+1</span>`
+      : `${dc}`;
     const atk = prof + chaMod;
-    document.getElementById("spell-atk-val").textContent = atk >= 0 ? `+${atk}` : `${atk}`;
+    const atkStr = atk >= 0 ? `+${atk}` : `${atk}`;
+    document.getElementById("spell-atk-val").innerHTML = innateActive
+      ? `${atkStr} <span class="active-spell-badge">ADV</span>`
+      : atkStr;
   }
 
   // Clear existing slot map
@@ -533,6 +571,7 @@ function openAbilityModal(ability = null) {
     abilityForm.duration.value = ability.duration ?? "";
     abilityForm.concentration.checked = !!ability.concentration;
     abilityForm.sets_base_ac.checked = !!ability.sets_base_ac;
+    abilityForm.activatable.checked = !!ability.activatable;
     abilityForm.spell_level.value = ability.spell_level ?? "";
     abilityForm.upcastable.checked = !!ability.upcastable;
   } else {
@@ -557,6 +596,7 @@ abilityForm.onsubmit = async (e) => {
   body.save_bonus = Number(body.save_bonus) || 0;
   body.concentration = abilityForm.concentration.checked ? 1 : 0;
   body.sets_base_ac = abilityForm.sets_base_ac.checked ? 1 : 0;
+  body.activatable = abilityForm.activatable.checked ? 1 : 0;
   body.spell_level = body.spell_level !== "" ? Number(body.spell_level) : null;
   body.upcastable = abilityForm.upcastable.checked ? 1 : 0;
 

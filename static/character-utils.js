@@ -4,6 +4,7 @@ let currentItems = [];
 let superiorityDie = null;
 let secondWind = null;
 let sorceryPoints = null;
+let innateSorcery = null;
 let spellSlotsL1 = null;
 let spellSlotsL2 = null;
 // Map of spell slot level (1-9) → ability object, populated by loadAbilities
