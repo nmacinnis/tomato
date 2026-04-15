@@ -2,7 +2,13 @@
 // State and helpers live in character-utils.js; sections in character-*.js files.
 
 async function loadCharacter() {
-  const res = await fetch(`/api/characters/${CHARACTER_ID}`);
+  let res;
+  try {
+    res = await fetch(`/api/characters/${CHARACTER_ID}`);
+  } catch {
+    showToast("Network error — could not reach server.");
+    return;
+  }
   if (!res.ok) {
     alert("Character not found");
     return;

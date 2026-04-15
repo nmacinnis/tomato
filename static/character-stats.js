@@ -60,7 +60,11 @@ function renderCharacter() {
   document.getElementById("prof-val").textContent = `+${prof}`;
   document.getElementById("init-val").textContent =
     dexMod >= 0 ? `+${dexMod}` : `${dexMod}`;
-  document.getElementById("perc-val").textContent = 10 + wisMod + prof;
+  const skillProfs = new Set(
+    (char.skill_proficiencies || "").split(",").map((s) => s.trim()).filter(Boolean)
+  );
+  document.getElementById("perc-val").textContent =
+    10 + wisMod + (skillProfs.has("perception") ? prof : 0);
   const strMod = Math.floor((char.str - 10) / 2);
   document.getElementById("maneuver-dc-val").textContent =
     8 + prof + Math.max(strMod, dexMod);

@@ -497,7 +497,17 @@ function renderAbilityPips(container, a) {
 // ── Load abilities ───────────────────────────────────────────────────────────
 
 async function loadAbilities() {
-  const res = await fetch(`/api/characters/${CHARACTER_ID}/abilities`);
+  let res;
+  try {
+    res = await fetch(`/api/characters/${CHARACTER_ID}/abilities`);
+  } catch {
+    showToast("Network error — could not load abilities.");
+    return;
+  }
+  if (!res.ok) {
+    showToast("Failed to load abilities.");
+    return;
+  }
   const abilities = await res.json();
   const list = document.getElementById("abilities-list");
   list.innerHTML = "";

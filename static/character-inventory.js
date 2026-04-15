@@ -55,7 +55,6 @@ function acBreakdownParts(items) {
 function updateAcDisplay() {
   const ac = calcAC(currentItems);
   document.getElementById("ac-val").textContent = ac;
-  char.ac = ac;
 
   const parts = acBreakdownParts(currentItems);
   const equation =
@@ -97,7 +96,17 @@ function updateAcDisplay() {
 // ── Load inventory ───────────────────────────────────────────────────────────
 
 async function loadInventory() {
-  const res = await fetch(`/api/characters/${CHARACTER_ID}/inventory`);
+  let res;
+  try {
+    res = await fetch(`/api/characters/${CHARACTER_ID}/inventory`);
+  } catch {
+    showToast("Network error — could not load inventory.");
+    return;
+  }
+  if (!res.ok) {
+    showToast("Failed to load inventory.");
+    return;
+  }
   const items = await res.json();
   const list = document.getElementById("inventory-list");
   list.innerHTML = "";
