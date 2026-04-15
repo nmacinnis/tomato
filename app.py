@@ -131,7 +131,6 @@ def update_character(cid):
         "death_save_failures",
         "goodberries",
         "flat_ac_bonus",
-        "ac",
         "save_proficiencies",
         "temp_hp",
         "skill_proficiencies",
@@ -232,7 +231,7 @@ def do_rest(cid):
                 """UPDATE characters
                    SET hp=max_hp, hit_dice_remaining=level,
                        death_save_successes=0, death_save_failures=0,
-                       goodberries=10
+                       goodberries=0
                    WHERE id=?""",
                 (cid,),
             )
@@ -243,7 +242,7 @@ def do_rest(cid):
     return jsonify({"ok": True, "type": rest_type})
 
 
-_VALID_ABILITY_TYPES = {"action", "bonus_action", "reaction", "free_action", "passive"}
+_VALID_ABILITY_TYPES = {"action", "bonus_action", "reaction", "free_action", "passive", "spell"}
 _VALID_RECHARGE = {"short", "long", None}
 
 
@@ -394,17 +393,21 @@ _HEX_RE = __import__("re").compile(r"^#[0-9a-fA-F]{6}$")
 @app.route("/api/characters/<int:cid>/theme", methods=["GET"])
 def get_theme(cid):
     db = get_db()
+    if not db.execute("SELECT 1 FROM characters WHERE id=?", (cid,)).fetchone():
+        return jsonify({"error": "Not found"}), 404
     row = db.execute("SELECT * FROM themes WHERE character_id=?", (cid,)).fetchone()
     return jsonify(dict(row) if row else {**_THEME_DEFAULTS, "character_id": cid})
 
 
 @app.route("/api/characters/<int:cid>/theme", methods=["PUT"])
 def update_theme(cid):
+    db = get_db()
+    if not db.execute("SELECT 1 FROM characters WHERE id=?", (cid,)).fetchone():
+        return jsonify({"error": "Not found"}), 404
     data = request.json
     for f in _THEME_FIELDS:
         if f in data and not _HEX_RE.match(str(data[f])):
             return jsonify({"error": f"Invalid color value for '{f}'"}), 400
-    db = get_db()
     # Ensure a row exists, then update only the supplied fields
     db.execute("INSERT OR IGNORE INTO themes (character_id) VALUES (?)", (cid,))
     set_clause = ", ".join(f"{f}=?" for f in _THEME_FIELDS if f in data)
@@ -418,5 +421,4 @@ def update_theme(cid):
 # ── Boot ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)
