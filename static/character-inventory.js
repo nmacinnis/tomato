@@ -204,6 +204,7 @@ function openItemModal(item = null) {
     itemForm.damage_type.value = item.damage_type || "";
     itemForm.magic_bonus.value = item.magic_bonus || 0;
     itemForm.is_melee.checked = item.is_melee !== 0;
+    itemForm.finesse.checked = !!item.finesse;
     itemForm.damage_notes.value = item.damage_notes || "";
     itemForm.flavor.value = item.flavor || "";
     itemForm.equipped.checked = !!item.equipped;

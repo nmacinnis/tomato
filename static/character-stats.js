@@ -410,6 +410,7 @@ function editStat(stat) {
     input.replaceWith(valEl);
     valEl.textContent = val;
     box.querySelector(".stat-mod").textContent = modifier(val);
+    renderSaves();
     renderSkills();
   };
   input.onblur = save;
