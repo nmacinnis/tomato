@@ -224,7 +224,11 @@ def do_rest(cid):
             )
         elif rest_type == "long":
             db.execute(
-                "UPDATE abilities SET uses_remaining=uses_max, active=0 WHERE character_id=? AND uses_max IS NOT NULL",
+                "UPDATE abilities SET uses_remaining=uses_max WHERE character_id=? AND uses_max IS NOT NULL",
+                (cid,),
+            )
+            db.execute(
+                "UPDATE abilities SET active=0 WHERE character_id=?",
                 (cid,),
             )
             db.execute(
