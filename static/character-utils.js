@@ -9,6 +9,7 @@ let spellSlotsL1 = null;
 let spellSlotsL2 = null;
 // Map of spell slot level (1-9) → ability object, populated by loadAbilities
 const spellSlots = {};
+let currentAbilities = [];
 let abilityAcBonus = 0;
 let abilityAcBreakdown = [];
 let abilityBaseAcAbility = null; // active ability that sets base AC (e.g. Mage Armor)

@@ -172,13 +172,38 @@ function renderSpPips() {
 
 const SLOT_ORDINALS = ["1st","2nd","3rd","4th","5th","6th","7th","8th","9th"];
 
-function renderSlotPips(ability, containerId) {
-  if (!ability) return;
-  renderCombatPips(containerId, ability, "dot", (a) => {
-    document
-      .querySelectorAll(`.ability-pips[data-id="${a.id}"]`)
-      .forEach((c) => renderAbilityPips(c, a));
-  });
+// Render spell slot pips from character stat columns.
+function renderCharSlotPips(lvl, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const maxKey = `spell_slots_${lvl}_max`;
+  const remKey = `spell_slots_${lvl}_remaining`;
+  const maxVal = char[maxKey] || 0;
+  const remVal = char[remKey] ?? maxVal;
+  if (!spellSlots[lvl]) spellSlots[lvl] = {};
+  spellSlots[lvl].uses_max = maxVal;
+  spellSlots[lvl].uses_remaining = remVal;
+  container.innerHTML = "";
+  for (let i = 0; i < maxVal; i++) {
+    const filled = i < remVal;
+    const btn = document.createElement("button");
+    btn.className = `die-pip dot-pip` + (filled ? " die-filled" : "");
+    btn.title = filled ? `Use slot ${i + 1}` : `Recover slot ${i + 1}`;
+    btn.innerHTML = dieSvg("dot");
+    btn.addEventListener("click", async () => {
+      const next = filled ? i : i + 1;
+      const res = await apiFetch(
+        `/api/characters/${CHARACTER_ID}`,
+        { method: "PUT", body: { [remKey]: next } },
+        "Failed to update spell slot."
+      );
+      if (!res) return;
+      char[remKey] = next;
+      spellSlots[lvl].uses_remaining = next;
+      renderCharSlotPips(lvl, containerId);
+    });
+    container.appendChild(btn);
+  }
 }
 
 // Consume one spell slot at `level` and refresh its pips.
@@ -189,17 +214,16 @@ async function useSpellSlot(level) {
     return false;
   }
   const next = slot.uses_remaining - 1;
+  const remKey = `spell_slots_${level}_remaining`;
   const res = await apiFetch(
-    `/api/abilities/${slot.id}`,
-    { method: "PUT", body: { uses_remaining: next } },
+    `/api/characters/${CHARACTER_ID}`,
+    { method: "PUT", body: { [remKey]: next } },
     "Failed to use spell slot."
   );
   if (!res) return false;
   slot.uses_remaining = next;
-  renderSlotPips(slot, `slots-${level}-pips`);
-  document
-    .querySelectorAll(`.ability-pips[data-id="${slot.id}"]`)
-    .forEach((c) => renderAbilityPips(c, slot));
+  char[remKey] = next;
+  renderCharSlotPips(level, `slots-${level}-pips`);
   return true;
 }
 
@@ -238,8 +262,10 @@ function renderAbilityCard(a) {
   const spellLevel = a.spell_level ? Number(a.spell_level) : null;
   const isSpell = spellLevel != null && spellLevel >= 1;
   const isActiveBaseAc = !!(a.sets_base_ac && a.active);
+  const isConcentrating = !!(a.concentration && a.active);
+  const isActivatable = !!a.activatable;
   let castBtns = "";
-  if (isSpell && !isActiveBaseAc) {
+  if (isSpell && !isActiveBaseAc && !isConcentrating) {
     const ord = SLOT_ORDINALS[spellLevel - 1];
     castBtns += `<button class="cast-btn" data-level="${spellLevel}">Cast (${ord})</button>`;
     if (a.upcastable) {
@@ -251,9 +277,12 @@ function renderAbilityCard(a) {
       }
     }
   }
-  const isActivatable = !!a.activatable;
-  const showActive = isActiveBaseAc || (isActivatable && a.active);
-  const activeBadge = showActive ? `<span class="active-spell-badge">Active</span>` : "";
+  const showActive = isActiveBaseAc || isConcentrating || (isActivatable && a.active);
+  const activeBadge = showActive
+    ? isConcentrating
+      ? `<span class="active-spell-badge concentrating-badge">Concentrating</span>`
+      : `<span class="active-spell-badge">Active</span>`
+    : "";
   const endBtn = showActive ? `<button class="end-spell-btn" data-id="${a.id}">End</button>` : "";
 
   // Font of Magic conversion buttons (built dynamically from current slot/SP state)
@@ -399,12 +428,14 @@ function renderAbilityCard(a) {
           return;
         }
         const spNext = Math.min(sorceryPoints.uses_remaining + lvl, sorceryPoints.uses_max);
+        const remKey = `spell_slots_${lvl}_remaining`;
         const r1 = await apiFetch(
-          `/api/abilities/${slot.id}`,
-          { method: "PUT", body: { uses_remaining: slot.uses_remaining - 1 } },
+          `/api/characters/${CHARACTER_ID}`,
+          { method: "PUT", body: { [remKey]: slot.uses_remaining - 1 } },
           "Failed to use spell slot."
         );
         if (!r1) return;
+        char[remKey] = slot.uses_remaining - 1;
         const r2 = await apiFetch(
           `/api/abilities/${sorceryPoints.id}`,
           { method: "PUT", body: { uses_remaining: spNext } },
@@ -429,12 +460,14 @@ function renderAbilityCard(a) {
           "Failed to use sorcery points."
         );
         if (!r1) return;
+        const remKey = `spell_slots_${lvl}_remaining`;
         const r2 = await apiFetch(
-          `/api/abilities/${slot.id}`,
-          { method: "PUT", body: { uses_remaining: slot.uses_remaining + 1 } },
+          `/api/characters/${CHARACTER_ID}`,
+          { method: "PUT", body: { [remKey]: slot.uses_remaining + 1 } },
           "Failed to update spell slot."
         );
         if (!r2) return;
+        char[remKey] = slot.uses_remaining + 1;
         loadAbilities();
       }
     });
@@ -444,7 +477,19 @@ function renderAbilityCard(a) {
     btn.addEventListener("click", async () => {
       const ok = await useSpellSlot(Number(btn.dataset.level));
       if (!ok) return;
-      if (a.sets_base_ac) {
+      if (a.sets_base_ac || a.concentration) {
+        if (a.concentration) {
+          const prev = currentAbilities.find(
+            (x) => x.concentration && x.active && x.id !== a.id
+          );
+          if (prev) {
+            await apiFetch(
+              `/api/abilities/${prev.id}`,
+              { method: "PUT", body: { active: 0 } },
+              "Failed to end previous concentration."
+            );
+          }
+        }
         const res = await apiFetch(
           `/api/abilities/${a.id}`,
           { method: "PUT", body: { active: 1 } },
@@ -509,6 +554,7 @@ async function loadAbilities() {
     return;
   }
   const abilities = await res.json();
+  currentAbilities = abilities;
   const list = document.getElementById("abilities-list");
   list.innerHTML = "";
 
@@ -557,32 +603,22 @@ async function loadAbilities() {
       : atkStr;
   }
 
-  // Clear existing slot map
+  // Populate spell slots from character stats
   for (let lvl = 1; lvl <= 9; lvl++) delete spellSlots[lvl];
-
-  const SLOT_NAMES = [
-    "Spell Slots — 1st Level",
-    "Spell Slots — 2nd Level",
-    "Spell Slots — 3rd Level",
-    "Spell Slots — 4th Level",
-    "Spell Slots — 5th Level",
-    "Spell Slots — 6th Level",
-    "Spell Slots — 7th Level",
-    "Spell Slots — 8th Level",
-    "Spell Slots — 9th Level",
-  ];
-  SLOT_NAMES.forEach((slotName, i) => {
-    const lvl = i + 1;
-    const idx = abilities.findIndex((a) => a.name === slotName);
-    const slot = idx !== -1 ? abilities[idx] : null;
-    // Keep L1/L2 legacy globals in sync
-    if (lvl === 1) spellSlotsL1 = slot;
-    if (lvl === 2) spellSlotsL2 = slot;
-    if (slot) spellSlots[lvl] = slot;
+  for (let lvl = 1; lvl <= 9; lvl++) {
+    const maxVal = char[`spell_slots_${lvl}_max`] || 0;
+    if (maxVal > 0) {
+      spellSlots[lvl] = {
+        uses_max: maxVal,
+        uses_remaining: char[`spell_slots_${lvl}_remaining`] ?? maxVal,
+      };
+    }
+    if (lvl === 1) spellSlotsL1 = spellSlots[1] || null;
+    if (lvl === 2) spellSlotsL2 = spellSlots[2] || null;
     const box = document.getElementById(`slots-${lvl}-box`);
-    if (box) box.hidden = !slot;
-    if (slot) renderSlotPips(slot, `slots-${lvl}-pips`);
-  });
+    if (box) box.hidden = !spellSlots[lvl];
+    if (spellSlots[lvl]) renderCharSlotPips(lvl, `slots-${lvl}-pips`);
+  }
 
   const hasGoodberry = abilities.some((a) =>
     a.name.toLowerCase().includes("goodberry")
@@ -640,6 +676,40 @@ async function loadAbilities() {
 
     if (grouped[key] && grouped[key].length > 0)
       grouped[key].forEach((a) => list.appendChild(renderAbilityCard(a)));
+  });
+
+  renderActiveSpells(currentAbilities);
+}
+
+// ── Active / Concentrating spells (Stats panel) ──────────────────────────────
+
+function renderActiveSpells(abilities) {
+  const active = abilities.filter((a) => a.active);
+  const section = document.getElementById("active-spells-section");
+  const listEl = document.getElementById("active-spells-list");
+  section.hidden = active.length === 0;
+  listEl.innerHTML = "";
+  active.forEach((a) => {
+    const row = document.createElement("div");
+    row.className = "active-spell-row";
+    const badge = a.concentration
+      ? `<span class="conc-badge">Conc.</span>`
+      : `<span class="active-spell-badge" style="font-size:0.7rem">Active</span>`;
+    row.innerHTML = `
+      <span class="active-spell-name">${escHtml(a.name)}</span>
+      ${badge}
+      <button class="btn btn-sm end-active-btn" data-id="${a.id}">End</button>
+    `;
+    row.querySelector(".end-active-btn").addEventListener("click", async () => {
+      const res = await apiFetch(
+        `/api/abilities/${a.id}`,
+        { method: "PUT", body: { active: 0 } },
+        "Failed to end."
+      );
+      if (!res) return;
+      loadAbilities();
+    });
+    listEl.appendChild(row);
   });
 }
 

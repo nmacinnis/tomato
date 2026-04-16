@@ -880,6 +880,29 @@ main {
   margin-left: 4px;
 }
 
+/* ── Active / Concentrating Spells ──────────────────────────────────────────── */
+.active-spell-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--panel);
+  border-radius: var(--radius);
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+.active-spell-name {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  min-width: 0;
+}
+.concentrating-badge {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.15);
+  border-color: rgba(167, 139, 250, 0.45);
+}
+
 /* ── Money ─────────────────────────────────────────────────────────────────── */
 .money-row {
   display: grid;

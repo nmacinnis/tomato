@@ -144,6 +144,8 @@ def update_character(cid):
         "coins_gp",
         "coins_sp",
         "coins_cp",
+        *[f"spell_slots_{lvl}_max" for lvl in range(1, 10)],
+        *[f"spell_slots_{lvl}_remaining" for lvl in range(1, 10)],
     ]
     set_clause = ", ".join(f"{f}=?" for f in fields if f in data)
     values = [data[f] for f in fields if f in data]
@@ -231,11 +233,15 @@ def do_rest(cid):
                 "UPDATE abilities SET active=0 WHERE character_id=?",
                 (cid,),
             )
+            slot_resets = ", ".join(
+                f"spell_slots_{lvl}_remaining=spell_slots_{lvl}_max"
+                for lvl in range(1, 10)
+            )
             db.execute(
-                """UPDATE characters
+                f"""UPDATE characters
                    SET hp=max_hp, hit_dice_remaining=level,
                        death_save_successes=0, death_save_failures=0,
-                       goodberries=0
+                       goodberries=0, {slot_resets}
                    WHERE id=?""",
                 (cid,),
             )

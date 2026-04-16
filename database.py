@@ -250,5 +250,15 @@ def init_db():
         except sqlite3.OperationalError:
             pass
 
+    for lvl in range(1, 10):
+        for col_def in (
+            f"spell_slots_{lvl}_max       INTEGER NOT NULL DEFAULT 0",
+            f"spell_slots_{lvl}_remaining INTEGER NOT NULL DEFAULT 0",
+        ):
+            try:
+                conn.execute(f"ALTER TABLE characters ADD COLUMN {col_def}")
+            except sqlite3.OperationalError:
+                pass
+
     conn.commit()
     conn.close()

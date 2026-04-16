@@ -181,35 +181,6 @@ _ABILITIES = [
         0,
         None, 0,
     ),
-    # ── Spell Slot Trackers ──────────────────────────────────────────────────
-    (
-        "Spell Slots — 1st Level",
-        "passive",
-        4,
-        "long",
-        None,
-        "4 first-level spell slots. Regain all on Long Rest. "
-        "Can convert to Sorcery Points (1 SP per slot level, no action).",
-        "",
-        "",
-        "",
-        0,
-        None, 0,
-    ),
-    (
-        "Spell Slots — 2nd Level",
-        "passive",
-        2,
-        "long",
-        None,
-        "2 second-level spell slots. Regain all on Long Rest. "
-        "Can convert to Sorcery Points (2 SP per slot, no action).",
-        "",
-        "",
-        "",
-        0,
-        None, 0,
-    ),
     # ── Cantrips ─────────────────────────────────────────────────────────────
     (
         "Cantrip: Mage Hand",
@@ -587,3 +558,27 @@ def apply(conn):
             "UPDATE inventory SET tool_proficient=1 WHERE character_id=? AND name=?",
             (cid, tool),
         )
+
+    # Spell slots as character stats — always keep max current; init remaining only on first use
+    conn.execute(
+        "UPDATE characters SET spell_slots_1_max=4, spell_slots_2_max=2 WHERE id=?",
+        (cid,),
+    )
+    conn.execute(
+        """UPDATE characters
+           SET spell_slots_1_remaining=4
+           WHERE id=? AND spell_slots_1_remaining=0 AND spell_slots_1_max=4""",
+        (cid,),
+    )
+    conn.execute(
+        """UPDATE characters
+           SET spell_slots_2_remaining=2
+           WHERE id=? AND spell_slots_2_remaining=0 AND spell_slots_2_max=2""",
+        (cid,),
+    )
+
+    # Remove legacy spell slot ability rows if they still exist
+    conn.execute(
+        "DELETE FROM abilities WHERE character_id=? AND name IN (?, ?)",
+        (cid, "Spell Slots — 1st Level", "Spell Slots — 2nd Level"),
+    )
