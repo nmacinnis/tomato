@@ -5,20 +5,20 @@ You see before you a slender young human woman of medium height. She has brown h
 Inkwell is a changeling from the Riverlands. She is estranged from her family, the Lord and Lady of Port Ellsmyre, a minor fishing village on the edge of a swamp of the same name.  
 
 Lineage: Changeling (of human parents)
-Level: 3
+Level: 4
 Size: Medium (5’4 130lbs)
 Speed: 30 feet
 Creature Type: Fey
 Base stats:
 9 Str 9 (-1)
-14 Con 14 (+2)
+14 Con 15 (+2)
 12 Dex 12 (+1)
 15 Wis 16 (+3)
 17 Cha 19 (+4)
 13 Int 13 (+2)
 Ability Scores: +1 Con, +2 Cha
 Proficiency Bonus: +2 (level 3) table
-Armor Class: 11
+Armor Class: 12
 Alignment: Chaotic Neutral
 Languages: Common, Common Sign, Elvish
 
@@ -37,6 +37,7 @@ Hit Dice: 3d6
 Hit Points at 1st Level: 5 (rolled 3 + 2 con mod)
 Hit Points at 2nd Level: 11 (rolled 4 + 2 con mod)
 Hit Points at 3rd Level: 19 (rolled 6 + 2 con mod)
+Hit Points at 3rd Level: 24 (rolled 3 + 2 con mod)
 
 Saving Throw Proficiencies: Constitution, Charisma
 Skill Proficiencies: Deception, Persuasion.
@@ -63,6 +64,7 @@ Mage Hand
 Prestidigitation
 Friends
 Sorcerous Burst
+Message
 
 1st Level
 Mage Armor
@@ -72,7 +74,8 @@ Charm Person
 
 2nd Level
 Levitate
-Hold Person
+Maximillian's Earthen Grasp
+Wither and Bloom
 
 Subclass spells
 Arms of Hadar, Calm Emotions, Detect Thoughts, Dissonant Whispers, Mind Sliver
@@ -3356,6 +3359,22 @@ Equipment:
 Disguise Kit 			25 GP		3 lb.
 Caligrapher’s supplies	10GP		5 lb
 15 gp
+
+Feat: Changeling Metamorphosis 
+You gain the following benefits.
+
+Ability Score Increase: Increase your Constitution or Dexterity by 1, to a maximum of 20.
+
+Hardened Skin: You gain a +1 bonus to Armor Class.
+
+Metamorphosis: When you use your Shape-Shifter trait, you may choose one of the following options. You gain the benefits of the chosen option until you use your Shape-Shifter trait again.
+
+Aquatic Adaptation: You sprout gills and grow webs between your fingers. You can breathe underwater and gain a Swim Speed equal to your Speed.
+
+Darkvision: You have Darkvision with a range of 60 feet.
+
+Natural Weapons: You grow claws (Slashing), fangs (Piercing), horns (Piercing), or hooves (Bludgeoning). When you use your Unarmed Strike to deal damage with that new growth, it deals 1d6 damage of the type in parentheses instead of dealing the normal damage for your Unarmed Strike, and you can choose to use your Dexterity modifier for the attack and damage rolls rather than using Strength.
+
 
 Other random fluff for flavor
 

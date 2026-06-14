@@ -1,4 +1,4 @@
-"""Character sheet for Inkwell — Changeling Aberrant Sorcerer 3."""
+"""Character sheet for Inkwell — Changeling Aberrant Sorcerer 4."""
 
 _NAME = "Inkwell"
 
@@ -6,14 +6,14 @@ _CHAR = (
     _NAME,
     "Changeling (Fey)",
     "Aberrant Sorcerer",
-    3,
-    19,  # hp (rolled: 3+4+6 = 13 + CON mod 2×3 = 6 → 19)
-    19,  # max_hp
-    11,  # ac (10 + DEX mod 1; Mage Armor → 14)
+    4,
+    24,  # hp (19 + 5 at level 4: rolled 3 + CON mod 2)
+    24,  # max_hp
+    12,  # ac (10 + DEX mod 1 + Hardened Skin 1; Mage Armor → 15)
     30,
     9,  # str
     12,  # dex
-    14,  # con
+    15,  # con (14 + 1 from Changeling Metamorphosis)
     13,  # int
     16,  # wis
     19,  # cha (17 base + 2 Changeling)
@@ -41,7 +41,11 @@ _ABILITIES = [
         "Change appearance and voice (coloration, hair, sex, height, weight, size Medium↔Small). "
         "Can appear as another playable species — stats unchanged. Cannot duplicate someone unseen; "
         "must keep same limb arrangement. Clothing/equipment don't change. "
-        "While shape-shifted: Advantage on Charisma checks. Revert by taking an action.",
+        "While shape-shifted: Advantage on Charisma checks. Revert by taking an action.\n\n"
+        "Metamorphosis (Changeling Metamorphosis feat): each time you use this trait, also choose one — "
+        "Aquatic Adaptation (gills and webbed fingers: breathe water, Swim Speed = Speed), "
+        "Darkvision 60 ft, or Natural Weapons (claws/fangs/horns/hooves; Unarmed Strike deals 1d6 of the "
+        "matching damage type and may use DEX). Benefit lasts until Shape-Shifter is used again.",
         "",
         "",
         "",
@@ -55,6 +59,21 @@ _ABILITIES = [
         None,
         None,
         "Fey heritage grants proficiency in Intimidation and Performance.",
+        "",
+        "",
+        "",
+        0,
+        None, 0,
+    ),
+    (
+        "Feat: Changeling Metamorphosis",
+        "passive",
+        None,
+        None,
+        None,
+        "Exploring Eberron (2024). Ability Score Increase: +1 Constitution (applied). "
+        "Hardened Skin: +1 Armor Class (applied as a flat AC bonus). "
+        "Metamorphosis: grants the Shape-Shifter trait an additional choice — see Shape-Shifter.",
         "",
         "",
         "",
@@ -80,10 +99,10 @@ _ABILITIES = [
     (
         "Sorcery Points",
         "passive",
-        3,
+        4,
         "long",
         None,
-        "Pool of 3 sorcery points. Regain all on Long Rest. Uses:\n"
+        "Pool of 4 sorcery points. Regain all on Long Rest. Uses:\n"
         "• Metamagic (Extended Spell: 1 SP, Subtle Spell: 1 SP)\n"
         "• Convert slot → SP: spend a slot, gain SP equal to its level (no action).\n"
         "• Create slot (Bonus Action): 1st=2 SP, 2nd=3 SP.",
@@ -264,6 +283,23 @@ _ABILITIES = [
         0,
         None, 0,
     ),
+    (
+        "Cantrip: Message",
+        "action",
+        None,
+        None,
+        None,
+        "Point your finger toward a creature within range and whisper a message. Only the target "
+        "hears it and can reply in a whisper only you can hear. Can be cast through solid objects "
+        "if you are familiar with the target and know it's beyond the barrier. Magical silence, "
+        "1 ft of stone, 1 inch of common metal, a thin sheet of lead, or 3 ft of wood or dirt "
+        "blocks the spell. Doesn't need to travel in a straight line.",
+        "V, S, M (a short piece of copper wire)",
+        "120 ft",
+        "1 round",
+        0,
+        None, 0,
+    ),
     # ── Prepared Spells (use slots) ──────────────────────────────────────────
     (
         "Spell: Mage Armor (1st)",
@@ -345,19 +381,39 @@ _ABILITIES = [
         2, 0,
     ),
     (
-        "Spell: Hold Person (2nd)",
+        "Spell: Maximillian's Earthen Grasp (2nd)",
         "action",
         None,
         None,
         None,
-        "One humanoid you can see within range makes a Wisdom save or is Paralyzed for the "
-        "duration. At the end of each of its turns it repeats the save, ending the spell on a success. "
-        "While paralyzed, attacks against it have Advantage, and hits from within 5 ft are critical hits. "
-        "At Higher Levels: +1 humanoid per slot level above 2nd.",
-        "V, S, M (a small straight piece of iron)",
-        "60 ft",
-        "1 minute",
+        "A Medium hand of compacted soil bursts from the ground at a point within range, then "
+        "strikes one creature within 5 ft of it. The target makes a Strength save or takes 2d6 "
+        "bludgeoning damage and has the Restrained condition until the spell ends. As an action, "
+        "you can cause the hand to crush the restrained target again (same damage, no save) or "
+        "move it up to 5 ft and grapple a different creature within 5 ft, freeing the first.",
+        "V, S, M (clay, soil, or stone)",
+        "30 ft",
+        "Concentration, up to 1 minute",
         1,
+        2, 0,
+    ),
+    (
+        "Spell: Wither and Bloom (2nd)",
+        "action",
+        None,
+        None,
+        None,
+        "Withering and verdant energy washes over a 10-ft-radius sphere centered on a point within "
+        "range. Each creature you choose in that area makes a Constitution save, taking 2d6 "
+        "necrotic damage on a failure or half as much on a success (nonmagical vegetation in the "
+        "area withers). One creature you choose in the area can spend and roll one of its unspent "
+        "Hit Dice, regaining hit points equal to the roll plus your spellcasting ability modifier. "
+        "At Higher Levels: damage increases by 1d6, and the number of Hit Dice that can be spent "
+        "and added to the healing roll increases by one, for each slot level above 2nd.",
+        "V, S, M (a withered vine twisted into a loop)",
+        "60 ft",
+        "Instantaneous",
+        0,
         2, 1,
     ),
     # ── Psionic Spells (Always Prepared, use slots) ──────────────────────────
@@ -561,7 +617,7 @@ def apply(conn):
 
     # Spell slots as character stats — always keep max current; init remaining only on first use
     conn.execute(
-        "UPDATE characters SET spell_slots_1_max=4, spell_slots_2_max=2 WHERE id=?",
+        "UPDATE characters SET spell_slots_1_max=4, spell_slots_2_max=3 WHERE id=?",
         (cid,),
     )
     conn.execute(
@@ -572,8 +628,8 @@ def apply(conn):
     )
     conn.execute(
         """UPDATE characters
-           SET spell_slots_2_remaining=2
-           WHERE id=? AND spell_slots_2_remaining=0 AND spell_slots_2_max=2""",
+           SET spell_slots_2_remaining=3
+           WHERE id=? AND spell_slots_2_remaining=0 AND spell_slots_2_max=3""",
         (cid,),
     )
 
@@ -581,4 +637,28 @@ def apply(conn):
     conn.execute(
         "DELETE FROM abilities WHERE character_id=? AND name IN (?, ?)",
         (cid, "Spell Slots — 1st Level", "Spell Slots — 2nd Level"),
+    )
+
+    # Level 4: +5 HP, +1 CON, +1 AC (Changeling Metamorphosis), and a 3rd 2nd-level
+    # spell slot
+    conn.execute(
+        """UPDATE characters
+           SET level=4, hp=hp+5, max_hp=max_hp+5, con=con+1, ac=ac+1, flat_ac_bonus=flat_ac_bonus+1,
+               spell_slots_2_remaining=spell_slots_2_remaining+1
+           WHERE id=? AND level<4""",
+        (cid,),
+    )
+
+    # Level 4: Sorcery Points pool grows from 3 to 4 — gain the new point
+    conn.execute(
+        """UPDATE abilities
+           SET uses_max=4, uses_remaining=uses_remaining+1
+           WHERE character_id=? AND name='Sorcery Points' AND uses_max=3""",
+        (cid,),
+    )
+
+    # Hold Person retired in favor of Maximillian's Earthen Grasp / Wither and Bloom
+    conn.execute(
+        "DELETE FROM abilities WHERE character_id=? AND name=?",
+        (cid, "Spell: Hold Person (2nd)"),
     )
