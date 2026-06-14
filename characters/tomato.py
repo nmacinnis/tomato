@@ -394,10 +394,10 @@ def apply(conn):
     conn.execute(
         """INSERT INTO characters
                (name, race, class, level, hp, max_hp, ac, speed,
-                str, dex, con, int, wis, cha, notes)
-           SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                str, dex, con, int, wis, cha, notes, coins_gp)
+           SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
            WHERE NOT EXISTS (SELECT 1 FROM characters WHERE name=?)""",
-        _CHAR + (_NAME,),
+        _CHAR + (10, _NAME),
     )
 
     cid = conn.execute("SELECT id FROM characters WHERE name=?", (_NAME,)).fetchone()[0]
@@ -433,7 +433,7 @@ def apply(conn):
         "UPDATE characters SET level=10, hp=100, max_hp=100,"
         " save_proficiencies='str,con', flat_ac_bonus=0,"
         " alignment='Chaotic Good', size='Medium', height='6''6\"', weight='302 lbs',"
-        " hit_die='d10', coins_gp=10"
+        " hit_die='d10'"
         " WHERE id=?",
         (cid,),
     )
