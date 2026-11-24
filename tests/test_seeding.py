@@ -127,7 +127,8 @@ def test_step_runs_once_before_sheet_refresh(conn):
     seed(conn, **sheet(character={"level": 2, "max_hp": 12}))
 
     def level_3(c, cid):
-        c.execute("UPDATE characters SET hp=hp+6 WHERE id=? AND level<3", (cid,))
+        # Level is Play state, so an old-style Seed step has to move it itself
+        c.execute("UPDATE characters SET level=3, hp=hp+6 WHERE id=? AND level<3", (cid,))
 
     s = sheet(steps=[("level-3", level_3)])
     seed(conn, **s)

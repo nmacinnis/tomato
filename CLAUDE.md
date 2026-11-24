@@ -16,11 +16,13 @@ app.py          — Flask routes (REST API + page rendering)
 database.py     — SQLite connection management and schema init
 init_db.py      — One-time DB setup script
 characters/
-  __init__.py   — Seeding: seed_all(conn) runs on boot (see GLOSSARY.md)
-  inkwell.py    — Sheet (CHARACTER / ABILITIES / ITEMS dicts) + STEPS
-  tomato.py     — Sheet + STEPS
+  __init__.py   — Seeding (seed_all runs on boot) and Level-up (see GLOSSARY.md)
+  inkwell.py    — Sheet (CHARACTER / ABILITIES / ITEMS dicts) + LEVELS + STEPS
+  tomato.py     — Sheet + LEVELS + STEPS
+snapshots.py    — Snapshots: take / restore a Character's Play state and rows
 tests/          — pytest, run with `python -m pytest`
-GLOSSARY.md     — Domain terms: Sheet, Play state, Seeding, Seed step
+GLOSSARY.md     — Domain terms: Sheet, Level, Play state, Level-up, Snapshot, Player-added, Seeding, Seed step
+docs/adr/       — Architecture decisions (0001: level is Play state)
 templates/
   index.html    — Character roster page
   character.html — Character sheet page
@@ -28,6 +30,7 @@ static/
   style.css     — All styles (dark DnD theme)
   app.js        — Shared utilities (loadCharacters, escHtml, modifier)
   character.js  — Character sheet interactions
+  character-snapshots.js — Snapshots panel + Level-up preview dialog
 requirements.txt
 Procfile        — gunicorn entry point for Railway/Render
 ```
@@ -87,11 +90,18 @@ gunicorn "app:app"
 - **REST only.** All data is returned as JSON from `/api/*` routes. Templates contain no business logic.
 - **Single SQLite file** (`dnd.db`). Do not introduce Postgres/MySQL unless the user explicitly asks.
 - **Characters are seeded, not hand-migrated.** Edit a character by editing its Sheet in
-  `characters/<name>.py`; seeding overwrites Sheet fields on every boot and never touches
-  Play state (`PLAY_FIELDS` in `characters/__init__.py`) after creation. Level-ups that change
-  Play state (HP gained, extra uses) and row renames/removals go in `STEPS` as a new named
-  step: steps run once per database, before the Sheet refresh. Never write raw UPDATEs to
-  Play state outside a step.
+  `characters/<name>.py`; seeding overwrites Sheet fields (from the Sheet at the Character's
+  current level) on every boot and never touches Play state (`PLAY_FIELDS` in
+  `characters/__init__.py`, which includes `level`) after creation.
+- **Level-ups are authored ahead, applied at the table.** To prepare the next level, add a
+  block to the module's `LEVELS` (format in `characters/__init__.py`): new Sheet values,
+  abilities/items gained or changed, and `retire_abilities`/`retire_items`. Every choice
+  (HP gain, feats, spells) is decided there. The player presses Level up in the UI; don't
+  bump `level` in `CHARACTER` and don't write a Seed step for it. See ADR 0001.
+- **Seed steps** are for renames, retirements outside a Level-up, and data-shape changes:
+  steps run once per database, before the Sheet refresh.
+- **Play state is written only** by the table (the API), Level-up, Snapshot restore, or a
+  Seed step. Never write raw UPDATEs to Play state anywhere else.
 - **Gunicorn in prod.** The `Procfile` targets Railway/Render. Do not change the entry point without updating this file.
 
 ## Extending the project

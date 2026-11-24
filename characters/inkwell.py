@@ -500,9 +500,10 @@ ITEMS = [
 
 
 # ── Seed steps ────────────────────────────────────────────────────────────────
-# One-time changes to an existing Inkwell. Sheet fields (level, max_hp, con,
-# uses_max, spell_slots_N_max, …) are refreshed from the Sheet right after the
-# steps run, so steps only adjust Play state and rename/remove rows.
+# One-time changes to an existing Inkwell. Sheet fields (max_hp, con, uses_max,
+# spell_slots_N_max, …) are refreshed from the Sheet right after the steps run,
+# so steps only adjust Play state and rename/remove rows. `level-4` predates
+# LEVELS; future level-ups go in LEVELS, not here.
 
 
 def _spell_slots_to_columns(conn, cid):

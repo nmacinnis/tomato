@@ -13,6 +13,8 @@ A simple web app to manage your D&D 5e character sheets — ability scores, HP, 
 - **Death saves** — track successes/failures with survival odds display
 - **AC breakdown** — collapsible equation with item/ability contribution detail
 - **Notes** — freeform text field per character
+- **Snapshots** — save a dated copy of a character's current state and restore it later (a restore snapshots first, so it can be undone)
+- **Level up** — preview the next level written in the character's Sheet, then apply it mid-session
 
 ---
 
@@ -89,9 +91,11 @@ tomato/
 ├── database.py          — SQLite connection + schema
 ├── init_db.py           — One-time database setup
 ├── characters/          — Character Sheets + Seeding (see GLOSSARY.md)
-│   ├── __init__.py      — seed_all(): syncs Sheets into the DB on boot
+│   ├── __init__.py      — seed_all(): syncs Sheets into the DB on boot; Level-up
 │   ├── inkwell.py       — Inkwell's Sheet + Seed steps
 │   └── tomato.py        — TOMATO's Sheet + Seed steps
+├── snapshots.py         — Snapshots: take / restore a character's state
+├── docs/adr/            — Architecture decision records
 ├── tests/               — pytest (python -m pytest)
 ├── GLOSSARY.md          — Domain terms
 ├── requirements.txt

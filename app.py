@@ -2,7 +2,8 @@ import sqlite3
 
 from flask import Flask, abort, jsonify, render_template, request
 
-from characters import seed_all
+import snapshots
+from characters import SheetError, level_up, next_level_preview, seed_all, sheet_for
 from database import DATABASE, close_db, get_db, init_db
 
 app = Flask(__name__)
@@ -375,6 +376,68 @@ def delete_item(iid):
     db = get_db()
     db.execute("DELETE FROM inventory WHERE id=?", (iid,))
     db.commit()
+    return jsonify({"ok": True})
+
+
+# ── Level-up ───────────────────────────────────────────────────────────────────
+
+
+@app.route("/api/characters/<int:cid>/level-up", methods=["GET"])
+def preview_level_up(cid):
+    db = get_db()
+    if not db.execute("SELECT 1 FROM characters WHERE id=?", (cid,)).fetchone():
+        return jsonify({"error": "Not found"}), 404
+    preview = next_level_preview(db, cid, sheet_for(db, cid))
+    return jsonify({"available": preview is not None, "preview": preview})
+
+
+@app.route("/api/characters/<int:cid>/level-up", methods=["POST"])
+def do_level_up(cid):
+    db = get_db()
+    if not db.execute("SELECT 1 FROM characters WHERE id=?", (cid,)).fetchone():
+        return jsonify({"error": "Not found"}), 404
+    try:
+        changes = level_up(db, cid, sheet_for(db, cid))
+    except SheetError as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify(changes)
+
+
+# ── Snapshots ──────────────────────────────────────────────────────────────────
+
+
+@app.route("/api/characters/<int:cid>/snapshots", methods=["GET"])
+def list_snapshots(cid):
+    return jsonify(snapshots.list_for(get_db(), cid))
+
+
+@app.route("/api/characters/<int:cid>/snapshots", methods=["POST"])
+def take_snapshot(cid):
+    db = get_db()
+    if not db.execute("SELECT 1 FROM characters WHERE id=?", (cid,)).fetchone():
+        return jsonify({"error": "Not found"}), 404
+    label = str((request.json or {}).get("label", ""))[:80]
+    sid = snapshots.take(db, cid, label)
+    db.commit()
+    return jsonify({"id": sid}), 201
+
+
+@app.route("/api/snapshots/<int:sid>/restore", methods=["POST"])
+def restore_snapshot(sid):
+    db = get_db()
+    cid = snapshots.character_of(db, sid)
+    if cid is None:
+        return jsonify({"error": "Not found"}), 404
+    try:
+        snapshots.restore(db, sid, sheet_for(db, cid))
+    except snapshots.SnapshotError as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify({"ok": True})
+
+
+@app.route("/api/snapshots/<int:sid>", methods=["DELETE"])
+def delete_snapshot(sid):
+    snapshots.delete(get_db(), sid)
     return jsonify({"ok": True})
 
 

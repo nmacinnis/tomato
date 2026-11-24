@@ -78,7 +78,8 @@ def init_db():
             duration        TEXT    NOT NULL DEFAULT '',
             concentration   INTEGER NOT NULL DEFAULT 0,
             spell_level     INTEGER,
-            upcastable      INTEGER NOT NULL DEFAULT 0
+            upcastable      INTEGER NOT NULL DEFAULT 0,
+            player_added    INTEGER NOT NULL DEFAULT 1  -- 0 once the Sheet describes it
         );
 
         CREATE TABLE IF NOT EXISTS inventory (
@@ -100,7 +101,8 @@ def init_db():
             is_weapon       INTEGER NOT NULL DEFAULT 0,
             is_melee        INTEGER NOT NULL DEFAULT 1,
             finesse         INTEGER NOT NULL DEFAULT 0,
-            flavor          TEXT    NOT NULL DEFAULT ''
+            flavor          TEXT    NOT NULL DEFAULT '',
+            player_added    INTEGER NOT NULL DEFAULT 1  -- 0 once the Sheet describes it
         );
 
         CREATE INDEX IF NOT EXISTS idx_abilities_char ON abilities(character_id);
@@ -123,6 +125,18 @@ def init_db():
             applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (character, step)
         );
+
+        -- Snapshots of a Character's Play state and rows (see snapshots.py)
+        CREATE TABLE IF NOT EXISTS snapshots (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            character_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+            label        TEXT    NOT NULL DEFAULT '',
+            taken_at     TEXT    NOT NULL,             -- UTC, ISO 8601
+            level        INTEGER NOT NULL,
+            automatic    INTEGER NOT NULL DEFAULT 0,   -- taken before a restore or Level-up
+            state        TEXT    NOT NULL              -- JSON
+        );
+        CREATE INDEX IF NOT EXISTS idx_snapshots_char ON snapshots(character_id);
         """
     )
     # Migrate existing databases that predate these columns
@@ -267,6 +281,13 @@ def init_db():
                 conn.execute(f"ALTER TABLE characters ADD COLUMN {col_def}")
             except sqlite3.OperationalError:
                 pass
+
+    # Existing rows start Player-added; seeding marks the ones the Sheet describes.
+    for tbl in ("abilities", "inventory"):
+        try:
+            conn.execute(f"ALTER TABLE {tbl} ADD COLUMN player_added INTEGER NOT NULL DEFAULT 1")
+        except sqlite3.OperationalError:
+            pass
 
     conn.commit()
     conn.close()

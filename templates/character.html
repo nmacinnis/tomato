@@ -58,7 +58,10 @@
           <span id="spell-atk-val"></span>
         </div>
         <div class="combat-box"><span class="combat-label">Speed</span><span id="speed-val"></span></div>
-        <div class="combat-box"><span class="combat-label">Level</span><span id="level-val"></span></div>
+        <div class="combat-box">
+          <span class="combat-label">Level</span><span id="level-val"></span>
+          <button class="btn btn-sm btn-level-up" id="level-up-btn" hidden>Level up</button>
+        </div>
         <div class="combat-box">
           <span class="combat-label" id="hd-label">Hit Dice</span>
           <div id="hd-pips" class="dice-pips"></div>
@@ -169,6 +172,13 @@
         <button class="btn btn-rest-long"  id="long-rest-btn">Long Rest</button>
       </div>
       <div id="rest-feedback" class="rest-feedback" hidden></div>
+
+      <h2>Snapshots</h2>
+      <form id="snapshot-form" class="snapshot-form">
+        <input name="label" maxlength="80" placeholder="Label" />
+        <button type="submit" class="btn btn-sm btn-primary">📸 Take snapshot</button>
+      </form>
+      <ul id="snapshot-list" class="snapshot-list"></ul>
 
       <h2>Death Saves <span class="ds-adv-badge" id="ds-adv-badge" hidden>ADV</span></h2>
       <div class="death-saves">
@@ -349,6 +359,17 @@
     </form>
   </dialog>
 
+  <!-- Level-up Modal -->
+  <dialog id="level-up-modal">
+    <h2 id="level-up-title">Level up</h2>
+    <div id="level-up-preview" class="level-up-preview"></div>
+    <p class="level-up-note">A snapshot is taken first, so you can undo this by restoring it.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn" id="cancel-level-up">Cancel</button>
+      <button type="button" class="btn btn-primary" id="confirm-level-up">Level up</button>
+    </div>
+  </dialog>
+
   <!-- Theme Modal -->
   <dialog id="theme-modal">
     <form id="theme-form">
@@ -382,6 +403,7 @@
   <script src="/static/character-abilities.js"></script>
   <script src="/static/character-inventory.js"></script>
   <script src="/static/character-theme.js"></script>
+  <script src="/static/character-snapshots.js"></script>
   <script src="/static/character.js"></script>
 </body>
 </html>

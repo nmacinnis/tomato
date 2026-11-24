@@ -1151,3 +1151,90 @@ dialog textarea {
   cursor: pointer;
   padding: 2px;
 }
+
+/* ── Snapshots ────────────────────────────────────────────────────────────── */
+.snapshot-form {
+  display: flex;
+  gap: 0.5rem;
+}
+.snapshot-form input {
+  flex: 1;
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  font-family: var(--font);
+}
+.snapshot-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+.snapshot-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.6rem;
+}
+.snapshot-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.snapshot-label {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+.snapshot-auto .snapshot-label {
+  font-style: italic;
+  color: var(--muted);
+}
+.snapshot-meta,
+.snapshot-empty {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* ── Level-up ─────────────────────────────────────────────────────────────── */
+.btn-level-up {
+  margin-top: 0.3rem;
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+}
+.level-up-preview {
+  max-height: 55vh;
+  overflow-y: auto;
+}
+.level-up-preview h3 {
+  font-size: 0.9rem;
+  margin: 0.6rem 0 0.3rem;
+}
+.lu-changes {
+  list-style: none;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.lu-before {
+  color: var(--muted);
+}
+.lu-gained {
+  color: #7ecfb0;
+}
+.lu-retired {
+  color: var(--accent);
+}
+.level-up-note {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.8rem;
+}
