@@ -33,7 +33,7 @@ static/
   character.js  — Character sheet interactions
   character-snapshots.js — Snapshots panel + Level-up preview dialog
 requirements.txt
-Procfile        — gunicorn entry point for Railway/Render
+Procfile        — gunicorn entry point for Railway
 ```
 
 ## Data model
@@ -111,7 +111,7 @@ gunicorn "app:app"
   steps run once per database, before the Sheet refresh.
 - **Play state is written only** by the table (the API), Level-up, Snapshot restore, or a
   Seed step. Never write raw UPDATEs to Play state anywhere else.
-- **Gunicorn in prod.** The `Procfile` targets Railway/Render. Do not change the entry point without updating this file.
+- **Gunicorn in prod.** The `Procfile` targets Railway. Do not change the entry point without updating this file.
 
 ## Extending the project
 
