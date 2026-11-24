@@ -61,7 +61,7 @@ npm run format:check  # check formatting without writing
 
 ---
 
-## Deploying to Railway (recommended)
+## Deploying to Railway
 
 [Railway](https://railway.app) is the simplest way to host this — no YAML, no Docker required.
 
@@ -72,14 +72,6 @@ npm run format:check  # check formatting without writing
 5. Click the generated URL — done.
 
 > **Note on the database:** Railway's filesystem is ephemeral (resets on redeploy). For a persistent database, add a Railway **Volume** and set the `DATABASE` path in `database.py` to point to it, or swap SQLite for Railway's managed Postgres.
-
-### Alternative: Render
-
-1. Push to GitHub.
-2. At [render.com](https://render.com), create a **New Web Service**.
-3. Set **Build command:** `pip install -r requirements.txt && python init_db.py`
-4. Set **Start command:** `gunicorn "app:app"`
-5. Deploy. Render also supports persistent disks for the SQLite file.
 
 ---
 
@@ -101,7 +93,7 @@ tomato/
 ├── requirements.txt
 ├── pyproject.toml       — ruff (Python linter/formatter) config
 ├── package.json         — eslint + prettier config & scripts
-├── Procfile             — gunicorn entry point for Railway/Render
+├── Procfile             — gunicorn entry point for Railway
 ├── CLAUDE.md            — AI assistant context
 ├── .gitignore
 ├── templates/
@@ -163,7 +155,7 @@ All endpoints return/accept JSON.
 | Database | SQLite (via `sqlite3` stdlib) |
 | Frontend | HTML + CSS + vanilla JS |
 | Prod server | gunicorn |
-| Hosting | Railway or Render |
+| Hosting | Railway |
 | Python linting | ruff |
 | JS linting | eslint |
 | JS formatting | prettier |
