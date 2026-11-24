@@ -1,24 +1,19 @@
+import sqlite3
+
 from flask import Flask, abort, jsonify, render_template, request
 
+from characters import seed_all
 from database import DATABASE, close_db, get_db, init_db
 
 app = Flask(__name__)
 app.teardown_appcontext(close_db)
 init_db()
 
-# Apply all character modules from the characters/ package
-import importlib
-import pkgutil
-import sqlite3 as _sqlite3
-
-import characters as _chars_pkg
-
-with _sqlite3.connect(DATABASE) as _c:
-    for _finder, _modname, _ispkg in pkgutil.iter_modules(_chars_pkg.__path__):
-        _mod = importlib.import_module(f"characters.{_modname}")
-        if callable(getattr(_mod, "apply", None)):
-            _mod.apply(_c)
-    _c.commit()
+_seed_conn = sqlite3.connect(DATABASE)
+try:
+    seed_all(_seed_conn)
+finally:
+    _seed_conn.close()
 
 
 # ── Pages ──────────────────────────────────────────────────────────────────────
@@ -233,10 +228,7 @@ def do_rest(cid):
                 "UPDATE abilities SET active=0 WHERE character_id=?",
                 (cid,),
             )
-            slot_resets = ", ".join(
-                f"spell_slots_{lvl}_remaining=spell_slots_{lvl}_max"
-                for lvl in range(1, 10)
-            )
+            slot_resets = ", ".join(f"spell_slots_{lvl}_remaining=spell_slots_{lvl}_max" for lvl in range(1, 10))
             db.execute(
                 f"""UPDATE characters
                    SET hp=max_hp, hit_dice_remaining=level,

@@ -115,6 +115,14 @@ def init_db():
             panel_color  TEXT NOT NULL DEFAULT '#0f3460',
             border       TEXT NOT NULL DEFAULT '#2a3a5e'
         );
+
+        -- Seed steps already run against this database (see characters/__init__.py)
+        CREATE TABLE IF NOT EXISTS seed_steps (
+            character  TEXT NOT NULL,
+            step       TEXT NOT NULL,
+            applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (character, step)
+        );
         """
     )
     # Migrate existing databases that predate these columns

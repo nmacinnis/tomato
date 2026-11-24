@@ -88,9 +88,12 @@ tomato/
 ├── app.py               — Flask REST API + page routes
 ├── database.py          — SQLite connection + schema
 ├── init_db.py           — One-time database setup
-├── characters/          — Character-specific logic
-│   ├── __init__.py
-│   └── tomato.py        — Character data helpers
+├── characters/          — Character Sheets + Seeding (see GLOSSARY.md)
+│   ├── __init__.py      — seed_all(): syncs Sheets into the DB on boot
+│   ├── inkwell.py       — Inkwell's Sheet + Seed steps
+│   └── tomato.py        — TOMATO's Sheet + Seed steps
+├── tests/               — pytest (python -m pytest)
+├── GLOSSARY.md          — Domain terms
 ├── requirements.txt
 ├── pyproject.toml       — ruff (Python linter/formatter) config
 ├── package.json         — eslint + prettier config & scripts

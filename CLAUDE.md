@@ -15,6 +15,12 @@ there is a compelling reason to add one.
 app.py          — Flask routes (REST API + page rendering)
 database.py     — SQLite connection management and schema init
 init_db.py      — One-time DB setup script
+characters/
+  __init__.py   — Seeding: seed_all(conn) runs on boot (see GLOSSARY.md)
+  inkwell.py    — Sheet (CHARACTER / ABILITIES / ITEMS dicts) + STEPS
+  tomato.py     — Sheet + STEPS
+tests/          — pytest, run with `python -m pytest`
+GLOSSARY.md     — Domain terms: Sheet, Play state, Seeding, Seed step
 templates/
   index.html    — Character roster page
   character.html — Character sheet page
@@ -67,6 +73,9 @@ python init_db.py
 # Run dev server
 python app.py          # http://localhost:5000
 
+# Run tests
+python -m pytest
+
 # Run with gunicorn (production-like)
 gunicorn "app:app"
 ```
@@ -77,6 +86,12 @@ gunicorn "app:app"
 - **No JS framework.** Vanilla JS only. Do not add React/Vue/Alpine.
 - **REST only.** All data is returned as JSON from `/api/*` routes. Templates contain no business logic.
 - **Single SQLite file** (`dnd.db`). Do not introduce Postgres/MySQL unless the user explicitly asks.
+- **Characters are seeded, not hand-migrated.** Edit a character by editing its Sheet in
+  `characters/<name>.py`; seeding overwrites Sheet fields on every boot and never touches
+  Play state (`PLAY_FIELDS` in `characters/__init__.py`) after creation. Level-ups that change
+  Play state (HP gained, extra uses) and row renames/removals go in `STEPS` as a new named
+  step: steps run once per database, before the Sheet refresh. Never write raw UPDATEs to
+  Play state outside a step.
 - **Gunicorn in prod.** The `Procfile` targets Railway/Render. Do not change the entry point without updating this file.
 
 ## Extending the project
