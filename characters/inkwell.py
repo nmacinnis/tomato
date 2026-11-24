@@ -152,259 +152,195 @@ ABILITIES = [
         ),
     },
     # ── Cantrips ─────────────────────────────────────────────────────────────
+    # Spells: Rules text and card details come from spells.py; `description` is
+    # the Summary (see GLOSSARY.md).
     {
         "name": "Cantrip: Mage Hand",
+        "spell": "Mage Hand",
         "type": "action",
         "description": (
-            "A spectral hand appears at a point within range. Use it to manipulate an object, open an "
-            "unlocked door or container, stow or retrieve an item from an open container, or pour out a vial. "
-            "The hand can move up to 30 ft each time you use it. It can't attack, activate magic items, "
-            "or carry more than 10 lbs. Vanishes if ever more than 30 ft from you."
+            "A spectral hand within 30 ft manipulates an object, opens an unlocked door or container, "
+            "stows or retrieves an item from an open container, or pours out a vial. Magic action on later "
+            "turns to use it again and move it up to 30 ft. Can't attack or activate magic items; carries "
+            "up to 10 lb. Vanishes if more than 30 ft from you."
         ),
-        "components": "V, S",
-        "spell_range": "30 ft",
-        "duration": "1 minute",
-        "concentration": 1,
     },
     {
         "name": "Cantrip: Prestidigitation",
+        "spell": "Prestidigitation",
         "type": "action",
         "description": (
-            "Create a minor magical effect: a harmless sensory effect; light or snuff a nonmagical flame; "
-            "clean or soil, chill, warm, or flavor a 1-cubic-foot object; make a color, mark, or symbol appear "
-            "on an object for 1 hour; produce a small trinket or image that fits in your hand (lasts until "
-            "end of next turn). Up to three effects active at a time."
+            "Pick one: a harmless sensory effect; light or snuff a candle, torch, or small campfire; clean "
+            "or soil a 1-cubic-foot object; chill, warm, or flavor 1 cubic foot of material (1 hr); a "
+            "color, mark, or symbol on an object (1 hr); or a hand-sized trinket or illusory image (until "
+            "end of next turn). Up to three lasting effects at once."
         ),
-        "components": "V, S",
-        "spell_range": "10 ft",
-        "duration": "Up to 1 hour",
     },
     {
         "name": "Cantrip: Friends",
+        "spell": "Friends",
         "type": "action",
         "description": (
-            "You magically emanate a sense of friendship toward one creature you can see within range. "
-            "The target must succeed on a Wisdom saving throw or have the Charmed condition for the duration. "
-            "The target succeeds automatically if it isn't a Humanoid, if you're fighting it, or if you have "
-            "cast this spell on it within the past 24 hours. "
-            "The spell ends early if the target takes damage or if you make an attack roll, deal damage, "
-            "or force anyone to make a saving throw. When the spell ends, the target knows it was Charmed by you."
+            "One creature within 10 ft: Wisdom save or Charmed for the duration. Auto-succeeds if it "
+            "isn't a Humanoid, you're fighting it, or you've cast this on it in the past 24 hours. Ends "
+            "early if it takes damage or you attack, deal damage, or force a save; it then knows it was "
+            "Charmed by you."
         ),
-        "components": "S, M (makeup applied to the face)",
-        "spell_range": "Self",
-        "duration": "1 minute",
-        "concentration": 1,
     },
     {
         "name": "Cantrip: Sorcerous Burst",
+        "spell": "Sorcerous Burst",
         "type": "action",
         "die_type": "d8",
         "description": (
-            "Make a ranged spell attack against a creature within range. On a hit, the target takes 1d8 "
-            "damage of a type you choose when you cast: acid, cold, fire, lightning, poison, psychic, or "
-            "thunder. If any damage die shows its maximum value, roll it again and add the result to the "
-            "damage total. At 5th level: 2d8; 11th: 3d8; 17th: 4d8."
+            "Ranged spell attack: 1d8 damage, your choice of Acid, Cold, Fire, Lightning, Poison, Psychic, "
+            "or Thunder. Each 8 rolled lets you add another d8, up to your Charisma modifier in extra dice. "
+            "2d8 at level 5."
         ),
-        "components": "V, S",
-        "spell_range": "120 ft",
-        "duration": "Instantaneous",
     },
     {
         "name": "Psionic Cantrip: Mind Sliver",
+        "spell": "Mind Sliver",
         "type": "action",
         "description": (
-            "Drive a spike of psychic energy into the mind of one creature you can see within range. "
-            "The target must succeed on an Intelligence saving throw or take 1d6 psychic damage "
-            "and subtract 1d4 from the next saving throw it makes before the end of your next turn. "
-            "Always prepared via Aberrant Sorcery subclass."
+            "One creature you can see: Intelligence save or 1d6 Psychic damage and it subtracts 1d4 from "
+            "its next saving throw before the end of your next turn. 2d6 at level 5. "
+            "Always prepared (Aberrant Sorcery)."
         ),
-        "components": "V",
-        "spell_range": "60 ft",
-        "duration": "1 round",
     },
     {
         "name": "Cantrip: Message",
+        "spell": "Message",
         "type": "action",
         "description": (
-            "Point your finger toward a creature within range and whisper a message. Only the target "
-            "hears it and can reply in a whisper only you can hear. Can be cast through solid objects "
-            "if you are familiar with the target and know it's beyond the barrier. Magical silence, "
-            "1 ft of stone, 1 inch of common metal, a thin sheet of lead, or 3 ft of wood or dirt "
-            "blocks the spell. Doesn't need to travel in a straight line."
+            "Whisper to a creature within 120 ft; only it hears, and it can whisper back. Works through "
+            "solid objects if you know the target and that it's beyond the barrier. Blocked by magical "
+            "silence; 1 ft of stone, metal, or wood; or a thin sheet of lead."
         ),
-        "components": "V, S, M (a short piece of copper wire)",
-        "spell_range": "120 ft",
-        "duration": "1 round",
     },
     # ── Prepared Spells (use slots) ──────────────────────────────────────────
     {
         "name": "Spell: Mage Armor (1st)",
+        "spell": "Mage Armor",
         "type": "action",
         "description": (
-            "Touch a willing creature that isn't wearing armor. Until the spell ends, the target's base AC "
-            "becomes 13 + its Dexterity modifier (AC 14 for Inkwell). The spell ends if the target dons "
-            "armor or if you dismiss the spell."
+            "Touch a willing creature not wearing armor: its base AC becomes 13 + its Dexterity modifier "
+            "for 8 hours (AC 14 for Inkwell). Ends early if it dons armor."
         ),
-        "components": "V, S, M (a piece of cured leather)",
-        "spell_range": "Touch",
-        "duration": "8 hours",
-        "spell_level": 1,
         "sets_base_ac": 1,
         "ac_bonus": 14,
     },
     {
         "name": "Spell: Shield (1st)",
+        "spell": "Shield",
         "type": "reaction",
         "description": (
-            "Trigger: you are hit by an attack or targeted by Magic Missile. An invisible barrier of magical "
-            "force appears around you. Until the start of your next turn, you gain +5 AC (including against "
-            "the triggering attack, potentially turning it into a miss) and you take no damage from "
+            "Reaction when you're hit by an attack roll or targeted by Magic Missile: +5 AC until the "
+            "start of your next turn, including against the triggering attack, and no damage from "
             "Magic Missile."
         ),
-        "components": "V, S",
-        "spell_range": "Self",
-        "duration": "1 round",
-        "spell_level": 1,
     },
     {
         "name": "Spell: Catapult (1st)",
+        "spell": "Catapult",
         "type": "action",
         "description": (
-            "Choose one object weighing 1–5 lbs within range that isn't being worn or carried. It flies in "
-            "a straight line up to 90 ft in a direction you choose, stopping early if it hits a solid surface. "
-            "If it would strike a creature, that creature makes a Dexterity save or takes 3d8 "
-            "bludgeoning damage (save for half). At Higher Levels: +1d8 per slot level above 1st."
+            "Fling a 1–5 lb object no one is wearing or carrying up to 90 ft in a straight line. A "
+            "creature it would strike makes a Dexterity save; on a failure the object hits it, and both "
+            "take 3d8 bludgeoning damage (no damage on a success). Upcast: +5 lb and +1d8 per slot level "
+            "above 1st."
         ),
-        "components": "S",
-        "spell_range": "60 ft",
-        "duration": "Instantaneous",
-        "spell_level": 1,
         "upcastable": 1,
     },
     {
         "name": "Spell: Charm Person (1st)",
+        "spell": "Charm Person",
         "type": "action",
         "description": (
-            "One humanoid you can see within range makes a Wisdom saving throw (with Advantage if "
-            "you or your companions are fighting it). On a failure, the target is charmed for 1 hour or "
-            "until you or your allies harm it. While charmed, it regards you as a friendly acquaintance. "
-            "It knows it was charmed when the spell ends. At Higher Levels: +1 target per slot level above 1st."
+            "One Humanoid within 30 ft: Wisdom save (with Advantage if you or your allies are fighting it) "
+            "or Charmed for 1 hour, and Friendly to you. Ends early if you or your allies damage it; it "
+            "knows it was Charmed afterwards. Upcast: +1 target per slot level above 1st."
         ),
-        "components": "V, S",
-        "spell_range": "30 ft",
-        "duration": "1 hour",
-        "spell_level": 1,
         "upcastable": 1,
     },
     {
         "name": "Spell: Levitate (2nd)",
+        "spell": "Levitate",
         "type": "action",
         "description": (
-            "One creature or object (up to 500 lbs) you can see within range rises vertically up to 20 ft "
-            "and remains suspended for the duration. An unwilling creature makes a Constitution save "
-            "to resist. The target can only move horizontally by pushing or pulling against fixed surfaces — "
-            "it cannot ascend or descend under its own power."
+            "A creature or loose object (up to 500 lb) within 60 ft rises up to 20 ft and hangs there; an "
+            "unwilling creature resists with a Constitution save. It moves only by pushing or pulling on "
+            "fixed surfaces. You change its altitude by up to 20 ft on your turn (a Magic action unless "
+            "you're the target). It floats gently down when the spell ends."
         ),
-        "components": "V, S, M (a small leather loop or golden wire bent into a cup)",
-        "spell_range": "60 ft",
-        "duration": "10 minutes",
-        "concentration": 1,
-        "spell_level": 2,
     },
     {
-        "name": "Spell: Maximillian's Earthen Grasp (2nd)",
+        "name": "Spell: Maximilian's Earthen Grasp (2nd)",
+        "spell": "Maximilian's Earthen Grasp",
         "type": "action",
         "description": (
-            "A Medium hand of compacted soil bursts from the ground at a point within range, then "
-            "strikes one creature within 5 ft of it. The target makes a Strength save or takes 2d6 "
-            "bludgeoning damage and has the Restrained condition until the spell ends. As an action, "
-            "you can cause the hand to crush the restrained target again (same damage, no save) or "
-            "move it up to 5 ft and grapple a different creature within 5 ft, freeing the first."
+            "A soil hand rises in a 5-ft space within 30 ft and grabs a creature within 5 ft of it: "
+            "Strength save or 2d6 bludgeoning and Restrained. Action: crush the target (Strength save, "
+            "2d6 or half), or send the hand at another creature or space (releasing the first). The "
+            "target escapes with a Strength check against your spell save DC."
         ),
-        "components": "V, S, M (clay, soil, or stone)",
-        "spell_range": "30 ft",
-        "duration": "Concentration, up to 1 minute",
-        "concentration": 1,
-        "spell_level": 2,
     },
     {
         "name": "Spell: Wither and Bloom (2nd)",
+        "spell": "Wither and Bloom",
         "type": "action",
         "description": (
-            "Withering and verdant energy washes over a 10-ft-radius sphere centered on a point within "
-            "range. Each creature you choose in that area makes a Constitution save, taking 2d6 "
-            "necrotic damage on a failure or half as much on a success (nonmagical vegetation in the "
-            "area withers). One creature you choose in the area can spend and roll one of its unspent "
-            "Hit Dice, regaining hit points equal to the roll plus your spellcasting ability modifier. "
-            "At Higher Levels: damage increases by 1d6, and the number of Hit Dice that can be spent "
-            "and added to the healing roll increases by one, for each slot level above 2nd."
+            "10-ft-radius sphere within 60 ft: creatures you choose make a Constitution save, 2d6 necrotic "
+            "or half on a success. One creature you choose in the area may spend and roll a Hit Die, "
+            "regaining the roll + your Charisma modifier. Upcast: +1d6 damage and +1 Hit Die per slot "
+            "level above 2nd."
         ),
-        "components": "V, S, M (a withered vine twisted into a loop)",
-        "spell_range": "60 ft",
-        "duration": "Instantaneous",
-        "spell_level": 2,
         "upcastable": 1,
     },
     # ── Psionic Spells (Always Prepared, use slots) ──────────────────────────
     {
         "name": "Psionic: Arms of Hadar (1st)",
+        "spell": "Arms of Hadar",
         "type": "action",
         "description": (
-            "Tendrils of dark energy erupt from you in a 10-ft radius. Each creature in the area makes a "
-            "Strength save. On a failure: 2d6 necrotic damage and can't take reactions until its next "
-            "turn. On a success: half damage only. Always prepared via Aberrant Sorcery. "
-            "At Higher Levels: +1d6 per slot level above 1st."
+            "Every creature within 10 ft of you (allies too) makes a Strength save: 2d6 Necrotic and no "
+            "Reactions until the start of its next turn; half damage only on a success. Always prepared "
+            "(Aberrant Sorcery). Upcast: +1d6 per slot level above 1st."
         ),
-        "components": "V, S",
-        "spell_range": "Self (10-ft radius)",
-        "duration": "Instantaneous",
-        "spell_level": 1,
         "upcastable": 1,
     },
     {
         "name": "Psionic: Calm Emotions (2nd)",
+        "spell": "Calm Emotions",
         "type": "action",
         "description": (
-            "Each humanoid in a 20-ft radius centered on a point within range makes a Charisma save "
-            "(creatures may choose to fail). On a failure, choose one effect: suppress any effect causing "
-            "the target to be Charmed or Frightened; OR make the target indifferent toward creatures it is "
-            "hostile to (ends if attacked or harmed). Always prepared via Aberrant Sorcery."
+            "Each Humanoid in a 20-ft-radius sphere within 60 ft: Charisma save or, your choice per "
+            "creature, Immunity to Charmed and Frightened (existing ones suppressed), or Indifferent toward "
+            "creatures you choose that it's Hostile to (ends if it or its allies take damage). Always "
+            "prepared (Aberrant Sorcery)."
         ),
-        "components": "V, S",
-        "spell_range": "60 ft",
-        "duration": "1 minute",
-        "concentration": 1,
-        "spell_level": 2,
     },
     {
         "name": "Psionic: Detect Thoughts (2nd)",
+        "spell": "Detect Thoughts",
         "type": "action",
         "description": (
-            "Read the surface thoughts of one creature you can see within 30 ft as an action each turn. "
-            "You can probe deeper — the target makes a Wisdom save or you gain insight into its "
-            "reasoning, emotional state, and dominant thoughts. You can also use this spell to detect the "
-            "presence of thinking creatures you can't see. Always prepared via Aberrant Sorcery."
+            "Sense Thoughts: notice thinking creatures within 30 ft (blocked by 1 ft of stone, dirt, or "
+            "wood, 1 inch of metal, or thin lead). Read Thoughts: learn what's on one creature's mind; on "
+            "your next turn, a Magic action probes deeper (Wisdom save: on a failure you learn its "
+            "reasoning and emotions; on a success the spell ends). Magic action to switch effects. Always "
+            "prepared (Aberrant Sorcery)."
         ),
-        "components": "V, S, M (a copper piece)",
-        "spell_range": "Self (30-ft radius)",
-        "duration": "1 minute",
-        "concentration": 1,
-        "spell_level": 2,
     },
     {
         "name": "Psionic: Dissonant Whispers (1st)",
+        "spell": "Dissonant Whispers",
         "type": "action",
         "description": (
-            "Whisper a discordant melody only one creature within range can hear. The target makes a "
-            "Wisdom save. On a failure: 3d6 psychic damage and must use its reaction to move its "
-            "full speed directly away from you. On a success: half damage, no forced movement. Opportunity "
-            "attacks against the fleeing target have Advantage. Deafened creatures auto-succeed. "
-            "Always prepared. At Higher Levels: +1d6 per slot level above 1st."
+            "One creature within 60 ft: Wisdom save or 3d6 Psychic and it must use its Reaction to move "
+            "as far from you as it can; half damage only on a success. Always prepared (Aberrant "
+            "Sorcery). Upcast: +1d6 per slot level above 1st."
         ),
-        "components": "V",
-        "spell_range": "60 ft",
-        "duration": "Instantaneous",
-        "spell_level": 1,
         "upcastable": 1,
     },
 ]
@@ -538,12 +474,21 @@ def _level_4(conn, cid):
 
 
 def _retire_hold_person(conn, cid):
-    # Replaced by Maximillian's Earthen Grasp / Wither and Bloom
+    # Replaced by Maximilian's Earthen Grasp / Wither and Bloom
     conn.execute("DELETE FROM abilities WHERE character_id=? AND name=?", (cid, "Spell: Hold Person (2nd)"))
+
+
+def _fix_earthen_grasp_spelling(conn, cid):
+    # Was "Maximillian's"; renamed so the row keeps its Play state (e.g. active)
+    conn.execute(
+        "UPDATE abilities SET name=? WHERE character_id=? AND name=?",
+        ("Spell: Maximilian's Earthen Grasp (2nd)", cid, "Spell: Maximillian's Earthen Grasp (2nd)"),
+    )
 
 
 STEPS = [
     ("spell-slots-to-columns", _spell_slots_to_columns),
     ("level-4", _level_4),
     ("retire-hold-person", _retire_hold_person),
+    ("fix-earthen-grasp-spelling", _fix_earthen_grasp_spelling),
 ]

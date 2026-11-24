@@ -254,30 +254,37 @@ ABILITIES = [
         ),
     },
     # Magic Initiate (Druid) — innate dryad magic
+    # Spells: Rules text and card details come from spells.py; `description` is
+    # the Summary (see GLOSSARY.md).
     {
         "name": "Cantrip: Druidcraft",
+        "spell": "Druidcraft",
         "type": "action",
         "description": (
-            "Create minor nature effects: predict weather, make a flower bloom, light a campfire, "
-            "create a sensory effect. Unlimited uses."
+            "Within 30 ft, pick one: predict the next 24 hours' weather; make a flower, seed pod, or leaf "
+            "bud bloom; a harmless sensory effect in a 5-ft cube; or light or snuff a candle, torch, or "
+            "campfire. At will (Magic Initiate)."
         ),
     },
     {
         "name": "Cantrip: Guidance",
+        "spell": "Guidance",
         "type": "action",
         "description": (
-            "Touch a willing creature. Once before the spell ends (concentration, up to 1 minute) "
-            "the creature can roll a d4 and add it to one ability check. Unlimited uses."
+            "Touch a willing creature and choose a skill: until the spell ends it adds 1d4 to any ability "
+            "check using that skill. At will (Magic Initiate)."
         ),
     },
     {
         "name": "Spell: Goodberry",
+        "spell": "Goodberry",
+        "spell_level": None,  # cast through Magic Initiate, not with a slot
         "type": "action",
         "uses_max": 1,
         "recharge": "long",
         "description": (
-            "Up to 10 magical berries appear. A berry restores 1 HP and provides nourishment for "
-            "a day. Berries last 24 hours. Once per Long Rest (Magic Initiate)."
+            "Ten berries appear and last 24 hours. A creature eats one as a Bonus Action to regain 1 HP; "
+            "a berry is a day's nourishment. Once per Long Rest without a slot (Magic Initiate)."
         ),
     },
     # Background

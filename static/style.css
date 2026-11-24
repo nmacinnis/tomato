@@ -1238,3 +1238,63 @@ dialog textarea {
   color: var(--muted);
   margin-top: 0.8rem;
 }
+
+/* Rules text: a spell's published wording, collapsed under its Summary */
+.rules-toggle-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.rules-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent2);
+  cursor: pointer;
+}
+.rules-toggle:hover {
+  text-decoration: underline;
+}
+.rules-text {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text);
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.6rem;
+  border-left: 2px solid var(--border);
+}
+.rules-text p,
+.rules-text ul {
+  margin: 0 0 0.45rem;
+}
+.rules-text p:last-child,
+.rules-text ul:last-child {
+  margin-bottom: 0;
+}
+.rules-text ul {
+  padding-left: 1.1rem;
+}
+a.rules-toggle {
+  text-decoration: none;
+}
+a.rules-toggle:hover {
+  text-decoration: underline;
+}
+
+/* CC-BY-4.0 attribution for SRD 5.2 Rules text */
+.srd-credit {
+  max-width: 1100px;
+  margin: 1.5rem auto 1rem;
+  padding: 0 1rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.srd-credit a {
+  color: inherit;
+}

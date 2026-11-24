@@ -37,6 +37,10 @@ Rules (see GLOSSARY.md for Sheet / Play state / Level-up / Seed step):
   is a Seed step.
 - Rows are matched by name: Characters by `name`, abilities/items by
   (character, `name`).
+- An ability with `"spell": "<name>"` is that spell from spells.py: its Rules
+  text (or link to it), source, range, components, duration, concentration and
+  level come from there (the Sheet may override `spell_level` only). Its
+  `description` is the Sheet's Summary.
 - Level-up moves a Character to the next level: Sheet refresh at the new level,
   retired rows deleted, and each Play state counter raised by however much its
   maximum rose.
@@ -48,6 +52,8 @@ import sqlite3
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import cache
+
+from spells import SPELLS
 
 _SLOT_LEVELS = range(1, 10)
 
@@ -91,6 +97,9 @@ _SHEET_DEFAULTS = {
         "upcastable": 0,
         "sets_base_ac": 0,
         "activatable": 0,
+        "rules_text": "",
+        "rules_source": "",
+        "rules_url": "",
     },
     "inventory": {
         "weight": 0.0,
@@ -198,7 +207,7 @@ class Sheet:
         abilities, items = list(rows["abilities"].values()), list(rows["inventory"].values())
         _check_entries("abilities", abilities)
         _check_entries("inventory", items)
-        return character, abilities, items
+        return character, [_with_spell(a) for a in abilities], items
 
     def retired_at(self, level):
         block = self.levels.get(level, {})
@@ -380,8 +389,26 @@ def _initial_play(table, entry, sheet):
     return {"quantity": entry.get("quantity", 1), "equipped": entry.get("equipped", 0)}
 
 
+def _with_spell(entry):
+    """An ability entry with its spell's Rules text and card fields filled in from
+    spells.py. The Sheet may still set `spell_level` (None for a spell this
+    Character casts without a slot); every other spell field comes from the list."""
+    if "spell" not in entry:
+        return entry
+    entry = dict(entry)
+    name = entry.pop("spell")
+    if name not in SPELLS:
+        raise ValueError(f"ability {entry['name']!r}: spell {name!r} isn't in spells.py")
+    clash = (entry.keys() & SPELLS[name].keys()) - {"spell_level"}
+    if clash:
+        raise ValueError(f"ability {entry['name']!r}: {sorted(clash)} come from spells.py, don't set them")
+    return {**SPELLS[name], **entry}
+
+
 def _check_entries(table, entries):
     allowed = {"name"} | PLAY_FIELDS[table] | _SHEET_DEFAULTS[table].keys()
+    if table == "abilities":
+        allowed |= {"spell"}
     names = set()
     for entry in entries:
         unknown = entry.keys() - allowed

@@ -19,6 +19,7 @@ characters/
   __init__.py   — Seeding (seed_all runs on boot) and Level-up (see GLOSSARY.md)
   inkwell.py    — Sheet (CHARACTER / ABILITIES / ITEMS dicts) + LEVELS + STEPS
   tomato.py     — Sheet + LEVELS + STEPS
+spells.py       — Shared spell list: Rules text (SRD 5.2 only) or a 5e.tools link + card details
 snapshots.py    — Snapshots: take / restore a Character's Play state and rows
 tests/          — pytest, run with `python -m pytest`
 GLOSSARY.md     — Domain terms: Sheet, Level, Play state, Level-up, Snapshot, Player-added, Seeding, Seed step
@@ -98,6 +99,14 @@ gunicorn "app:app"
   abilities/items gained or changed, and `retire_abilities`/`retire_items`. Every choice
   (HP gain, feats, spells) is decided there. The player presses Level up in the UI; don't
   bump `level` in `CHARACTER` and don't write a Seed step for it. See ADR 0001.
+- **Spells name an entry in `spells.py`.** A spell ability in a Sheet sets `"spell": "<name>"`;
+  Seeding fills its Rules text, source, range, components, duration, concentration and level
+  from `spells.py` (the Sheet may override `spell_level` only). Its `description` is the
+  Summary, written for this Character. Rules text is copied word-for-word from 5e.tools
+  (2024 PHB when the spell is in it) and never edited to add character notes.
+- **Only SRD 5.2 spell text goes in the repo** (it's public; the SRD is CC-BY-4.0, credited in
+  `character.html`'s footer). A spell not in the SRD gets a `rules_url` to its 5e.tools page,
+  never a pasted `rules_text`. Summaries are our own paraphrase and are fine for any spell.
 - **Seed steps** are for renames, retirements outside a Level-up, and data-shape changes:
   steps run once per database, before the Sheet refresh.
 - **Play state is written only** by the table (the API), Level-up, Snapshot restore, or a

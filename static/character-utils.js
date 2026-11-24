@@ -105,3 +105,22 @@ function dieSvg(type) {
     <line x1="8" y1="1"  x2="8"  y2="17" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
   </svg>`;
 }
+
+// ── Rules text ──────────────────────────────────────────────────────────────
+// A spell's Rules text (spells.py) → HTML. Escapes first, then renders the
+// small markdown subset spells.py uses: blank-line paragraphs, "- " list
+// items, **bold**.
+
+function renderRulesText(md) {
+  const inline = (s) => escHtml(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  return String(md)
+    .split(/\n\s*\n/)
+    .map((block) => {
+      const lines = block.split("\n");
+      if (lines.every((l) => l.startsWith("- "))) {
+        return `<ul>${lines.map((l) => `<li>${inline(l.slice(2))}</li>`).join("")}</ul>`;
+      }
+      return `<p>${inline(block)}</p>`;
+    })
+    .join("");
+}

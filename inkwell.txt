@@ -74,7 +74,7 @@ Charm Person
 
 2nd Level
 Levitate
-Maximillian's Earthen Grasp
+Maximilian's Earthen Grasp
 Wither and Bloom
 
 Subclass spells

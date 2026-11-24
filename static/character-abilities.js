@@ -231,6 +231,9 @@ async function useSpellSlot(level) {
 
 const SP_SLOT_COST = { 1: 2, 2: 3, 3: 5, 4: 6, 5: 7 };
 
+// Abilities whose Rules text is expanded; kept across re-renders until the page reloads.
+const openRulesText = new Set();
+
 function renderAbilityCard(a) {
   const div = document.createElement("div");
   div.className = "ability-card";
@@ -336,12 +339,34 @@ function renderAbilityCard(a) {
       ${a.components ? `<span><span class="meta-label">Components:</span> ${escHtml(a.components)}</span>` : ""}
     </div>` : ""}
     ${a.description ? `<div class="ability-desc">${escHtml(a.description)}</div>` : ""}
+    ${a.rules_text ? `
+    <div class="rules-toggle-row">
+      <button type="button" class="rules-toggle" aria-expanded="${openRulesText.has(a.id)}">Full text ${openRulesText.has(a.id) ? "▴" : "▾"}</button>
+      ${a.rules_source ? `<span class="rules-source">${escHtml(a.rules_source)}</span>` : ""}
+    </div>
+    <div class="rules-text"${openRulesText.has(a.id) ? "" : " hidden"}>${renderRulesText(a.rules_text)}</div>` : ""}
+    ${!a.rules_text && a.rules_url ? `
+    <div class="rules-toggle-row">
+      <a class="rules-toggle" href="${escHtml(a.rules_url)}" target="_blank" rel="noopener noreferrer">Full text on 5e.tools ↗</a>
+      ${a.rules_source ? `<span class="rules-source">${escHtml(a.rules_source)}</span>` : ""}
+    </div>` : ""}
     ${a.flavor ? `<div class="ability-flavor">${escHtml(a.flavor)}</div>` : ""}
     ${showDiePips || sharedPool ? `<div class="ability-pips" data-id="${(sharedPool ?? a).id}"></div>` : ""}
     ${usesText ? `<div class="ability-uses">Uses: ${usesText}</div>` : ""}
     ${castBtns ? `<div class="cast-actions">${castBtns}</div>` : ""}
     ${fontConvBtns ? `<div class="cast-actions">${fontConvBtns}</div>` : ""}
   `;
+
+  div.querySelector(".rules-toggle")?.addEventListener("click", (e) => {
+    const btn = e.currentTarget;
+    const text = div.querySelector(".rules-text");
+    const open = text.hidden;
+    text.hidden = !open;
+    if (open) openRulesText.add(a.id);
+    else openRulesText.delete(a.id);
+    btn.setAttribute("aria-expanded", String(open));
+    btn.textContent = open ? "Full text ▴" : "Full text ▾";
+  });
 
   div
     .querySelector(".edit-ability-btn")

@@ -79,6 +79,9 @@ def init_db():
             concentration   INTEGER NOT NULL DEFAULT 0,
             spell_level     INTEGER,
             upcastable      INTEGER NOT NULL DEFAULT 0,
+            rules_text      TEXT    NOT NULL DEFAULT '',  -- a spell's published wording (spells.py)
+            rules_source    TEXT    NOT NULL DEFAULT '',
+            rules_url       TEXT    NOT NULL DEFAULT '',  -- link to wording we can't store
             player_added    INTEGER NOT NULL DEFAULT 1  -- 0 once the Sheet describes it
         );
 
@@ -256,6 +259,9 @@ def init_db():
         "concentration INTEGER NOT NULL DEFAULT 0",
         "spell_level   INTEGER",
         "upcastable    INTEGER NOT NULL DEFAULT 0",
+        "rules_text    TEXT    NOT NULL DEFAULT ''",
+        "rules_source  TEXT    NOT NULL DEFAULT ''",
+        "rules_url     TEXT    NOT NULL DEFAULT ''",
     ):
         try:
             conn.execute(f"ALTER TABLE abilities ADD COLUMN {col_def}")

@@ -11,6 +11,14 @@ A player character tracked by the app, together with its abilities and inventory
 The authored definition of a Character's build at each of its levels: race, class, ability scores, maximums, descriptions, weapon and spell details. Authored in code; the code's version wins.
 _Avoid_: seed data, template
 
+**Rules text**:
+A spell's published wording, word-for-word, together with the book it comes from. The same for every Character who has the spell; never carries notes about a particular Character. The app keeps the wording itself only for spells in the SRD 5.2 (openly licensed); for any other spell it links to where the wording can be read.
+_Avoid_: full description, spell text
+
+**Summary**:
+The Sheet's short, table-ready version of an ability: the mechanics that matter in play, plus any notes specific to this Character. Paraphrase, never quoted as rules.
+_Avoid_: short description, blurb
+
 **Level**:
 How far a Character has advanced. Part of Play state; it selects which level of the Sheet applies.
 
